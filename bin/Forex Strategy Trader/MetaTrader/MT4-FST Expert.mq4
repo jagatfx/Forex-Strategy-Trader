@@ -1,6 +1,6 @@
 //+--------------------------------------------------------------------+
 //| File name:  MT4-FST Expert.mq4                                     |
-//| Version:    1.7 2011-08-10                                         |
+//| Version:    1.8 2012-04-02                                         |
 //| Copyright:  © 2011, Miroslav Popov - All rights reserved!          |
 //| Website:    http://forexsb.com/                                    |
 //| Support:    http://forexsb.com/forum/                              |
@@ -24,10 +24,10 @@
 //+--------------------------------------------------------------------+
 #include <WinUser32.mqh>
 
-#property copyright "Copyright © 2011, Miroslav Popov"
+#property copyright "Copyright © 2012, Miroslav Popov"
 #property link      "http://forexsb.com/"
 
-#define EXPERT_VERSION           "1.7"
+#define EXPERT_VERSION           "1.8"
 #define SERVER_SEMA_NAME         "MT4-FST Expert ID - "
 #define TRADE_SEMA_NAME          "TradeIsBusy"
 #define TRADE_SEMA_WAIT          100
@@ -94,6 +94,10 @@ extern int Protection_Min_Account = 0;
 // Protection_Max_StopLoss = 200 means 200 pips for 4 digit broker and 20 pips for 5 digit broker.
 extern int Protection_Max_StopLoss = 0;
 
+// Have to be set to true for STP brokers that cannot set SL and TP together with the position (with OrderSend()).
+// When Separate_SL_TP = true, the expert first opens the position and after that sets StopLoss and TakeProfit.
+extern bool Separate_SL_TP = false;
+
 // A unique number of the expert's orders.
 extern int Expert_Magic = 20011023;
 
@@ -113,7 +117,6 @@ bool FIFO_order = true;
 
 // --------------------------------------------------------------------- //
 
-bool     Separated_SL_TP  = false; // It's for brokers like FXCM and FXOpen, which don't allow sending OrderSend(..) with SL and TP.
 bool     IsServer         = false; // It shows whether the server is running.
 bool     ConnectedToDLL   = false; // It shows whether the expert was connected to the dll.
 int      LastError        = 0;     // The number of last error.
@@ -169,7 +172,7 @@ int init()
     Comment(message);
     Print(message);
 
-    SetBrokersCompatibility();
+    //SetBrokersCompatibility();
 
     ReleaseTradeContext();
 
@@ -662,7 +665,7 @@ int OpenNewPosition (string symbol, int type, double lots, double price, int sli
 
     if (AccountFreeMarginCheck(symbol, type, orderLots) > 0)
     {
-        if (Separated_SL_TP)
+        if (Separate_SL_TP)
         {
             orderResponse = SendOrder(symbol, type, lots, price, slippage, 0, 0, comment, magic);
             if (orderResponse > 0)
@@ -686,7 +689,7 @@ int OpenNewPosition (string symbol, int type, double lots, double price, int sli
                     orderResponse   = ModifyPositionByTicket(symbol, orderResponse, stopLossPrice, takeProfitPrice);
                     if (orderResponse > 0)
                     {
-                        Separated_SL_TP = true;
+                        Separate_SL_TP = true;
                         Print(AccountCompany(), " marked for late stops sending.");
                     }
                 }
@@ -1592,52 +1595,6 @@ void GetMarketInfoAll(string symbol)
 }
 
 ///
-/// Customizes the expert for some brokers.
-///
-void SetBrokersCompatibility()
-{
-    // Chek broker.
-    string broker = AccountCompany();
-
-    // FXCM
-    if (StringSubstr(broker, 0, 4) == "FXCM")
-        Separated_SL_TP = true;
-
-    // FXOpen
-    else if (StringSubstr(broker, 0, 6) == "FXOpen")
-        Separated_SL_TP = true;
-
-    // ODL
-    else if (StringSubstr(broker, 0, 3) == "ODL")
-        Separated_SL_TP = true;
-
-    // BenchMark
-    else if (StringSubstr(broker, 0, 9) == "BenchMark")
-        Separated_SL_TP = true;
-
-    // Dukascopy
-    else if (StringSubstr(broker, 0, 9) == "Dukascopy")
-        Separated_SL_TP = true;
-
-    // MB Trading
-    else if (StringSubstr(broker, 0, 2) == "MB")
-        Separated_SL_TP = true;
-
-    // Vantage FX
-    else if (StringSubstr(broker, 0, 7) == "Vantage")
-        Separated_SL_TP = true;
-
-    // Axis Trader
-    else if (StringSubstr(broker, 0, 4) == "Axis")
-        Separated_SL_TP = true;
-
-    if (Separated_SL_TP)
-        Print(broker, " marked for late stops sending.");
-
-    return;
-}
-
-///
 /// Checks the global variable in order to determine if
 /// the server is running on another chart.
 ///
@@ -1912,4 +1869,3 @@ bool SplitString(string stringValue, string separatorSymbol, string& results[], 
       return (false);
    }
 }
-
