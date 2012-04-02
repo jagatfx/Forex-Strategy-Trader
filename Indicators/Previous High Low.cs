@@ -1,9 +1,9 @@
 // Previous High Low Indicator
-// Last changed on 2009-05-05
+// Last changed on 2012-04-02
 // Part of Forex Strategy Builder & Forex Strategy Trader
 // Website http://forexsb.com/
 // This code or any part of it cannot be used in other applications without a permission.
-// Copyright (c) 2006 - 2009 Miroslav Popov - All rights reserved.
+// Copyright (c) 2006 - 2012 Miroslav Popov - All rights reserved.
 
 using System;
 using System.Drawing;
@@ -187,28 +187,28 @@ namespace Forex_Strategy_Trader
                     Component[3].Value = adUpperBand;
                     break;
                 case "The bar opens below the previous high":
-                    BandIndicatorLogic(iFirstBar, 0, adLowerBand, adUpperBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_opens_below_the_Upper_Band);
+                    BandIndicatorLogic(iFirstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_opens_below_the_Upper_Band);
                     break;
                 case "The bar opens above the previous high":
-                    BandIndicatorLogic(iFirstBar, 0, adLowerBand, adUpperBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_opens_above_the_Upper_Band);
+                    BandIndicatorLogic(iFirstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_opens_above_the_Upper_Band);
                     break;
                 case "The bar opens below the previous low":
-                    BandIndicatorLogic(iFirstBar, 0, adLowerBand, adUpperBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_opens_below_the_Lower_Band);
+                    BandIndicatorLogic(iFirstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_opens_below_the_Lower_Band);
                     break;
                 case "The bar opens above the previous low":
-                    BandIndicatorLogic(iFirstBar, 0, adLowerBand, adUpperBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_opens_above_the_Lower_Band);
+                    BandIndicatorLogic(iFirstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_opens_above_the_Lower_Band);
                     break;
                 case "The bar closes below the previous high":
-                    BandIndicatorLogic(iFirstBar, 0, adLowerBand, adUpperBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_below_the_Upper_Band);
+                    BandIndicatorLogic(iFirstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_below_the_Upper_Band);
                     break;
                 case "The bar closes above the previous high":
-                    BandIndicatorLogic(iFirstBar, 0, adLowerBand, adUpperBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_above_the_Upper_Band);
+                    BandIndicatorLogic(iFirstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_above_the_Upper_Band);
                     break;
                 case "The bar closes below the previous low":
-                    BandIndicatorLogic(iFirstBar, 0, adLowerBand, adUpperBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_below_the_Lower_Band);
+                    BandIndicatorLogic(iFirstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_below_the_Lower_Band);
                     break;
                 case "The bar closes above the previous low":
-                    BandIndicatorLogic(iFirstBar, 0, adLowerBand, adUpperBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_above_the_Lower_Band);
+                    BandIndicatorLogic(iFirstBar, 0, adUpperBand, adLowerBand, ref Component[2], ref Component[3], BandIndLogic.The_bar_closes_above_the_Lower_Band);
                     break;
                 case "The position opens above the previous high":
                     Component[0].DataType = IndComponentType.Other;
@@ -274,7 +274,7 @@ namespace Forex_Strategy_Trader
 
             string sUpperTrade;
             string sLowerTrade;
-            
+
             if (iShift > 0)
             {
                 sUpperTrade = iShift + " pips above the ";
