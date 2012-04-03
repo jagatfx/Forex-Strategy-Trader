@@ -240,6 +240,7 @@
   <str><main>Maximum messages in the journal.</main><alt>Максимален брой съобщения в журнала.</alt></str>
   <str><main>Show incoming ticks.</main><alt>Показване на входящи тикове.</alt></str>
   <str><main>Show system messages.</main><alt>Показване на системни съобщения.</alt></str>
+  <str><main>Save journal.</main><alt>Записване на журнала.</alt></str>
   <str><main>Account Balance</main><alt>Акаунт Баланс</alt></str>
   <str><main>Equity</main><alt>Стойност</alt></str>
   <str><main>Profit</main><alt>Печалба</alt></str>

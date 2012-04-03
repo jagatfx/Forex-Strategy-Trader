@@ -848,6 +848,10 @@
     <alt>Show system messages.</alt>
   </str>
   <str>
+    <main>Save journal.</main>
+    <alt>Save journal.</alt>
+  </str>
+  <str>
     <main>Account Balance</main>
     <alt>Account Balance</alt>
   </str>

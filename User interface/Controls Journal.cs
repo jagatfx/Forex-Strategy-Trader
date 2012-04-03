@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Forex_Strategy_Trader
@@ -118,6 +120,15 @@ namespace Forex_Strategy_Trader
             sep1.Alignment = ToolStripItemAlignment.Right;
             tsJournal.Items.Add(sep1);
 
+            ToolStripButton tsbSaveJournal = new ToolStripButton();
+            tsbSaveJournal.Image = Properties.Resources.save;
+            tsbSaveJournal.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            tsbSaveJournal.Alignment = ToolStripItemAlignment.Right;
+            tsbSaveJournal.Checked = isShowSystemMessages;
+            tsbSaveJournal.ToolTipText = Language.T("Save journal.");
+            tsbSaveJournal.Click += new EventHandler(TsbSaveJournalClick);
+            tsJournal.Items.Add(tsbSaveJournal);
+
             return;
         }
 
@@ -182,6 +193,20 @@ namespace Forex_Strategy_Trader
             return;
         }
 
+        /// <summary>
+        /// Saves journal to a file.
+        /// </summary>
+        void TsbSaveJournalClick(object sender, EventArgs e)
+        {
+            var sb = new StringBuilder();
+            foreach (JournalMessage message in messages)
+                sb.AppendLine(message.Time.ToString("yyyy-MM-dd hh:mm:ss") + "," + message.Message);
+
+            string fileName = Data.Strategy.StrategyName + "_" + Data.Symbol + "_" + Data.PeriodMTStr + "_" + Data.ConnectionID + ".log";
+
+            SaveDataFile(fileName, sb);
+        }
+
         List<JournalMessage> messages = new List<JournalMessage>();
         /// <summary>
         /// Adds a message to the journal.
@@ -225,5 +250,30 @@ namespace Forex_Strategy_Trader
 
             return;
         }
+
+        private void SaveDataFile(string fileName, StringBuilder data)
+        {
+            var sfdExport = new SaveFileDialog
+            {
+                AddExtension = true,
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Title = Language.T("Save"),
+                Filter = "Log file (*.log)|*.log|Excel file (*.xls)|*.xls|Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                FileName = fileName
+            };
+
+            if (sfdExport.ShowDialog() != DialogResult.OK) return;
+            try
+            {
+                var sw = new StreamWriter(sfdExport.FileName);
+                sw.Write(data.ToString());
+                sw.Close();
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+        }
+
     }
 }
