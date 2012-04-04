@@ -1,6 +1,6 @@
 //+--------------------------------------------------------------------+
 //| File name:  MT4-FST Expert.mq4                                     |
-//| Version:    1.10 2012-04-04                                        |
+//| Version:    1.10 2012-04-04                                         |
 //| Copyright:  © 2012, Miroslav Popov - All rights reserved!          |
 //| Website:    http://forexsb.com/                                    |
 //| Support:    http://forexsb.com/forum/                              |
@@ -178,9 +178,11 @@ int init()
 
     if (Write_Log_File)
     {
-        CreateFile(Symbol() + "_" + Period() + "_" + Connection_ID + ".log");
+        string time = StringReplace(TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), ":", "");
+        time = StringReplace(time, " ", "_");
+        CreateFile(Symbol() + "_" + Period() + "_ID" + Connection_ID + "_" + time +".log");
         WriteLogLine("MT4-FST Expert version " + EXPERT_VERSION + " Loaded.");
-        WriteLogLine("Connection_ID=" + Connection_ID +
+        WriteLogLine("Connection_ID=" + Connection_ID + 
                      ", Protection_Min_Account=" + Protection_Min_Account +
                      ", Protection_Max_StopLoss=" + Protection_Max_StopLoss +
                      ", Expert_Magic=" + Expert_Magic +
@@ -219,7 +221,7 @@ int deinit()
        WriteNewLogLine("MT4-FST Expert version " + EXPERT_VERSION + " Closed.");
        CloseFile();
    }
-
+   
    Comment("");
    if (ConnectedToDLL)
        FST_CloseConnection(Connection_ID);
@@ -647,20 +649,20 @@ int SetAggregatePosition(string symbol)
 
 string AggregatePositionToString()
 {
-    string type = "Square";
+    string type = "Square"; 
     if (PositionType == OP_BUY) type = "Long";
     if (PositionType == OP_SELL) type = "Short";
-
-    string text = "AggregatePosition " +
-            "Ticket=" + PositionTicket +
-            ", Type=" + type +
-            ", Time=" + TimeToStr(PositionTime, TIME_SECONDS) +
-            ", OpenPrice=" + DoubleToStr(PositionOpenPrice, 5) +
-            ", Lots=" + DoubleToStr(PositionLots, 2) +
-            ", Profit=" + DoubleToStr(PositionProfit, 2) +
-            ", Commission=" + DoubleToStr(PositionCommission, 2) +
-            ", StopLoss=" + DoubleToStr(PositionStopLoss, 5) +
-            ", TakeProfit=" + DoubleToStr(PositionTakeProfit, 5) +
+    
+    string text = "AggregatePosition " + 
+            "Ticket=" + PositionTicket + 
+            ", Type=" + type + 
+            ", Time=" + TimeToStr(PositionTime, TIME_SECONDS) + 
+            ", OpenPrice=" + DoubleToStr(PositionOpenPrice, 5) + 
+            ", Lots=" + DoubleToStr(PositionLots, 2) + 
+            ", Profit=" + DoubleToStr(PositionProfit, 2) + 
+            ", Commission=" + DoubleToStr(PositionCommission, 2) + 
+            ", StopLoss=" + DoubleToStr(PositionStopLoss, 5) + 
+            ", TakeProfit=" + DoubleToStr(PositionTakeProfit, 5) + 
             ", \"" + PositionComment + "\"";
     return (text);
 }
@@ -964,18 +966,18 @@ int SendOrder(string symbol, int type, double lots, double price, int slippage, 
         ReleaseTradeContext();
 
         if (Write_Log_File)
-            WriteLogLine("SendOrder OrderSend(" + symbol +
-                         ", " + type +
-                         ", Lots=" + DoubleToStr(orderLots, 2) +
-                         ", Price=" + DoubleToStr(orderPrice, 5) +
-                         ", Slippage=" + slippage +
-                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) +
-                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) +
+            WriteLogLine("SendOrder OrderSend(" + symbol + 
+                         ", " + type + 
+                         ", Lots=" + DoubleToStr(orderLots, 2) + 
+                         ", Price=" + DoubleToStr(orderPrice, 5) + 
+                         ", Slippage=" + slippage + 
+                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) + 
+                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) + 
                          ", \"" + comment + "\"" +
-                         ", Magic=" + magic + ")" +
+                         ", Magic=" + magic + ")" + 
                          ", Response=" + orderResponse +
                          ", LastError=" + LastError);
-
+        
         if (orderResponse > 0)
             break;
 
@@ -1017,11 +1019,11 @@ int ClosePositionByTicket(string symbol, int orderTicket, double orderLots, int 
         ReleaseTradeContext();
 
         if (Write_Log_File)
-            WriteLogLine("ClosePositionByTicket OrderClose(" +
+            WriteLogLine("ClosePositionByTicket OrderClose(" + 
                          "Ticket=" + orderTicket +
                          ", Lots=" + DoubleToStr(orderLots, 2) +
                          ", Price=" + DoubleToStr(orderPrice, 5) +
-                         ", Slippage=" + slippage + ")" +
+                         ", Slippage=" + slippage + ")" + 
                          ", Response=" + responce + ", LastError=" + LastError);
 
         if (responce)
@@ -1102,20 +1104,20 @@ int ModifyPositionByTicket(string symbol, int orderTicket, double stopLossPrice,
         LastError = GetLastError();
 
         ReleaseTradeContext();
-
+        
         if (Write_Log_File)
-            WriteLogLine("ModifyPositionByTicket OrderModify(" + symbol +
-                         ", Ticket=" + orderTicket +
-                         ", Price=" + DoubleToStr(orderOpenPrice, 5) +
-                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) +
-                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) + ")" +
+            WriteLogLine("ModifyPositionByTicket OrderModify(" + symbol + 
+                         ", Ticket=" + orderTicket + 
+                         ", Price=" + DoubleToStr(orderOpenPrice, 5) + 
+                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) + 
+                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) + ")" + 
                          " Response=" + rc + " LastError=" + LastError);
-
+ 
         if (rc)
         {   // Modification was successful.
             return (1);
         }
-
+                        
         Print("Error with OrderModify(", orderTicket, ", ", orderOpenPrice, ", ", stopLossPrice, ", ", takeProfitPrice, ") ", GetErrorDescription(LastError), ".");
         Sleep(TRADE_RETRY_WAIT);
         RefreshRates();
@@ -1410,7 +1412,7 @@ void SetTrailingStop(string symbol, bool isNewBar)
     else if (TrailingMode == "bar" && isNewBar && isCheckTS)
         SetTrailingStopBarMode(symbol);
 
-    return;
+	return;
 }
 
 ///
@@ -1532,8 +1534,8 @@ void ParseOrderParameters(string parameters)
     if (StringSubstr(param[1], 0, 3) == "BRE")
         BreakEven = StrToInteger(StringSubstr(param[1], 4));
 
-    if (BreakEven > 0 && BreakEven < StopLevel)
-        BreakEven = StopLevel;
+	if (BreakEven > 0 && BreakEven < StopLevel)
+		BreakEven = StopLevel;
 
     Print("Trailing Stop = ", TrailingStop, ", Mode - ", TrailingMode, ", Break Even = ", BreakEven);
 
@@ -1986,41 +1988,68 @@ bool SplitString(string stringValue, string separatorSymbol, string& results[], 
 int _fileHandle=-1;
 int CreateFile(string fileName)
 {
-    int handle = FileOpen(fileName, FILE_CSV|FILE_WRITE, ",");
-    if (handle > 0)
-        _fileHandle = handle;
-    else
-        Print("CreateFile: Error while creating log file!");
-    return (handle);
+	int handle = FileOpen(fileName, FILE_CSV|FILE_WRITE, ",");
+	if (handle > 0)
+		_fileHandle = handle;
+	else
+		Print("CreateFile: Error while creating log file!");
+	return (handle);
 }
 void WriteLogLine(string text)
 {
-    if (_fileHandle > 0)
-        FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
+	if (_fileHandle > 0)
+	    FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
 }
 void WriteNewLogLine(string text)
 {
-    if (_fileHandle > 0)
-    {
-        FileWrite(_fileHandle, "");
-        FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
-    }
+	if (_fileHandle > 0)
+	{
+	    FileWrite(_fileHandle, "");
+	    FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
+	}
 }
 void WriteLogRequest(string text, string request)
 {
-    if (_fileHandle > 0)
-    {
-        FileWrite(_fileHandle, "\n" + text);
-        FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), request);
-    }
+	if (_fileHandle > 0)
+	{
+	    FileWrite(_fileHandle, "\n" + text);
+	    FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), request);
+	}
 }
 void FlushLogFile()
 {
-    if (_fileHandle > 0)
-        FileFlush(_fileHandle);
+	if (_fileHandle > 0)
+	    FileFlush(_fileHandle);
 }
 void CloseFile()
 {
-    if (_fileHandle > 0)
-        FileClose(_fileHandle);
+	if (_fileHandle > 0)
+		FileClose(_fileHandle);   
 }
+
+/**
+* Search for the string needle in the string haystack and replace all
+* occurrecnes with replace.
+*/
+string StringReplace(string haystack, string needle, string replace){
+   string left, right;
+   int start=0;
+   int rlen = StringLen(replace);
+   int nlen = StringLen(needle);
+   while (start > -1){
+      start = StringFind(haystack, needle, start);
+      if (start > -1){
+         if(start > 0){
+            left = StringSubstr(haystack, 0, start);
+         }else{
+            left="";
+         }
+         right = StringSubstr(haystack, start + nlen);
+         haystack = left + replace + right;
+         start = start + rlen;
+      }
+   }
+   return (haystack);  
+}
+
+
