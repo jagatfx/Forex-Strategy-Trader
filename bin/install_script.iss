@@ -1,13 +1,13 @@
 [Setup]
 AppName            = Forex Strategy Trader
-AppVersion         = 1.4.8.0
-VersionInfoVersion = 1.4.8.0
-AppVerName         = Forex Strategy Trader v1.4.8.0
+AppVersion         = 1.4.10.0
+VersionInfoVersion = 1.4.10.0
+AppVerName         = Forex Strategy Trader v1.4.10.0
 
 ArchitecturesInstallIn64BitMode = x64 ia64
 AppPublisher       = Forex Software Ltd.
 AppPublisherURL    = http://forexsb.com/
-AppCopyright       = Copyright (C) 2010 Miroslav Popov
+AppCopyright       = Copyright (C) 2012 Miroslav Popov
 AppComments        = Automatic, visual strategy trader via MetaTrader.
 DefaultDirName     = {pf}\Forex Strategy Trader
 DefaultGroupName   = Forex Strategy Trader
@@ -25,7 +25,7 @@ Type: files; Name: "{app}\System\config.xml"
 Type: files; Name: "{app}\System\fst-update.xml"
 
 [Files]
-Source: Forex Strategy Trader.exe;  DestDir: "{app}";
+Source: Forex Strategy Trader.exe;  DestDir: "{app}"; Flags: replacesameversion;
 Source: FST Starter.exe;            DestDir: "{app}";
 Source: SplashConfig.cfg;           DestDir: "{app}";
 Source: ConnectWait.ico;            DestDir: "{app}";
