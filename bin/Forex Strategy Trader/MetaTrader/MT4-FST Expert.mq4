@@ -1,7 +1,7 @@
 //+--------------------------------------------------------------------+
 //| File name:  MT4-FST Expert.mq4                                     |
-//| Version:    1.8 2012-04-02                                         |
-//| Copyright:  © 2011, Miroslav Popov - All rights reserved!          |
+//| Version:    1.10 2012-04-04                                        |
+//| Copyright:  © 2012, Miroslav Popov - All rights reserved!          |
 //| Website:    http://forexsb.com/                                    |
 //| Support:    http://forexsb.com/forum/                              |
 //| License:    Freeware under the following circumstances:            |
@@ -27,7 +27,7 @@
 #property copyright "Copyright © 2012, Miroslav Popov"
 #property link      "http://forexsb.com/"
 
-#define EXPERT_VERSION           "1.8"
+#define EXPERT_VERSION           "1.10"
 #define SERVER_SEMA_NAME         "MT4-FST Expert ID - "
 #define TRADE_SEMA_NAME          "TradeIsBusy"
 #define TRADE_SEMA_WAIT          100
@@ -94,12 +94,15 @@ extern int Protection_Min_Account = 0;
 // Protection_Max_StopLoss = 200 means 200 pips for 4 digit broker and 20 pips for 5 digit broker.
 extern int Protection_Max_StopLoss = 0;
 
+// A unique number of the expert's orders.
+extern int Expert_Magic = 20011023;
+
 // Have to be set to true for STP brokers that cannot set SL and TP together with the position (with OrderSend()).
 // When Separate_SL_TP = true, the expert first opens the position and after that sets StopLoss and TakeProfit.
 extern bool Separate_SL_TP = false;
 
-// A unique number of the expert's orders.
-extern int Expert_Magic = 20011023;
+// Expert writes a log file when Write_Log_File = true.
+extern bool Write_Log_File = false;
 
 // ----------------------------    Options   ---------------------------- //
 
@@ -139,6 +142,7 @@ double   PositionCommission = 0;
 string   PositionComment    = "";
 
 // Set by Forex Strategy Trader
+string FST_Request = "";
 int    TrailingStop = 0;
 string TrailingMode = "";
 int    BreakEven    = 0;
@@ -172,7 +176,20 @@ int init()
     Comment(message);
     Print(message);
 
-    //SetBrokersCompatibility();
+    if (Write_Log_File)
+    {
+        CreateFile(Symbol() + "_" + Period() + "_" + Connection_ID + ".log");
+        WriteLogLine("MT4-FST Expert version " + EXPERT_VERSION + " Loaded.");
+        WriteLogLine("Connection_ID=" + Connection_ID +
+                     ", Protection_Min_Account=" + Protection_Min_Account +
+                     ", Protection_Max_StopLoss=" + Protection_Max_StopLoss +
+                     ", Expert_Magic=" + Expert_Magic +
+                     ", Separate_SL_TP=" + Separate_SL_TP +
+                     ", Write_Log_File=" + Write_Log_File +
+                     ", TrailingStop_Moving_Step=" + TrailingStop_Moving_Step +
+                     ", FIFO_order=" + FIFO_order);
+        FlushLogFile();
+    }
 
     ReleaseTradeContext();
 
@@ -197,6 +214,12 @@ int start()
 ///
 int deinit()
 {
+   if (Write_Log_File)
+   {
+       WriteNewLogLine("MT4-FST Expert version " + EXPERT_VERSION + " Closed.");
+       CloseFile();
+   }
+
    Comment("");
    if (ConnectedToDLL)
        FST_CloseConnection(Connection_ID);
@@ -318,10 +341,7 @@ int CloseExpert()
 ///
 int Server()
 {
-    string oldrequest = "";
-    string expertID   = "";
-    if (Connection_ID > 0)
-        expertID = "(ID = " + Connection_ID + ") ";
+    string expertID = ""; if (Connection_ID > 0) expertID = "(ID = " + Connection_ID + ") ";
     datetime tickTime = MarketInfo(Symbol(), MODE_TIME);
     datetime barTime = Time[0];
     string message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Forex Strategy Trader is disconnected.";
@@ -436,18 +456,23 @@ int Server()
         }
         else if (request > 0)
         {
-            /*
-            // Prints debug info
-            string newrequest = symbol[0] +
-                " iargs[0]=" + iargs[0] + " iargs[1]=" + iargs[1] + " iargs[2]=" + iargs[2] + " iargs[3]=" + iargs[3] + " iargs[4]=" + iargs[4] +
-                " dargs[0]=" + dargs[0] + " dargs[1]=" + dargs[1] + " dargs[2]=" + dargs[2] + " dargs[3]=" + dargs[3] + " dargs[4]=" + dargs[4] +
-                " " + parameters[0];
-            if (oldrequest != newrequest)
-            {
-                oldrequest = newrequest;
-                Print(newrequest);
+            if (Write_Log_File)
+            {   // Logs debug info
+                string newrequest = symbol[0] +
+                    " iargs[0]=" + iargs[0] +
+                    " iargs[1]=" + iargs[1] +
+                    " iargs[2]=" + iargs[2] +
+                    " iargs[3]=" + iargs[3] +
+                    " iargs[4]=" + iargs[4] +
+                    " dargs[0]=" + DoubleToStr(dargs[0], 5) +
+                    " dargs[1]=" + DoubleToStr(dargs[1], 5) +
+                    " dargs[2]=" + DoubleToStr(dargs[2], 5) +
+                    " dargs[3]=" + DoubleToStr(dargs[3], 5) +
+                    " dargs[4]=" + DoubleToStr(dargs[4], 5) +
+                    " " + parameters[0];
+                if (FST_Request != newrequest)
+                    FST_Request = newrequest;
             }
-            */
 
             switch (request)
             {
@@ -492,7 +517,9 @@ int Server()
                     {
                         int lastErrorOrdSend = GetLastError();
                         lastErrorOrdSend = IF_I(lastErrorOrdSend > 0, lastErrorOrdSend, LastError);
-                        Print("Error in FST Request OrderSend: ", GetErrorDescription(lastErrorOrdSend));
+                        string requestOrderSendMessage = "Error in FST Request OrderSend: " + GetErrorDescription(lastErrorOrdSend);
+                        Print(requestOrderSendMessage);
+                        if (Write_Log_File) WriteLogLine(requestOrderSendMessage);
                         FST_Response(Connection_ID, false, lastErrorOrdSend);
                     }
                     else
@@ -501,22 +528,34 @@ int Server()
 
                 case FST_REQ_ORDER_CLOSE:
                     // Forex Strategy Trader wants to close the current position.
+                    if (Write_Log_File) WriteLogRequest("FST Request: Close the current position.", FST_Request);
                     isSucceed = CloseCurrentPosition(symbol[0], iargs[1]) == 0;
 
                     int lastErrorOrdClose = GetLastError();
                     lastErrorOrdClose = IF_I(lastErrorOrdClose > 0, lastErrorOrdClose, LastError);
-                    if (!isSucceed) Print("Error in OrderClose: ", GetErrorDescription(lastErrorOrdClose));
+                    if (!isSucceed)
+                    {
+                        string requestOrderCloseMessage = "Error in OrderClose: " + GetErrorDescription(lastErrorOrdClose);
+                        Print(requestOrderCloseMessage);
+                        if (Write_Log_File) WriteLogLine(requestOrderCloseMessage);
+                    }
                     FST_Response(Connection_ID, isSucceed, lastErrorOrdClose);
-                    break;
+                   break;
 
                 case FST_REQ_ORDER_MODIFY:
                     // Forex Strategy Trader wants to modify the current position.
+                    if (Write_Log_File) WriteLogRequest("FST Request: Modify the current position.", FST_Request);
                     ParseOrderParameters(parameters[0]);
                     isSucceed = ModifyPosition(symbol[0], dargs[1], dargs[2]);
 
                     int lastErrorOrdModify = GetLastError();
                     lastErrorOrdModify = IF_I(lastErrorOrdModify > 0, lastErrorOrdModify, LastError);
-                    if (!isSucceed) Print("Error in OrderModify: ", GetErrorDescription(lastErrorOrdModify));
+                    if (!isSucceed)
+                    {
+                       string requestOrderModifyMessage = "Error in OrderModify: " + GetErrorDescription(lastErrorOrdModify);
+                       Print(requestOrderModifyMessage);
+                       if (Write_Log_File) WriteLogLine(requestOrderModifyMessage);
+                    }
                     FST_Response(Connection_ID, isSucceed, lastErrorOrdModify);
                     break;
 
@@ -530,6 +569,9 @@ int Server()
                     break;
             }
         }
+
+        if (Write_Log_File)
+            FlushLogFile();
 
         Sleep(100);
     }
@@ -603,6 +645,26 @@ int SetAggregatePosition(string symbol)
     return (positions);
 }
 
+string AggregatePositionToString()
+{
+    string type = "Square";
+    if (PositionType == OP_BUY) type = "Long";
+    if (PositionType == OP_SELL) type = "Short";
+
+    string text = "AggregatePosition " +
+            "Ticket=" + PositionTicket +
+            ", Type=" + type +
+            ", Time=" + TimeToStr(PositionTime, TIME_SECONDS) +
+            ", OpenPrice=" + DoubleToStr(PositionOpenPrice, 5) +
+            ", Lots=" + DoubleToStr(PositionLots, 2) +
+            ", Profit=" + DoubleToStr(PositionProfit, 2) +
+            ", Commission=" + DoubleToStr(PositionCommission, 2) +
+            ", StopLoss=" + DoubleToStr(PositionStopLoss, 5) +
+            ", TakeProfit=" + DoubleToStr(PositionTakeProfit, 5) +
+            ", \"" + PositionComment + "\"";
+    return (text);
+}
+
 ///
 /// Sends correct order depending on the request and the current position.
 ///
@@ -617,26 +679,31 @@ int ManageOrderSend (string symbol, int type, double lots, double price, int sli
 
     if (positions == 0)
     {   // Open a new position.
+        if (Write_Log_File) WriteLogRequest("FST Request: Open a new position.", FST_Request);
         orderResponse = OpenNewPosition(symbol, type, lots, price, slippage, stoploss, takeprofit, magic);
     }
     else if (positions > 0)
     {   // There is a position.
         if ((PositionType == OP_BUY && type == OP_BUY) || (PositionType == OP_SELL && type == OP_SELL))
         {   // Add to the current position.
+            if (Write_Log_File) WriteLogRequest("FST Request: Add to the current position.", FST_Request);
             orderResponse = AddToCurrentPosition(symbol, type, lots, price, slippage, stoploss, takeprofit, magic);
         }
         else if ((PositionType == OP_BUY && type == OP_SELL) || (PositionType == OP_SELL && type == OP_BUY))
         {
             if (MathAbs(PositionLots - lots) < MarketInfo(symbol, MODE_LOTSTEP) / 2)
             {   // The position's lots are equal to the opposite order's lots. We close the current position.
+                if (Write_Log_File) WriteLogRequest("FST Request: Close the current position.", FST_Request);
                 orderResponse = CloseCurrentPosition(symbol, slippage);
             }
             else if (PositionLots > lots)
             {   // Reducing a position. (Partially closing).
+                if (Write_Log_File) WriteLogRequest("FST Request: Reduce the current position.", FST_Request);
                 orderResponse = ReduceCurrentPosition(symbol, lots, price, slippage, stoploss, takeprofit, magic);
             }
             else if (PositionLots < lots)
             {   // Reversing a position.
+                if (Write_Log_File) WriteLogRequest("FST Request: Reverse the current position.", FST_Request);
                 orderResponse = ReverseCurrentPosition(symbol, type, lots, price, slippage, stoploss, takeprofit, magic);
             }
         }
@@ -668,25 +735,31 @@ int OpenNewPosition (string symbol, int type, double lots, double price, int sli
         if (Separate_SL_TP)
         {
             orderResponse = SendOrder(symbol, type, lots, price, slippage, 0, 0, comment, magic);
+            if (Write_Log_File) WriteLogLine("OpenNewPosition SendOrder orderResponse=" + orderResponse );
+
             if (orderResponse > 0)
             {
                 double stopLossPrice   = GetStopLossPrice(symbol, type, orderLots, stoploss);
                 double takeProfitPrice = GetTakeProfitPrice(symbol, type, takeprofit);
                 orderResponse = ModifyPositionByTicket(symbol, orderResponse, stopLossPrice, takeProfitPrice);
+                if (Write_Log_File) WriteLogLine("OpenNewPosition ModifyPositionByTicket orderResponse=" + orderResponse );
             }
         }
         else
         {
             orderResponse = SendOrder(symbol, type, lots, price, slippage, stoploss, takeprofit, comment, magic);
+            if (Write_Log_File) WriteLogLine("OpenNewPosition SendOrder orderResponse=" + orderResponse );
 
             if (orderResponse < 0 && LastError == 130)
             {   // Invalid Stops. We'll check for forbiden direct set of SL and TP
                 orderResponse = SendOrder(symbol, type, lots, price, slippage, 0, 0, comment, magic);
+                if (Write_Log_File) WriteLogLine("OpenNewPosition SendOrder orderResponse=" + orderResponse );
                 if (orderResponse > 0)
                 {
                     stopLossPrice   = GetStopLossPrice(symbol, type, orderLots, stoploss);
                     takeProfitPrice = GetTakeProfitPrice(symbol, type, takeprofit);
                     orderResponse   = ModifyPositionByTicket(symbol, orderResponse, stopLossPrice, takeProfitPrice);
+                    if (Write_Log_File) WriteLogLine("OpenNewPosition ModifyPositionByTicket orderResponse=" + orderResponse );
                     if (orderResponse > 0)
                     {
                         Separate_SL_TP = true;
@@ -698,6 +771,7 @@ int OpenNewPosition (string symbol, int type, double lots, double price, int sli
     }
 
     SetAggregatePosition(symbol);
+    if (Write_Log_File) WriteLogLine(AggregatePositionToString());
 
     return (orderResponse);
 }
@@ -712,8 +786,9 @@ int AddToCurrentPosition(string symbol, int type, double lots, double price, int
         return (-1);
 
     int orderResponse = OpenNewPosition(symbol, type, lots, price, slippage, stoploss, takeprofit, magic);
+    if (Write_Log_File) WriteLogLine("AddToCurrentPosition OpenNewPosition orderResponse=" + orderResponse );
 
-    if(orderResponse < 0)
+    if (orderResponse < 0)
         return (orderResponse);
 
     double stopLossPrice   = GetStopLossPrice(symbol, type, PositionLots, stoploss);
@@ -884,10 +959,23 @@ int SendOrder(string symbol, int type, double lots, double price, int slippage, 
         color  colorDeal       = Lime; if (type == OP_SELL) colorDeal = Red;
 
         orderResponse = OrderSend(symbol, type, orderLots, orderPrice, slippage, stopLossPrice, takeProfitPrice, comment, magic, 0, colorDeal);
+        LastError = GetLastError();
 
         ReleaseTradeContext();
 
-        LastError = GetLastError();
+        if (Write_Log_File)
+            WriteLogLine("SendOrder OrderSend(" + symbol +
+                         ", " + type +
+                         ", Lots=" + DoubleToStr(orderLots, 2) +
+                         ", Price=" + DoubleToStr(orderPrice, 5) +
+                         ", Slippage=" + slippage +
+                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) +
+                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) +
+                         ", \"" + comment + "\"" +
+                         ", Magic=" + magic + ")" +
+                         ", Response=" + orderResponse +
+                         ", LastError=" + LastError);
+
         if (orderResponse > 0)
             break;
 
@@ -924,10 +1012,18 @@ int ClosePositionByTicket(string symbol, int orderTicket, double orderLots, int 
         double orderPrice = IF_D(orderType == OP_BUY, MarketInfo(symbol, MODE_BID), MarketInfo(symbol, MODE_ASK));
         orderPrice = NormalizeDouble(orderPrice, Digits);
         bool responce = OrderClose(orderTicket, orderLots, orderPrice, slippage, Gold);
+        LastError = GetLastError();
 
         ReleaseTradeContext();
 
-        LastError = GetLastError();
+        if (Write_Log_File)
+            WriteLogLine("ClosePositionByTicket OrderClose(" +
+                         "Ticket=" + orderTicket +
+                         ", Lots=" + DoubleToStr(orderLots, 2) +
+                         ", Price=" + DoubleToStr(orderPrice, 5) +
+                         ", Slippage=" + slippage + ")" +
+                         ", Response=" + responce + ", LastError=" + LastError);
+
         if (responce)
             return (0);
 
@@ -1003,15 +1099,23 @@ int ModifyPositionByTicket(string symbol, int orderTicket, double stopLossPrice,
         }
 
         bool rc = OrderModify(orderTicket, orderOpenPrice, stopLossPrice, takeProfitPrice, 0);
+        LastError = GetLastError();
 
         ReleaseTradeContext();
+
+        if (Write_Log_File)
+            WriteLogLine("ModifyPositionByTicket OrderModify(" + symbol +
+                         ", Ticket=" + orderTicket +
+                         ", Price=" + DoubleToStr(orderOpenPrice, 5) +
+                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) +
+                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) + ")" +
+                         " Response=" + rc + " LastError=" + LastError);
 
         if (rc)
         {   // Modification was successful.
             return (1);
         }
 
-        LastError = GetLastError();
         Print("Error with OrderModify(", orderTicket, ", ", orderOpenPrice, ", ", stopLossPrice, ", ", takeProfitPrice, ") ", GetErrorDescription(LastError), ".");
         Sleep(TRADE_RETRY_WAIT);
         RefreshRates();
@@ -1211,6 +1315,7 @@ void SetMaxStopLoss(string symbol)
             else if (type == OP_SELL)
                 stopLossPrice = NormalizeDouble(posOpenPrice + point * Protection_Max_StopLoss, digits);
             stopLossPrice = CorrectStopLossPrice(symbol, type, stopLossPrice);
+            if (Write_Log_File) WriteLogRequest("SetMaxStopLoss", "StopLossPrice=" + DoubleToStr(stopLossPrice, 5));
             if (ModifyPositionByTicket(symbol, orderTicket, stopLossPrice, takeProfitPrice) > 0)
                 Print("Max Stop Loss (", Protection_Max_StopLoss, " ) set Max Stop Loss to ",  stopLossPrice);
         }
@@ -1244,6 +1349,7 @@ void SetBreakEvenStop(string symbol)
         if (bid - breakprice >= point * breakeven)
             if (PositionStopLoss < breakprice)
             {
+                if (Write_Log_File) WriteLogRequest("SetBreakEvenStop", "BreakPrice=" + DoubleToStr(breakprice, 5));
                 SetStopLossAndTakeProfit(symbol, breakprice, PositionTakeProfit);
                 Print("Break Even (", BreakEven, " pips) set Stop Loss to ",  breakprice, ", Bid = ", bid);
             }
@@ -1255,6 +1361,7 @@ void SetBreakEvenStop(string symbol)
         if (breakprice - ask >= point * breakeven)
             if (PositionStopLoss == 0 || PositionStopLoss > breakprice)
             {
+                if (Write_Log_File) WriteLogRequest("SetBreakEvenStop", "BreakPrice=" + DoubleToStr(breakprice, 5));
                 SetStopLossAndTakeProfit(symbol, breakprice, PositionTakeProfit);
                 Print("Break Even (", BreakEven, " pips) set Stop Loss to ",  breakprice, ", Ask = ", ask);
             }
@@ -1303,7 +1410,7 @@ void SetTrailingStop(string symbol, bool isNewBar)
     else if (TrailingMode == "bar" && isNewBar && isCheckTS)
         SetTrailingStopBarMode(symbol);
 
-	return;
+    return;
 }
 
 ///
@@ -1324,11 +1431,13 @@ void SetTrailingStopBarMode(string symbol)
                 if (stoploss > bid - point * StopLevel)
                     stoploss = bid - point * StopLevel;
 
+                if (Write_Log_File) WriteLogRequest("SetTrailingStopBarMode", "StopLoss=" + DoubleToStr(stoploss, 5));
                 SetStopLossAndTakeProfit(symbol, stoploss, PositionTakeProfit);
                 Print("Trailing Stop (", TrailingStop, " pips) moved to: ", stoploss, ", Bid = ", bid);
             }
             else
             {
+                if (Write_Log_File) WriteLogRequest("SetTrailingStopBarMode", "StopLoss=" + DoubleToStr(stoploss, 5));
                 bool isSucceed = CloseCurrentPosition(symbol, StopLevel) == 0;
                 int lastErrorOrdClose = GetLastError();
                 lastErrorOrdClose = IF_I(lastErrorOrdClose > 0, lastErrorOrdClose, LastError);
@@ -1347,11 +1456,13 @@ void SetTrailingStopBarMode(string symbol)
                 if (stoploss < ask + point * StopLevel)
                     stoploss = ask + point * StopLevel;
 
+                if (Write_Log_File) WriteLogRequest("SetTrailingStopBarMode", "StopLoss=" + DoubleToStr(stoploss, 5));
                 SetStopLossAndTakeProfit(symbol, stoploss, PositionTakeProfit);
                 Print("Trailing Stop (", TrailingStop, " pips) moved to: ", stoploss, ", Ask = ", ask);
             }
             else
             {
+                if (Write_Log_File) WriteLogRequest("SetTrailingStopBarMode", "StopLoss=" + DoubleToStr(stoploss, 5));
                 isSucceed = CloseCurrentPosition(symbol, StopLevel) == 0;
                 lastErrorOrdClose = GetLastError();
                 lastErrorOrdClose = IF_I(lastErrorOrdClose > 0, lastErrorOrdClose, LastError);
@@ -1375,6 +1486,7 @@ void SetTrailingStopTickMode(string symbol)
             if (PositionStopLoss < bid - point * (TrailingStop + TrailingStop_Moving_Step))
             {
                 double stoploss = bid - point * TrailingStop;
+                if (Write_Log_File) WriteLogRequest("SetTrailingStopTickMode", "StopLoss=" + DoubleToStr(stoploss, 5));
                 SetStopLossAndTakeProfit(symbol, stoploss, PositionTakeProfit);
                 Print("Trailing Stop (", TrailingStop, " pips) moved to: ", stoploss, ", Bid = ", bid);
             }
@@ -1386,6 +1498,7 @@ void SetTrailingStopTickMode(string symbol)
             if (PositionStopLoss > ask + point * (TrailingStop + TrailingStop_Moving_Step))
             {
                 stoploss = ask + point * TrailingStop;
+                if (Write_Log_File) WriteLogRequest("SetTrailingStopTickMode", "StopLoss=" + DoubleToStr(stoploss, 5));
                 SetStopLossAndTakeProfit(symbol, stoploss, PositionTakeProfit);
                 Print("Trailing Stop (", TrailingStop, " pips) moved to: ", stoploss, ", Ask = ", ask);
             }
@@ -1419,8 +1532,8 @@ void ParseOrderParameters(string parameters)
     if (StringSubstr(param[1], 0, 3) == "BRE")
         BreakEven = StrToInteger(StringSubstr(param[1], 4));
 
-	if (BreakEven > 0 && BreakEven < StopLevel)
-		BreakEven = StopLevel;
+    if (BreakEven > 0 && BreakEven < StopLevel)
+        BreakEven = StopLevel;
 
     Print("Trailing Stop = ", TrailingStop, ", Mode - ", TrailingMode, ", Break Even = ", BreakEven);
 
@@ -1868,4 +1981,46 @@ bool SplitString(string stringValue, string separatorSymbol, string& results[], 
       Print("ERROR - size of parsed string not expected.", true);
       return (false);
    }
+}
+
+int _fileHandle=-1;
+int CreateFile(string fileName)
+{
+    int handle = FileOpen(fileName, FILE_CSV|FILE_WRITE, ",");
+    if (handle > 0)
+        _fileHandle = handle;
+    else
+        Print("CreateFile: Error while creating log file!");
+    return (handle);
+}
+void WriteLogLine(string text)
+{
+    if (_fileHandle > 0)
+        FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
+}
+void WriteNewLogLine(string text)
+{
+    if (_fileHandle > 0)
+    {
+        FileWrite(_fileHandle, "");
+        FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
+    }
+}
+void WriteLogRequest(string text, string request)
+{
+    if (_fileHandle > 0)
+    {
+        FileWrite(_fileHandle, "\n" + text);
+        FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), request);
+    }
+}
+void FlushLogFile()
+{
+    if (_fileHandle > 0)
+        FileFlush(_fileHandle);
+}
+void CloseFile()
+{
+    if (_fileHandle > 0)
+        FileClose(_fileHandle);
 }
