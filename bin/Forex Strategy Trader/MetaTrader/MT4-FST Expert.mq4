@@ -1,6 +1,6 @@
 //+--------------------------------------------------------------------+
 //| File name:  MT4-FST Expert.mq4                                     |
-//| Version:    1.10 2012-04-04                                         |
+//| Version:    1.13 2012-04-23                                        |
 //| Copyright:  © 2012, Miroslav Popov - All rights reserved!          |
 //| Website:    http://forexsb.com/                                    |
 //| Support:    http://forexsb.com/forum/                              |
@@ -27,7 +27,7 @@
 #property copyright "Copyright © 2012, Miroslav Popov"
 #property link      "http://forexsb.com/"
 
-#define EXPERT_VERSION           "1.10"
+#define EXPERT_VERSION           "1.13"
 #define SERVER_SEMA_NAME         "MT4-FST Expert ID - "
 #define TRADE_SEMA_NAME          "TradeIsBusy"
 #define TRADE_SEMA_WAIT          100
@@ -102,7 +102,7 @@ extern int Expert_Magic = 20011023;
 extern bool Separate_SL_TP = false;
 
 // Expert writes a log file when Write_Log_File = true.
-extern bool Write_Log_File = false;
+extern bool Write_Log_File = true;
 
 // ----------------------------    Options   ---------------------------- //
 
@@ -117,6 +117,8 @@ int TrailingStop_Moving_Step = 0;
 // If you want to close the positions from the newest one (FILO), change the variable to "false".
 // This doesn't change the normal work of Forex Strategy Trader.
 bool FIFO_order = true;
+
+int MaxLogLinesInFile = 2000;
 
 // --------------------------------------------------------------------- //
 
@@ -151,6 +153,7 @@ datetime barHighTime  = 0;
 datetime barLowTime   = 0;
 double currentBarHigh = 0;
 double currentBarLow  = 1000000;
+int logLines = 0;
 
 ///
 /// Expert's initialization function.
@@ -178,11 +181,9 @@ int init()
 
     if (Write_Log_File)
     {
-        string time = StringReplace(TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), ":", "");
-        time = StringReplace(time, " ", "_");
-        CreateFile(Symbol() + "_" + Period() + "_ID" + Connection_ID + "_" + time +".log");
+        CreateLogFile(GetLogFileName());
         WriteLogLine("MT4-FST Expert version " + EXPERT_VERSION + " Loaded.");
-        WriteLogLine("Connection_ID=" + Connection_ID + 
+        WriteLogLine("Connection_ID=" + Connection_ID +
                      ", Protection_Min_Account=" + Protection_Min_Account +
                      ", Protection_Max_StopLoss=" + Protection_Max_StopLoss +
                      ", Expert_Magic=" + Expert_Magic +
@@ -216,12 +217,8 @@ int start()
 ///
 int deinit()
 {
-   if (Write_Log_File)
-   {
-       WriteNewLogLine("MT4-FST Expert version " + EXPERT_VERSION + " Closed.");
-       CloseFile();
-   }
-   
+   if (Write_Log_File) CloseLogFile();
+
    Comment("");
    if (ConnectedToDLL)
        FST_CloseConnection(Connection_ID);
@@ -566,6 +563,7 @@ int Server()
                     FST_Response(Connection_ID, false, FST_ERR_INVALID_REQUEST);
 
                     message = TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Error - Forex Strategy Trader sent a wrong request.";
+                    if (Write_Log_File) WriteLogRequest("### FST Request: WrongRequest.", message);
                     Comment(message);
                     Print(message);
                     break;
@@ -573,7 +571,14 @@ int Server()
         }
 
         if (Write_Log_File)
+        {
+            if (logLines >= MaxLogLinesInFile)
+            {
+                CloseLogFile();
+                CreateLogFile(GetLogFileName());
+            }
             FlushLogFile();
+        }
 
         Sleep(100);
     }
@@ -649,21 +654,25 @@ int SetAggregatePosition(string symbol)
 
 string AggregatePositionToString()
 {
-    string type = "Square"; 
-    if (PositionType == OP_BUY) type = "Long";
-    if (PositionType == OP_SELL) type = "Short";
-    
-    string text = "AggregatePosition " + 
-            "Ticket=" + PositionTicket + 
-            ", Type=" + type + 
-            ", Time=" + TimeToStr(PositionTime, TIME_SECONDS) + 
-            ", OpenPrice=" + DoubleToStr(PositionOpenPrice, 5) + 
-            ", Lots=" + DoubleToStr(PositionLots, 2) + 
-            ", Profit=" + DoubleToStr(PositionProfit, 2) + 
-            ", Commission=" + DoubleToStr(PositionCommission, 2) + 
-            ", StopLoss=" + DoubleToStr(PositionStopLoss, 5) + 
-            ", TakeProfit=" + DoubleToStr(PositionTakeProfit, 5) + 
-            ", \"" + PositionComment + "\"";
+    if (PositionType == OP_SQUARE)
+        return ("AggregatePosition Square");
+
+    string type = "Long"; if (PositionType == OP_SELL) type = "Short";
+
+    string text = "AggregatePosition " +
+            "Ticket=" + PositionTicket +
+            ", Time=" + TimeToStr(PositionTime, TIME_SECONDS) +
+            ", Type=" + type +
+            ", Lots=" + DoubleToStr(PositionLots, 2) +
+            ", Price=" + DoubleToStr(PositionOpenPrice, 5) +
+            ", StopLoss=" + DoubleToStr(PositionStopLoss, 5) +
+            ", TakeProfit=" + DoubleToStr(PositionTakeProfit, 5) +
+            ", Commission=" + DoubleToStr(PositionCommission, 2) +
+            ", Profit=" + DoubleToStr(PositionProfit, 2);
+
+    if (PositionComment != "")
+        text = text + ", \"" + PositionComment + "\"";
+
     return (text);
 }
 
@@ -730,38 +739,39 @@ int OpenNewPosition (string symbol, int type, double lots, double price, int sli
     double orderLots = NormalizeEntrySize(symbol, lots);
 
     string comment = "";
-    if (Connection_ID > 0) comment = "ID = " + Connection_ID;
+    if (Connection_ID > 0) comment = "ID=" + Connection_ID + ", ";
+    comment = comment + "Magic=" + Expert_Magic;
 
     if (AccountFreeMarginCheck(symbol, type, orderLots) > 0)
     {
         if (Separate_SL_TP)
         {
+            if (Write_Log_File) WriteLogLine("OpenNewPosition calls SendOrder");
             orderResponse = SendOrder(symbol, type, lots, price, slippage, 0, 0, comment, magic);
-            if (Write_Log_File) WriteLogLine("OpenNewPosition SendOrder orderResponse=" + orderResponse );
 
             if (orderResponse > 0)
             {
+                if (Write_Log_File) WriteLogLine("OpenNewPosition calls ModifyPositionByTicket");
                 double stopLossPrice   = GetStopLossPrice(symbol, type, orderLots, stoploss);
                 double takeProfitPrice = GetTakeProfitPrice(symbol, type, takeprofit);
                 orderResponse = ModifyPositionByTicket(symbol, orderResponse, stopLossPrice, takeProfitPrice);
-                if (Write_Log_File) WriteLogLine("OpenNewPosition ModifyPositionByTicket orderResponse=" + orderResponse );
             }
         }
         else
         {
             orderResponse = SendOrder(symbol, type, lots, price, slippage, stoploss, takeprofit, comment, magic);
-            if (Write_Log_File) WriteLogLine("OpenNewPosition SendOrder orderResponse=" + orderResponse );
+            if (Write_Log_File) WriteLogLine("OpenNewPosition SendOrder Response=" + orderResponse );
 
             if (orderResponse < 0 && LastError == 130)
             {   // Invalid Stops. We'll check for forbiden direct set of SL and TP
+                if (Write_Log_File) WriteLogLine("OpenNewPosition calls SendOrder");
                 orderResponse = SendOrder(symbol, type, lots, price, slippage, 0, 0, comment, magic);
-                if (Write_Log_File) WriteLogLine("OpenNewPosition SendOrder orderResponse=" + orderResponse );
                 if (orderResponse > 0)
                 {
+                    if (Write_Log_File) WriteLogLine("OpenNewPosition calls ModifyPositionByTicket");
                     stopLossPrice   = GetStopLossPrice(symbol, type, orderLots, stoploss);
                     takeProfitPrice = GetTakeProfitPrice(symbol, type, takeprofit);
                     orderResponse   = ModifyPositionByTicket(symbol, orderResponse, stopLossPrice, takeProfitPrice);
-                    if (Write_Log_File) WriteLogLine("OpenNewPosition ModifyPositionByTicket orderResponse=" + orderResponse );
                     if (orderResponse > 0)
                     {
                         Separate_SL_TP = true;
@@ -787,8 +797,8 @@ int AddToCurrentPosition(string symbol, int type, double lots, double price, int
     if (AccountFreeMarginCheck(symbol, type, lots) <= 0)
         return (-1);
 
+    if (Write_Log_File) WriteLogLine("AddToCurrentPosition calls OpenNewPosition");
     int orderResponse = OpenNewPosition(symbol, type, lots, price, slippage, stoploss, takeprofit, magic);
-    if (Write_Log_File) WriteLogLine("AddToCurrentPosition OpenNewPosition orderResponse=" + orderResponse );
 
     if (orderResponse < 0)
         return (orderResponse);
@@ -966,18 +976,17 @@ int SendOrder(string symbol, int type, double lots, double price, int slippage, 
         ReleaseTradeContext();
 
         if (Write_Log_File)
-            WriteLogLine("SendOrder OrderSend(" + symbol + 
-                         ", " + type + 
-                         ", Lots=" + DoubleToStr(orderLots, 2) + 
-                         ", Price=" + DoubleToStr(orderPrice, 5) + 
-                         ", Slippage=" + slippage + 
-                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) + 
-                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) + 
-                         ", \"" + comment + "\"" +
-                         ", Magic=" + magic + ")" + 
+            WriteLogLine("SendOrder OrderSend(" + symbol +
+                         ", " + type +
+                         ", Lots=" + DoubleToStr(orderLots, 2) +
+                         ", Price=" + DoubleToStr(orderPrice, 5) +
+                         ", Slippage=" + slippage +
+                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) +
+                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) +
+                         ", \"" + comment + "\"" + ")" +
                          ", Response=" + orderResponse +
                          ", LastError=" + LastError);
-        
+
         if (orderResponse > 0)
             break;
 
@@ -1019,11 +1028,11 @@ int ClosePositionByTicket(string symbol, int orderTicket, double orderLots, int 
         ReleaseTradeContext();
 
         if (Write_Log_File)
-            WriteLogLine("ClosePositionByTicket OrderClose(" + 
+            WriteLogLine("ClosePositionByTicket OrderClose(" +
                          "Ticket=" + orderTicket +
                          ", Lots=" + DoubleToStr(orderLots, 2) +
                          ", Price=" + DoubleToStr(orderPrice, 5) +
-                         ", Slippage=" + slippage + ")" + 
+                         ", Slippage=" + slippage + ")" +
                          ", Response=" + responce + ", LastError=" + LastError);
 
         if (responce)
@@ -1059,8 +1068,7 @@ int SetStopLossAndTakeProfit(string symbol, double stopLossPrice, double takePro
         if (type != OP_BUY && type != OP_SELL)
             continue;
 
-        if (ModifyPositionByTicket(symbol, OrderTicket(), stopLossPrice, takeProfitPrice) < 0)
-            responce = -1;
+        responce = ModifyPositionByTicket(symbol, OrderTicket(), stopLossPrice, takeProfitPrice);
     }
 
     return (responce);
@@ -1071,12 +1079,8 @@ int SetStopLossAndTakeProfit(string symbol, double stopLossPrice, double takePro
 ///
 int ModifyPositionByTicket(string symbol, int orderTicket, double stopLossPrice, double takeProfitPrice)
 {
-    if (!OrderSelect(orderTicket, SELECT_BY_TICKET))
-    {
-        LastError = GetLastError();
-        Print("Error with OrderSelect: ", GetErrorDescription(LastError));
+    if (!OrderSelectByTicket(orderTicket))
         return (-1);
-    }
 
     stopLossPrice   = NormalizeDouble(stopLossPrice,   Digits);
     takeProfitPrice = NormalizeDouble(takeProfitPrice, Digits);
@@ -1084,40 +1088,56 @@ int ModifyPositionByTicket(string symbol, int orderTicket, double stopLossPrice,
     double oldStopLoss   = NormalizeDouble(OrderStopLoss(),   Digits);
     double oldTakeProfit = NormalizeDouble(OrderTakeProfit(), Digits);
 
-    if ((stopLossPrice == oldStopLoss) && (takeProfitPrice == oldTakeProfit))
-        return (1); // There isn't anything to change.
-
-    double orderOpenPrice = NormalizeDouble(OrderOpenPrice(), Digits);
-
     for (int attempt = 0; attempt < TRADE_RETRY_COUNT; attempt++)
     {
-        if (!GetTradeContext())
-            return (-1);
-
         if (attempt > 0)
         {   // Prevents Invalit Stops due to price change during the cycle.
             stopLossPrice   = CorrectStopLossPrice(symbol,   OrderType(), stopLossPrice);
             takeProfitPrice = CorrectTakeProfitPrice(symbol, OrderType(), takeProfitPrice);
         }
 
+        if (MathAbs(stopLossPrice - oldStopLoss) < PipsValue &&
+            MathAbs(takeProfitPrice - oldTakeProfit) < PipsValue)
+            return (1); // There isn't anything to change.
+
+        double orderOpenPrice = NormalizeDouble(OrderOpenPrice(), Digits);
+
+        if (!GetTradeContext())
+            return (-1);
+
         bool rc = OrderModify(orderTicket, orderOpenPrice, stopLossPrice, takeProfitPrice, 0);
         LastError = GetLastError();
 
         ReleaseTradeContext();
-        
+
+        string log = "";
         if (Write_Log_File)
-            WriteLogLine("ModifyPositionByTicket OrderModify(" + symbol + 
-                         ", Ticket=" + orderTicket + 
-                         ", Price=" + DoubleToStr(orderOpenPrice, 5) + 
-                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) + 
-                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) + ")" + 
-                         " Response=" + rc + " LastError=" + LastError);
- 
+            log = "ModifyPositionByTicket OrderModify(" + symbol +
+                  ", Ticket=" + orderTicket +
+                  ", Price=" + DoubleToStr(orderOpenPrice, 5) +
+                  ", StopLoss=" + DoubleToStr(stopLossPrice, 5) +
+                  ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) + ")" +
+                  " Response=" + rc + " LastError=" + LastError;
+
         if (rc)
         {   // Modification was successful.
+            if (Write_Log_File) WriteLogLine(log);
             return (1);
         }
-                        
+        else if (LastError == 1)
+        {
+            if (!OrderSelectByTicket(orderTicket))
+                return (-1);
+
+            if (MathAbs(stopLossPrice - OrderStopLoss()) < PipsValue &&
+                MathAbs(takeProfitPrice - OrderTakeProfit()) < PipsValue)
+            {
+                if (Write_Log_File) WriteLogLine(log + ", Checked OK");
+                LastError = 0;
+                return (1); // We assume that there is no error.
+            }
+        }
+
         Print("Error with OrderModify(", orderTicket, ", ", orderOpenPrice, ", ", stopLossPrice, ", ", takeProfitPrice, ") ", GetErrorDescription(LastError), ".");
         Sleep(TRADE_RETRY_WAIT);
         RefreshRates();
@@ -1129,6 +1149,27 @@ int ModifyPositionByTicket(string symbol, int orderTicket, double stopLossPrice,
     }
 
     return (-1);
+}
+
+///
+/// Selects an order by its tickets.
+///
+bool OrderSelectByTicket(int orderTicket)
+{
+    bool responce = OrderSelect(orderTicket, SELECT_BY_TICKET);
+
+    if (!responce)
+    {
+         LastError = GetLastError();
+         string message = "### Error with OrderSelect(" + orderTicket + ")" +
+                          ", LastError=" + LastError +
+                          ", " + GetErrorDescription(LastError);
+         Print(message);
+         if (Write_Log_File)
+             WriteLogLine(message);
+    }
+
+    return (responce);
 }
 
 ///
@@ -1426,7 +1467,7 @@ void SetTrailingStopBarMode(string symbol)
     {   // Long position
         double bid = MarketInfo(symbol, MODE_BID);
         double stoploss = High[1] - point * TrailingStop;
-        if (PositionStopLoss < stoploss)
+        if (PositionStopLoss < stoploss - PipsValue)
         {
             if (stoploss < bid)
             {
@@ -1451,7 +1492,7 @@ void SetTrailingStopBarMode(string symbol)
     {   // Short position
         double ask = MarketInfo(symbol, MODE_ASK);
         stoploss = Low[1] + point * TrailingStop;
-        if (PositionStopLoss > stoploss)
+        if (PositionStopLoss > stoploss + PipsValue)
         {
             if (stoploss > ask)
             {
@@ -1940,91 +1981,106 @@ double IF_D(bool condition, double trueVal, double falseVal)
 ///
 bool SplitString(string stringValue, string separatorSymbol, string& results[], int expectedResultCount = 0)
 {
-   if (StringFind(stringValue, separatorSymbol) < 0)
-   {  // No separators found, the entire string is the result.
-      ArrayResize(results, 1);
-      results[0] = stringValue;
-   }
-   else
-   {
-      int separatorPos    = 0;
-      int newSeparatorPos = 0;
-      int size = 0;
+    if (StringFind(stringValue, separatorSymbol) < 0)
+    {   // No separators found, the entire string is the result.
+        ArrayResize(results, 1);
+        results[0] = stringValue;
+    }
+    else
+    {
+        int separatorPos    = 0;
+        int newSeparatorPos = 0;
+        int size = 0;
 
-      while(newSeparatorPos > -1)
-      {
-         size = size + 1;
-         newSeparatorPos = StringFind(stringValue, separatorSymbol, separatorPos);
+        while(newSeparatorPos > -1)
+        {
+            size = size + 1;
+            newSeparatorPos = StringFind(stringValue, separatorSymbol, separatorPos);
 
-         ArrayResize(results, size);
-         if (newSeparatorPos > -1)
-         {
-            if (newSeparatorPos - separatorPos > 0)
-            {  // Evade filling empty positions, since 0 size is considered by the StringSubstr as entire string to the end.
-               results[size - 1] = StringSubstr(stringValue, separatorPos, newSeparatorPos - separatorPos);
+            ArrayResize(results, size);
+            if (newSeparatorPos > -1)
+            {
+                if (newSeparatorPos - separatorPos > 0)
+                {   // Evade filling empty positions, since 0 size is considered by the StringSubstr as entire string to the end.
+                    results[size - 1] = StringSubstr(stringValue, separatorPos, newSeparatorPos - separatorPos);
+                }
             }
-         }
-         else
-         {  // Reached final element.
-            results[size - 1] = StringSubstr(stringValue, separatorPos, 0);
-         }
+            else
+            {   // Reached final element.
+                results[size - 1] = StringSubstr(stringValue, separatorPos, 0);
+            }
 
-         //Alert(results[size-1]);
-         separatorPos = newSeparatorPos + 1;
-      }
-   }
+            //Alert(results[size-1]);
+            separatorPos = newSeparatorPos + 1;
+        }
+    }
 
-   if (expectedResultCount == 0 || expectedResultCount == ArraySize(results))
-   {  // Results OK.
-      return (true);
-   }
-   else
-   {  // Results are WRONG.
-      Print("ERROR - size of parsed string not expected.", true);
-      return (false);
-   }
+    if (expectedResultCount == 0 || expectedResultCount == ArraySize(results))
+    {  // Results OK.
+       return (true);
+    }
+    else
+    {  // Results are WRONG.
+       Print("ERROR - size of parsed string not expected.", true);
+       return (false);
+    }
 }
 
 int _fileHandle=-1;
-int CreateFile(string fileName)
+string GetLogFileName()
 {
-	int handle = FileOpen(fileName, FILE_CSV|FILE_WRITE, ",");
-	if (handle > 0)
-		_fileHandle = handle;
-	else
-		Print("CreateFile: Error while creating log file!");
-	return (handle);
+    string time = StringReplace(TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), ":", "");
+    time = StringReplace(time, " ", "_");
+    string fileName = Symbol() + "_" + Period() + "_ID" + Connection_ID + "_" + Expert_Magic + "_" + time +".log";
+
+    return (fileName);
 }
+
+int CreateLogFile(string fileName)
+{
+    logLines = 0;
+    int handle = FileOpen(fileName, FILE_CSV|FILE_WRITE, ",");
+    if (handle > 0)
+        fileHandle = handle;
+    else
+        Print("CreateFile: Error while creating log file!");
+    return (handle);
+}
+
 void WriteLogLine(string text)
 {
-	if (_fileHandle > 0)
-	    FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
+    if (_fileHandle <= 0) return;
+    FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
+    logLines++;
 }
+
 void WriteNewLogLine(string text)
 {
-	if (_fileHandle > 0)
-	{
-	    FileWrite(_fileHandle, "");
-	    FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
-	}
+    if (_fileHandle <= 0) return;
+    FileWrite(_fileHandle, "");
+    FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), text);
+    logLines += 2;
 }
+
 void WriteLogRequest(string text, string request)
 {
-	if (_fileHandle > 0)
-	{
-	    FileWrite(_fileHandle, "\n" + text);
-	    FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), request);
-	}
+    if (_fileHandle <= 0) return;
+    FileWrite(_fileHandle, "\n" + text);
+    FileWrite(_fileHandle, TimeToStr(TimeCurrent(),TIME_DATE|TIME_SECONDS), request);
+    logLines += 3;
 }
+
 void FlushLogFile()
 {
-	if (_fileHandle > 0)
-	    FileFlush(_fileHandle);
+    if (_fileHandle <= 0) return;
+    FileFlush(_fileHandle);
 }
-void CloseFile()
+
+void CloseLogFile()
 {
-	if (_fileHandle > 0)
-		FileClose(_fileHandle);   
+    if (_fileHandle <= 0) return;
+    WriteNewLogLine("MT4-FST Expert version " + EXPERT_VERSION + " Closed.");
+    FileClose(_fileHandle);
 }
 
 /**
@@ -2049,7 +2105,5 @@ string StringReplace(string haystack, string needle, string replace){
          start = start + rlen;
       }
    }
-   return (haystack);  
+   return (haystack);
 }
-
-
