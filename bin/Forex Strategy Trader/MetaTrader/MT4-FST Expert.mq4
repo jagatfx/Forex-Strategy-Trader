@@ -2041,7 +2041,7 @@ int CreateLogFile(string fileName)
     logLines = 0;
     int handle = FileOpen(fileName, FILE_CSV|FILE_WRITE, ",");
     if (handle > 0)
-        fileHandle = handle;
+        _fileHandle = handle;
     else
         Print("CreateFile: Error while creating log file!");
     return (handle);
