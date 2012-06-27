@@ -832,7 +832,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void MenuTradeSettings_OnClick(object sender, EventArgs e)
         {
-            Trade_Settings ts = new Trade_Settings();
+            TradeSettings ts = new TradeSettings();
             ts.ShowDialog();
 
             return;

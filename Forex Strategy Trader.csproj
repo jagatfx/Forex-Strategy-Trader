@@ -90,7 +90,7 @@
     <Compile Include="Dialogs\Browser.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\Trade Settings.cs">
+    <Compile Include="Dialogs\TradeSettings.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MT4Bridge\MT4 Errors.cs" />
