@@ -5,16 +5,16 @@
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using MT4Bridge;
 
 namespace Forex_Strategy_Trader
 {
     /// <summary>
     /// Class Actions : Controls
     /// </summary>
-    public partial class Actions : Controls
+    public partial class Actions
     {
         /// <summary>
         /// Opens the averaging parameters dialog.
@@ -22,8 +22,6 @@ namespace Forex_Strategy_Trader
         protected override void PnlAveraging_Click(object sender, EventArgs e)
         {
             EditStrategyProperties();
-
-            return;
         }
 
         /// <summary>
@@ -31,12 +29,10 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void PnlSlot_MouseUp(object sender, MouseEventArgs e)
         {
-            Panel panel = (Panel)sender;
-            int iTag = (int)panel.Tag;
+            var panel = (Panel)sender;
+            var tag = (int)panel.Tag;
             if (e.Button == MouseButtons.Left)
-                EditSlot(iTag);
-
-            return;
+                EditSlot(tag);
         }
 
         /// <summary>
@@ -44,30 +40,26 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void SlotContextMenu_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem mi = (ToolStripMenuItem)sender;
-            int iTag = (int)mi.Tag;
+            var mi = (ToolStripMenuItem)sender;
+            var tag = (int)mi.Tag;
             switch (mi.Name)
             {
                 case "Edit":
-                    EditSlot(iTag);
+                    EditSlot(tag);
                     break;
                 case "Upwards":
-                    MoveSlotUpwards(iTag);
+                    MoveSlotUpwards(tag);
                     break;
                 case "Downwards":
-                    MoveSlotDownwards(iTag);
+                    MoveSlotDownwards(tag);
                     break;
                 case "Duplicate":
-                    DuplicateSlot(iTag);
+                    DuplicateSlot(tag);
                     break;
                 case "Delete":
-                    RemoveSlot(iTag);
-                    break;
-                default:
+                    RemoveSlot(tag);
                     break;
             }
-
-            return;
         }
 
         /// <summary>
@@ -75,14 +67,12 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuChangeTabs_OnClick(object sender, EventArgs e)
         {
-            ToolStripMenuItem mi = (ToolStripMenuItem)sender;
+            var mi = (ToolStripMenuItem)sender;
             if (mi.Checked)
                 return;
 
-            int iTag = (int)mi.Tag;
-            ChangeTabPage(iTag);
-            
-            return;
+            var tag = (int)mi.Tag;
+            ChangeTabPage(tag);
         }
 
         /// <summary>
@@ -91,8 +81,6 @@ namespace Forex_Strategy_Trader
         protected override void BtnAddOpenFilter_Click(object sender, EventArgs e)
         {
             AddOpenFilter();
-
-            return;
         }
 
         /// <summary>
@@ -101,8 +89,6 @@ namespace Forex_Strategy_Trader
         protected override void BtnAddCloseFilter_Click(object sender, EventArgs e)
         {
             AddCloseFilter();
-
-            return;
         }
 
         /// <summary>
@@ -110,11 +96,8 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void BtnRemoveSlot_Click(object sender, EventArgs e)
         {
-            int iSlot = (int)((Button)sender).Tag;
-
-            RemoveSlot(iSlot);
-
-            return;
+            var slot = (int)((Button)sender).Tag;
+            RemoveSlot(slot);
         }
 
         /// <summary>
@@ -122,7 +105,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuLoadColor_OnClick(object sender, EventArgs e)
         {
-            ToolStripMenuItem mi = (ToolStripMenuItem)sender;
+            var mi = (ToolStripMenuItem)sender;
             if (!mi.Checked)
             {
                 Configs.ColorScheme = mi.Name;
@@ -134,8 +117,6 @@ namespace Forex_Strategy_Trader
             mi.Checked = true;
 
             LoadColorScheme();
-
-            return;
         }
 
         /// <summary>
@@ -146,7 +127,6 @@ namespace Forex_Strategy_Trader
             Configs.GradientView = ((ToolStripMenuItem)sender).Checked;
             pnlWorkspace.Invalidate(true);
             SetColors();
-            return;
         }
 
 
@@ -155,7 +135,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void BtnStrategyIO_Click(object sender, EventArgs e)
         {
-            ToolStripButton btn = (ToolStripButton)sender;
+            var btn = (ToolStripButton)sender;
 
             switch (btn.Name)
             {
@@ -171,11 +151,7 @@ namespace Forex_Strategy_Trader
                 case "SaveAs":
                     SaveAsStrategy();
                     break;
-                default:
-                    break;
             }
-
-            return;
         }
 
         /// <summary>
@@ -184,8 +160,6 @@ namespace Forex_Strategy_Trader
         protected override void MenuStrategyNew_OnClick(object sender, EventArgs e)
         {
             NewStrategy();
-
-            return;
         }
 
         /// <summary>
@@ -194,8 +168,6 @@ namespace Forex_Strategy_Trader
         protected override void MenuFileOpen_OnClick(object sender, EventArgs e)
         {
             ShowOpenFileDialog();
-
-            return;
         }
 
         /// <summary>
@@ -204,8 +176,6 @@ namespace Forex_Strategy_Trader
         protected override void MenuFileSave_OnClick(object sender, EventArgs e)
         {
             SaveStrategy();
-
-            return;
         }
 
         /// <summary>
@@ -214,8 +184,6 @@ namespace Forex_Strategy_Trader
         protected override void MenuFileSaveAs_OnClick(object sender, EventArgs e)
         {
             SaveAsStrategy();
-
-            return;
         }
 
         /// <summary>
@@ -224,8 +192,6 @@ namespace Forex_Strategy_Trader
         protected override void MenuStrategyUndo_OnClick(object sender, EventArgs e)
         {
             UndoStrategy();
-
-            return;
         }
 
         /// <summary>
@@ -233,11 +199,9 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuStrategyCopy_OnClick(object sender, EventArgs e)
         {
-            Strategy_XML strategyXML = new Strategy_XML();
+            var strategyXML = new Strategy_XML();
             System.Xml.XmlDocument xmlDoc = strategyXML.CreateStrategyXmlDoc(Data.Strategy);
             Clipboard.SetText(xmlDoc.InnerXml);
-
-            return;
         }
 
         /// <summary>
@@ -252,8 +216,8 @@ namespace Forex_Strategy_Trader
             else if (dialogResult == DialogResult.Cancel)
                 return;
 
-            System.Xml.XmlDocument xmlDoc = new System.Xml.XmlDocument();
-            Strategy_XML strategyXML = new Strategy_XML();
+            var xmlDoc = new System.Xml.XmlDocument();
+            var strategyXML = new Strategy_XML();
             Strategy tempStrategy;
 
             try
@@ -284,8 +248,6 @@ namespace Forex_Strategy_Trader
 
             CalculateStrategy(true);
             AfterStrategyOpening();
-
-            return;
         }
 
         /// <summary>
@@ -303,8 +265,6 @@ namespace Forex_Strategy_Trader
         protected override void MenuStrategyAUPBV_OnClick(object sender, EventArgs e)
         {
             UsePreviousBarValue_Change();
-
-            return;
         }
 
         /// <summary>
@@ -312,10 +272,8 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuStrategyBBcode_OnClick(object sender, EventArgs e)
         {
-            Strategy_Publish publisher = new Strategy_Publish();
+            var publisher = new Strategy_Publish();
             publisher.Show();
-
-            return;
         }
 
         /// <summary>
@@ -353,7 +311,7 @@ namespace Forex_Strategy_Trader
                     break;
                 case "miOpenIndFolder":
                     try { System.Diagnostics.Process.Start(Data.SourceFolder); }
-                    catch (System.Exception ex) { MessageBox.Show(ex.Message); }
+                    catch (Exception ex) { MessageBox.Show(ex.Message); }
                     break;
                 case "miReloadInd":
                     Cursor = Cursors.WaitCursor;
@@ -365,8 +323,6 @@ namespace Forex_Strategy_Trader
                     break;
                 case "CommandConsole":
                     ShowCommandConsole();
-                    break;
-                default:
                     break;
             }
         }
@@ -380,9 +336,10 @@ namespace Forex_Strategy_Trader
             {
                 System.Diagnostics.Process.Start(Data.ProgramDir + @"\MetaTrader\Install MT Files.exe");
             }
-            catch { }
-
-            return;
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
         }
 
         /// <summary>
@@ -397,19 +354,19 @@ namespace Forex_Strategy_Trader
                 return;
             }
 
-            Button btn = (Button)sender;
+            var btn = (Button)sender;
 
             switch (btn.Name)
             {
                 case "btnBuy":
                     {
-                        MT4Bridge.OrderType type = MT4Bridge.OrderType.Buy;
+                        const OrderType type = OrderType.Buy;
                         string symbol     = Data.Symbol;
                         double lots       = NormalizeEntrySize(OperationLots);
                         double price      = Data.Ask;
                         int    slippage   = Configs.AutoSlippage ? (int)Data.InstrProperties.Spread * 3 : Configs.SlippageEntry;
                         
-                        int stopLossPips = 0;
+                        int stopLossPips;
                         if (OperationStopLoss > 0 && OperationTrailingStop > 0)
                             stopLossPips = Math.Min(OperationStopLoss, OperationTrailingStop);
                         else
@@ -421,14 +378,14 @@ namespace Forex_Strategy_Trader
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        JournalMessage jmsg = new JournalMessage(JournalIcons.OrderBuy, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
-                            Language.T("An entry order sent") + ": " + Language.T("Buy") + " {0} " + (lots == 1 ? Language.T("lot") : Language.T("lots")) + " " + Language.T("at") + " {1}, " +
+                        var jmsg = new JournalMessage(JournalIcons.OrderBuy, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                            Language.T("An entry order sent") + ": " + Language.T("Buy") + " {0} " + (Math.Abs(lots - 1) < 0.0001 ? Language.T("lot") : Language.T("lots")) + " " + Language.T("at") + " {1}, " +
                             Language.T("Stop Loss") + " {2}, " + Language.T("Take Profit") + " {3}", lots, price.ToString(Data.FF), stoploss.ToString(Data.FF), takeprofit.ToString(Data.FF)));
                         AppendJournalMessage(jmsg);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
-                        int response = bridge.OrderSend(symbol, type, lots, price, slippage, stopLossPips, OperationTakeProfit, parameters);
+                        int response = _bridge.OrderSend(symbol, type, lots, price, slippage, stopLossPips, OperationTakeProfit, parameters);
 
                         if (response >= 0)
                         {
@@ -442,13 +399,13 @@ namespace Forex_Strategy_Trader
                             if (Configs.PlaySounds)
                                 Data.SoundError.Play();
 
-                            if (bridge.LastError == 0)
+                            if (_bridge.LastError == 0)
                                 jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
                                     Language.T("Operation execution") + ": " + Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
                             else
                                 jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
                                     Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
-                                    MT4Bridge.MT4_Errors.ErrorDescription(bridge.LastError));
+                                    MT4_Errors.ErrorDescription(_bridge.LastError));
                             AppendJournalMessage(jmsg);
                             Data.WrongStopLoss = stopLossPips;
                             Data.WrongTakeProf = OperationTakeProfit;
@@ -457,13 +414,13 @@ namespace Forex_Strategy_Trader
                     break;
                 case "btnSell":
                     {
-                        MT4Bridge.OrderType type = MT4Bridge.OrderType.Sell;
+                        const OrderType type = OrderType.Sell;
                         string symbol     = Data.Symbol;
                         double lots       = NormalizeEntrySize(OperationLots);
                         double price      = Data.Bid;
                         int    slippage   = Configs.AutoSlippage ? (int)Data.InstrProperties.Spread * 3 : Configs.SlippageEntry;
                         
-                        int stopLossPips = 0;
+                        int stopLossPips;
                         if (OperationStopLoss > 0 && OperationTrailingStop > 0)
                             stopLossPips = Math.Min(OperationStopLoss, OperationTrailingStop);
                         else
@@ -475,14 +432,14 @@ namespace Forex_Strategy_Trader
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        JournalMessage jmsg = new JournalMessage(JournalIcons.OrderSell, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
-                            Language.T("An entry order sent") + ": " + Language.T("Sell") + " {0} " + (lots == 1 ? Language.T("lot") : Language.T("lots")) + " " + Language.T("at") + " {1}, " +
+                        var jmsg = new JournalMessage(JournalIcons.OrderSell, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                            Language.T("An entry order sent") + ": " + Language.T("Sell") + " {0} " + (Math.Abs(lots - 1) < 0.00001 ? Language.T("lot") : Language.T("lots")) + " " + Language.T("at") + " {1}, " +
                             Language.T("Stop Loss") + " {2}, " + Language.T("Take Profit") + " {3}", lots, price.ToString(Data.FF), stoploss.ToString(Data.FF), takeprofit.ToString(Data.FF)));
                         AppendJournalMessage(jmsg);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
-                        int response = bridge.OrderSend(symbol, type, lots, price, slippage, stopLossPips, OperationTakeProfit, parameters);
+                        int response = _bridge.OrderSend(symbol, type, lots, price, slippage, stopLossPips, OperationTakeProfit, parameters);
 
                         if (response >= 0)
                         {
@@ -496,13 +453,13 @@ namespace Forex_Strategy_Trader
                             if (Configs.PlaySounds)
                                 Data.SoundError.Play();
 
-                            if (bridge.LastError == 0)
+                            if (_bridge.LastError == 0)
                                 jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
                                     Language.T("Operation execution") + ": " + Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
                             else
                                 jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
                                     Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " + 
-                                    MT4Bridge.MT4_Errors.ErrorDescription(bridge.LastError));
+                                    MT4_Errors.ErrorDescription(_bridge.LastError));
                             AppendJournalMessage(jmsg);
                             Data.WrongStopLoss = stopLossPips;
                             Data.WrongTakeProf = OperationTakeProfit;
@@ -527,12 +484,12 @@ namespace Forex_Strategy_Trader
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        JournalMessage jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
-                            Language.T("An exit order sent") + ": " + Language.T("Close") + " {0} " + (lots == 1 ? Language.T("lot") : Language.T("lots")) + " " + 
+                        var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                            Language.T("An exit order sent") + ": " + Language.T("Close") + " {0} " + (Math.Abs(lots - 1) < 0.0001 ? Language.T("lot") : Language.T("lots")) + " " + 
                             Language.T("at") + " {1}", lots, price.ToString(Data.FF)));
                         AppendJournalMessage(jmsg);
 
-                        bool responseOK = bridge.OrderClose(ticket, lots, price, slippage);
+                        bool responseOK = _bridge.OrderClose(ticket, lots, price, slippage);
 
                         if (responseOK)
                             Data.AddBarStats(OperationType.Close, lots, price);
@@ -541,13 +498,13 @@ namespace Forex_Strategy_Trader
                             if (Configs.PlaySounds)
                                 Data.SoundError.Play();
 
-                            if (bridge.LastError == 0)
+                            if (_bridge.LastError == 0)
                                 jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
                                     Language.T("Operation execution") + ": " + Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
                             else
                                 jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
                                     Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
-                                    MT4Bridge.MT4_Errors.ErrorDescription(bridge.LastError));
+                                    MT4_Errors.ErrorDescription(_bridge.LastError));
                             AppendJournalMessage(jmsg);
                         }
                         Data.WrongStopLoss = 0;
@@ -573,7 +530,7 @@ namespace Forex_Strategy_Trader
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        int stopLossPips = 0;
+                        int stopLossPips;
                         if (OperationStopLoss > 0 && OperationTrailingStop > 0)
                             stopLossPips = Math.Min(OperationStopLoss, OperationTrailingStop);
                         else
@@ -582,14 +539,14 @@ namespace Forex_Strategy_Trader
                         double stoploss   = stopLossPips       > 0 ? price - sign * Data.InstrProperties.Point * stopLossPips       : 0;
                         double takeprofit = OperationTakeProfit > 0 ? price + sign * Data.InstrProperties.Point * OperationTakeProfit : 0;
 
-                        JournalMessage jmsg = new JournalMessage(JournalIcons.Recalculate, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                        var jmsg = new JournalMessage(JournalIcons.Recalculate, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
                             Language.T("A modify order sent") + ": " + Language.T("Stop Loss") + " {0}, " + Language.T("Take Profit") + " {1}",
                             stoploss.ToString(Data.FF), takeprofit.ToString(Data.FF)));
                         AppendJournalMessage(jmsg);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
-                        bool responseOK = bridge.OrderModify(ticket, price, stopLossPips, OperationTakeProfit, parameters);
+                        bool responseOK = _bridge.OrderModify(ticket, price, stopLossPips, OperationTakeProfit, parameters);
 
                         if (responseOK)
                         {
@@ -603,24 +560,20 @@ namespace Forex_Strategy_Trader
                             if (Configs.PlaySounds)
                                 Data.SoundError.Play();
 
-                            if (bridge.LastError == 0)
+                            if (_bridge.LastError == 0)
                                 jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
                                     Language.T("Operation execution") + ": " + Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
                             else
                                 jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
                                     Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
-                                    MT4Bridge.MT4_Errors.ErrorDescription(bridge.LastError));
+                                    MT4_Errors.ErrorDescription(_bridge.LastError));
                             AppendJournalMessage(jmsg);
                             Data.WrongStopLoss = stopLossPips;
                             Data.WrongTakeProf = OperationTakeProfit;
                         }
                     }
                     break;
-                default:
-                    break;
             }
-
-            return;
         }
 
         /// <summary>
@@ -628,9 +581,9 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuUseLogicalGroups_OnClick(object sender, EventArgs e)
         {
-            ToolStripMenuItem mi = (ToolStripMenuItem)sender;
+            var mi = (ToolStripMenuItem)sender;
 
-            if (mi.Checked == true)
+            if (mi.Checked)
             {
                 Configs.UseLogicalGroups = mi.Checked;
                 RebuildStrategyLayout();
@@ -639,7 +592,7 @@ namespace Forex_Strategy_Trader
 
             // Check if the current strategy uses logical groups
             bool usefroup = false;
-            List<string> closegroup = new List<string>();
+            var closegroup = new List<string>();
             foreach (IndicatorSlot slot in Data.Strategy.Slot)
             {
                 if (slot.SlotType == SlotTypes.OpenFilter && slot.LogicalGroup != "A")
@@ -665,13 +618,11 @@ namespace Forex_Strategy_Trader
                     Language.T("The strategy requires logical groups.") + Environment.NewLine +
                     Language.T("\"Use Logical Groups\" option cannot be switched off."),
                     Language.T("Logical Groups"),
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Information);
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
 
                 mi.Checked = true;
             }
-            
-            return;
         }
 
         /// <summary>
@@ -679,14 +630,13 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuOpeningLogicSlots_OnClick(object sender, EventArgs e)
         {
-            ToolStripMenuItem mi = (ToolStripMenuItem)sender;
+            var mi = (ToolStripMenuItem)sender;
             Configs.MAX_ENTRY_FILTERS = (int)mi.Tag;
 
             foreach (ToolStripMenuItem m in mi.Owner.Items)
                 m.Checked = ((int)m.Tag == Configs.MAX_ENTRY_FILTERS);
 
             RebuildStrategyLayout();
-            return;
         }
 
         /// <summary>
@@ -694,14 +644,13 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuClosingLogicSlots_OnClick(object sender, EventArgs e)
         {
-            ToolStripMenuItem mi = (ToolStripMenuItem)sender;
+            var mi = (ToolStripMenuItem)sender;
             Configs.MAX_EXIT_FILTERS = (int)mi.Tag;
 
             foreach (ToolStripMenuItem m in mi.Owner.Items)
                 m.Checked = ((int)m.Tag == Configs.MAX_EXIT_FILTERS);
 
             RebuildStrategyLayout();
-            return;
         }
 
         /// <summary>
@@ -722,11 +671,11 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void ResetTrader()
         {
-            tickLocalTime = DateTime.Now; // Prevents ping for one second.
+            _tickLocalTime = DateTime.Now; // Prevents ping for one second.
             StopTrade();
             Data.IsConnected = false;
 
-            bridge.ResetBarsManager();
+            _bridge.ResetBarsManager();
 
             Data.ResetBidAskClose();
             Data.ResetAccountStats();
@@ -737,8 +686,6 @@ namespace Forex_Strategy_Trader
             UpdateTickChart(Data.InstrProperties.Point, Data.ListTicks.ToArray());
             UpdateBalanceChart(Data.BalanceData, Data.BalanceDataPoints);
             UpdateChart();
-
-            return;
         }
 
         /// <summary>
@@ -746,10 +693,8 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void ShowCommandConsole()
         {
-            Command_Console commandConsole = new Command_Console();
+            var commandConsole = new Command_Console();
             commandConsole.Show();
-
-            return;
         }
 
         /// <summary>
@@ -757,10 +702,8 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void MakeNewTranslation()
         {
-            New_Translation nt = new New_Translation();
+            var nt = new New_Translation();
             nt.Show();
-
-            return;
         }
 
         /// <summary>
@@ -768,10 +711,8 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void EditTranslation()
         {
-            Edit_Translation et = new Edit_Translation();
+            var et = new Edit_Translation();
             et.Show();
-
-            return;
         }
     }
 }
