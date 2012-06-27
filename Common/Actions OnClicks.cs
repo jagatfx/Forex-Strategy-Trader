@@ -728,7 +728,7 @@ namespace Forex_Strategy_Trader
 
             bridge.ResetBarsManager();
 
-            Data.ResetBidAsk();
+            Data.ResetBidAskClose();
             Data.ResetAccountStats();
             Data.ResetPositionStats();
             Data.ResetBarStats();

@@ -6,6 +6,7 @@
 
 using System;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace Forex_Strategy_Trader
@@ -360,7 +361,7 @@ namespace Forex_Strategy_Trader
         {
             lock (lockerDataFeed)
             {
-                Data.ResetBidAsk();
+                Data.ResetBidAskClose();
                 Data.ResetAccountStats();
                 Data.ResetPositionStats();
                 Data.ResetBarStats();
@@ -511,8 +512,10 @@ namespace Forex_Strategy_Trader
                 if (countBars < 400)
                     return;
 
-                if (Data.Bars != countBars || Data.Time[countBars - 1] != bars.Time[countBars - 1] ||
-                    Data.Volume[countBars - 1] != bars.Volume[countBars - 1] || Data.Close[countBars - 1] != bars.Close[countBars - 1])
+                if (Data.Bars != countBars ||
+                    Data.Time[countBars - 1] != bars.Time[countBars - 1] ||
+                    Data.Volume[countBars - 1] != bars.Volume[countBars - 1] ||
+                    Math.Abs(Data.Close[countBars - 1] - bars.Close[countBars - 1]) > Data.InstrProperties.Point / 2d)
                 {
                     if (Data.Bars == countBars && Data.Time[countBars - 1] == bars.Time[countBars - 1] && Data.Time[countBars - 10] == bars.Time[countBars - 10])
                     {   // Update the last bar only.
@@ -540,6 +543,7 @@ namespace Forex_Strategy_Trader
                     }
 
                     // Calculate the strategy indicators.
+                    Data.LastClose = Data.Close[countBars - 1];
                     CalculateStrategy(true);
                     isUpdateChart = true;
                 }
@@ -996,14 +1000,14 @@ namespace Forex_Strategy_Trader
                 return;
             }
 
-            MT4Bridge.MarketInfo mi = bridge.GetMarketInfoAll(Data.Symbol);
+            var mi = bridge.GetMarketInfoAll(Data.Symbol);
             if (mi == null)
             {
                 SetBarDataText("   " + Language.T("Cannot update market info."));
                 return;
             }
 
-            string[] asMIParams = new string[] {
+            var asMIParams = new[] {
                 "Point",
                 "Digit",
                 "Spread",
@@ -1026,34 +1030,37 @@ namespace Forex_Strategy_Trader
                 "Margin Maintenance",
                 "Margin Hedged",
                 "Margin Required",
-                "Freeze Level"};
+                "Freeze Level",
+                "Markup"};
 
-            string[] asMIValues = new string[] {
-                mi.ModePoint.ToString("F" + mi.ModeDigits.ToString()),
-                mi.ModeDigits.ToString(),
-                mi.ModeSpread.ToString(),
-                mi.ModeStopLevel.ToString(),
-                mi.ModeLotSize.ToString(),
-                mi.ModeTickValue.ToString(),
-                mi.ModeTickSize.ToString("F" + mi.ModeDigits.ToString()),
-                mi.ModeSwapLong.ToString(),
-                mi.ModeSwapShort.ToString(),
-                mi.ModeStarting.ToString(),
-                mi.ModeExpiration.ToString(),
-                mi.ModeTradeAllowed.ToString(),
-                mi.ModeMinLot.ToString(),
-                mi.ModeLotStep.ToString(),
-                mi.ModeMaxLot.ToString(),
-                mi.ModeSwapType.ToString(),
-                mi.ModeProfitCalcMode.ToString(),
-                mi.ModeMarginCalcMode.ToString(),
-                mi.ModeMarginInit.ToString(),
-                mi.ModeMarginMaintenance.ToString(),
-                mi.ModeMarginHedged.ToString(),
-                mi.ModeMarginRequired.ToString(),
-                mi.ModeFreezeLevel.ToString()};
+            var asMIValues = new[] {
+                mi.ModePoint.ToString("F" + mi.ModeDigits.ToString(CultureInfo.InvariantCulture)),
+                mi.ModeDigits.ToString(CultureInfo.InvariantCulture),
+                mi.ModeSpread.ToString(CultureInfo.InvariantCulture),
+                mi.ModeStopLevel.ToString(CultureInfo.InvariantCulture),
+                mi.ModeLotSize.ToString(CultureInfo.InvariantCulture),
+                mi.ModeTickValue.ToString(CultureInfo.InvariantCulture),
+                mi.ModeTickSize.ToString("F" + mi.ModeDigits.ToString(CultureInfo.InvariantCulture)),
+                mi.ModeSwapLong.ToString(CultureInfo.InvariantCulture),
+                mi.ModeSwapShort.ToString(CultureInfo.InvariantCulture),
+                mi.ModeStarting.ToString(CultureInfo.InvariantCulture),
+                mi.ModeExpiration.ToString(CultureInfo.InvariantCulture),
+                mi.ModeTradeAllowed.ToString(CultureInfo.InvariantCulture),
+                mi.ModeMinLot.ToString(CultureInfo.InvariantCulture),
+                mi.ModeLotStep.ToString(CultureInfo.InvariantCulture),
+                mi.ModeMaxLot.ToString(CultureInfo.InvariantCulture),
+                mi.ModeSwapType.ToString(CultureInfo.InvariantCulture),
+                mi.ModeProfitCalcMode.ToString(CultureInfo.InvariantCulture),
+                mi.ModeMarginCalcMode.ToString(CultureInfo.InvariantCulture),
+                mi.ModeMarginInit.ToString(CultureInfo.InvariantCulture),
+                mi.ModeMarginMaintenance.ToString(CultureInfo.InvariantCulture),
+                mi.ModeMarginHedged.ToString(CultureInfo.InvariantCulture),
+                mi.ModeMarginRequired.ToString(CultureInfo.InvariantCulture),
+                mi.ModeFreezeLevel.ToString(CultureInfo.InvariantCulture),
+                (Data.LastClose - Data.Bid).ToString(CultureInfo.InvariantCulture),
+            };
 
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            var sb = new System.Text.StringBuilder();
             for (int i = 0; i < asMIParams.Length; i++)
             {
                 sb.AppendLine(string.Format("      {0,-20} {1}", asMIParams[i], asMIValues[i]));
@@ -1061,17 +1068,15 @@ namespace Forex_Strategy_Trader
             SetBarDataText(sb.ToString());
 
             // Sets Market Info
-            string[] asValue = new string[] {
+            var asValue = new[] {
                     Data.Symbol,
                     Data.DataPeriodToString(Data.Period),
-                    mi.ModeLotSize.ToString(),
-                    mi.ModePoint.ToString("F" + mi.ModeDigits.ToString()),
-                    mi.ModeSpread.ToString(),
-                    mi.ModeSwapLong.ToString(),
-                    mi.ModeSwapShort.ToString()};
+                    mi.ModeLotSize.ToString(CultureInfo.InvariantCulture),
+                    mi.ModePoint.ToString("F" + mi.ModeDigits.ToString(CultureInfo.InvariantCulture)),
+                    mi.ModeSpread.ToString(CultureInfo.InvariantCulture),
+                    mi.ModeSwapLong.ToString(CultureInfo.InvariantCulture),
+                    mi.ModeSwapShort.ToString(CultureInfo.InvariantCulture)};
             UpdateStatusPageMarketInfo(asValue);
-
-            return;
         }
 
         protected override void BtnShowBars_Click(object sender, EventArgs e)

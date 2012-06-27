@@ -153,8 +153,20 @@ namespace Forex_Strategy_Trader
                     buyPrice = sellPrice = component.Value[bar];
             }
 
-            double basePrice = Configs.LongTradeLogicPrice == "Bid" ? Data.Bid    : Data.Ask;
-            double oldPrice  = Configs.LongTradeLogicPrice == "Bid" ? Data.OldBid : Data.OldAsk;
+            double basePrice = Data.Bid;
+            double oldPrice = Data.OldBid;
+
+            switch (Configs.LongTradeLogicPrice)
+            {
+                case "Ask":
+                    basePrice = Data.Ask;
+                    oldPrice = Data.OldAsk;
+                    break;
+                case "Close":
+                    basePrice = Data.LastClose;
+                    oldPrice = Data.OldClose;
+                    break;
+            }
 
             bool canOpenLong = (buyPrice > oldPrice  + micron && buyPrice < basePrice + micron) ||
                                (buyPrice > basePrice - micron && buyPrice < oldPrice  - micron);

@@ -53,17 +53,20 @@ namespace Forex_Strategy_Trader
         public static int[]      Volume { get { return aiVolume; } set { aiVolume = value; } }
 
         // Bid Ask prices.
-        static double bid;
-        static double ask;
-        static double oldbid;
-        static double oldask;
-        public static double Bid    { get { return bid; } set { oldbid = bid; bid = value; } }
-        public static double Ask    { get { return ask; } set { oldask = ask; ask = value; } }
-        public static double OldBid { get { return oldbid; } }
-        public static double OldAsk { get { return oldask; } }
-        public static void ResetBidAsk()
+        static double _bid;
+        public static double Bid    { get { return _bid; } set { OldBid = _bid; _bid = value; } }
+        public static double OldBid { get; private set; }
+        static double _ask;
+        public static double Ask    { get { return _ask; } set { OldAsk = _ask; _ask = value; } }
+        public static double OldAsk { get; private set; }
+        static double _close;
+        public static double LastClose { get { return _close; } set { OldClose = _close; _close = value; } }
+        public static double OldClose { get; private set; }
+
+        public static void ResetBidAskClose()
         {
-            oldbid = oldask = bid = ask = 0;
+            OldBid = OldAsk = OldClose = 0;
+            _bid = _ask = _close = 0;
         }
 
         // Server time
