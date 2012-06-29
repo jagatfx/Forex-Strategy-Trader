@@ -1,6 +1,6 @@
 //+--------------------------------------------------------------------+
 //| File name:  MT4-FST Expert.mq4                                     |
-//| Version:    1.13 2012-04-23                                        |
+//| Version:    1.14 2012-06-29                                        |
 //| Copyright:  © 2012, Miroslav Popov - All rights reserved!          |
 //| Website:    http://forexsb.com/                                    |
 //| Support:    http://forexsb.com/forum/                              |
@@ -27,7 +27,7 @@
 #property copyright "Copyright © 2012, Miroslav Popov"
 #property link      "http://forexsb.com/"
 
-#define EXPERT_VERSION           "1.13"
+#define EXPERT_VERSION           "1.14"
 #define SERVER_SEMA_NAME         "MT4-FST Expert ID - "
 #define TRADE_SEMA_NAME          "TradeIsBusy"
 #define TRADE_SEMA_WAIT          100
@@ -58,11 +58,11 @@ void FST_CloseConnection(int id);
 void FST_Ping(int id, string symbol, int period, int time, double bid, double ask, int spread, double tickval, double rates[][6], int bars,
         double accountBalance, double accountEquity, double accountProfit, double accountFreeMargin, int positionTicket,
         int positionType, double positionLots, double positionOpenPrice, int positionOpenTime, double positionStopLoss,
-        double positionTakeProfit, double positionProfit, string positionComment);
+        double positionTakeProfit, double positionProfit, string positionComment, string parameters);
 int FST_Tick(int id, string symbol, int period, int time, double bid, double ask, int spread, double tickval, double rates[][6], int bars,
         double accountBalance, double accountEquity, double accountProfit, double accountFreeMargin, int positionTicket,
         int positionType, double positionLots, double positionOpenPrice, int positionOpenTime, double positionStopLoss,
-        double positionTakeProfit, double positionProfit, string positionComment);
+        double positionTakeProfit, double positionProfit, string positionComment, string parameters);
 void FST_MarketInfoAll(int id, double point, double digits, double spread, double stoplevel, double lotsize,
         double tickvalue, double ticksize, double swaplong, double swapshort, double starting, double expiration,
         double tradeallowed, double minlot, double lotstep, double maxlot, double swaptype, double profitcalcmode,
@@ -1583,6 +1583,19 @@ void ParseOrderParameters(string parameters)
     return;
 }
 
+///
+/// Prepares and returns parameters for sending to FST as a string.
+///
+string GenerateParameters(string symbol)
+{
+   string parametrs = 
+      "int=" + 123456 + ";" +
+      "dbl=" + MarketInfo(symbol, MODE_BID) + ";" +
+      "str=" + AccountServer();
+   
+   return (parametrs);
+}
+
 // ===========================================================================
 
 ///
@@ -1603,7 +1616,8 @@ void GetPing(string symbol)
 
     FST_Ping(Connection_ID, symbol, Period(), TimeCurrent(), bid, ask, spread, tickval, rates, Bars,
         AccountBalance(), AccountEquity(), AccountProfit(), AccountFreeMargin(),
-        PositionTicket, PositionType, PositionLots, PositionOpenPrice, PositionTime, PositionStopLoss, PositionTakeProfit, PositionProfit, PositionComment);
+        PositionTicket, PositionType, PositionLots, PositionOpenPrice, PositionTime, PositionStopLoss, PositionTakeProfit, PositionProfit, PositionComment,
+        GenerateParameters(symbol));
 
    return;
 }
@@ -1626,7 +1640,8 @@ int SendTick(string symbol)
 
     int responce = FST_Tick(Connection_ID, symbol, Period(), TimeCurrent(), bid, ask, spread, tickval, rates, Bars,
         AccountBalance(), AccountEquity(), AccountProfit(), AccountFreeMargin(),
-        PositionTicket, PositionType, PositionLots, PositionOpenPrice, PositionTime, PositionStopLoss, PositionTakeProfit, PositionProfit, PositionComment);
+        PositionTicket, PositionType, PositionLots, PositionOpenPrice, PositionTime, PositionStopLoss, PositionTakeProfit, PositionProfit, PositionComment,
+        GenerateParameters(symbol));
 
     return (responce);
 }

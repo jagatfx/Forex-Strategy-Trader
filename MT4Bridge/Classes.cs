@@ -55,6 +55,7 @@ namespace MT4Bridge
         double     positionTakeProfit;
         double     positionProfit;
         string     positionComment;
+        string     parameters;
 
         public string     Symbol             { get { return symbol;             } }
         public PeriodType Period             { get { return period;             } }
@@ -77,11 +78,13 @@ namespace MT4Bridge
         public double     PositionTakeProfit { get { return positionTakeProfit; } }
         public double     PositionProfit     { get { return positionProfit;     } }
         public string     PositionComment    { get { return positionComment;    } }
+        public string     Parameters         { get { return parameters;         } }
 
         public TickEventArgs(string symbol, PeriodType period, DateTime bartime, DateTime time, double bid, double ask, int spread, double tickvalue,
                     double accountBalance, double accountEquity, double accountProfit, double accountFreeMargin,
                     int positionTicket, int positionType, double positionLots, double positionOpenPrice, DateTime positionOpenTime,
-                    double positionStopLoss, double positionTakeProfit, double positionProfit, string positionComment)
+                    double positionStopLoss, double positionTakeProfit, double positionProfit, string positionComment,
+                    string parameters)
         {
             this.symbol             = symbol;
             this.period             = period;
@@ -104,6 +107,7 @@ namespace MT4Bridge
             this.positionTakeProfit = positionTakeProfit;
             this.positionProfit     = positionProfit;
             this.positionComment    = positionComment;
+            this.parameters         = parameters;
         }
     };
 
@@ -130,6 +134,7 @@ namespace MT4Bridge
         double     positionTakeProfit;
         double     positionProfit;
         string     positionComment;
+        string     parameters;
 
         public string     Symbol             { get { return symbol;             } }
         public PeriodType Period             { get { return period;             } }
@@ -152,11 +157,13 @@ namespace MT4Bridge
         public double     PositionTakeProfit { get { return positionTakeProfit; } }
         public double     PositionProfit     { get { return positionProfit;     } }
         public string     PositionComment    { get { return positionComment;    } }
+        public string     Parameters         { get { return parameters;         } }
 
         public PingInfo(string symbol, PeriodType period, DateTime bartime, DateTime time, double bid, double ask, int spread, double tickvalue,
                     double accountBalance, double accountEquity, double accountProfit, double accountFreeMargin,
                     int positionTicket, int positionType, double positionLots, double positionOpenPrice, DateTime positionOpenTime,
-                    double positionStopLoss, double positionTakeProfit, double positionProfit, string positionComment)
+                    double positionStopLoss, double positionTakeProfit, double positionProfit, string positionComment,
+                    string parameters)
         {
             this.symbol             = symbol;
             this.period             = period;
@@ -179,6 +186,7 @@ namespace MT4Bridge
             this.positionTakeProfit = positionTakeProfit;
             this.positionProfit     = positionProfit;
             this.positionComment    = positionComment;
+            this.parameters         = parameters;
         }
     }
 

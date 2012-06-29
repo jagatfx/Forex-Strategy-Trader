@@ -184,6 +184,8 @@ namespace Forex_Strategy_Trader
                     bool isPosChanged = Data.SetCurrentPosition(ping.PositionTicket, ping.PositionType, ping.PositionLots, ping.PositionOpenPrice, ping.PositionOpenTime,
                                                               ping.PositionStopLoss, ping.PositionTakeProfit, ping.PositionProfit, ping.PositionComment);
 
+                    ParseAndSetParametrs(ping.Parameters);
+
                     SetDataAndCalculate(ping.Symbol, ping.Period, dtPingServerTime, isNewPrice, bUpdateData);
 
                     SetEquityInfoText(string.Format("{0:F2} {1}", ping.AccountEquity, Data.AccountCurrency));
@@ -292,6 +294,8 @@ namespace Forex_Strategy_Trader
                 bool isAccChanged = Data.SetCurrentAccount(tea.Time, tea.AccountBalance, tea.AccountEquity, tea.AccountProfit, tea.AccountFreeMargin);
                 bool isPosChanged = Data.SetCurrentPosition(tea.PositionTicket, tea.PositionType, tea.PositionLots, tea.PositionOpenPrice, tea.PositionOpenTime,
                                                           tea.PositionStopLoss, tea.PositionTakeProfit, tea.PositionProfit, tea.PositionComment);
+
+                ParseAndSetParametrs(tea.Parameters);
 
                 const bool updateData = true;
                 SetDataAndCalculate(tea.Symbol, tea.Period, tea.Time, bNewPrice, updateData);
@@ -659,6 +663,31 @@ namespace Forex_Strategy_Trader
         int MaxBarsCount(int period)
         {
             return Math.Max(2 * 1440 / period + 10, Configs.MinChartBars);
+        }
+
+        void ParseAndSetParametrs(string parameters)
+        {
+            string[] splitParams = parameters.Split(new[] {';'});
+
+            foreach (string param in splitParams)
+            {
+                string[] pair = param.Split(new[] {'='}, 2);
+                string name = pair[0];
+                string rowValue = pair[1];
+
+                switch (name)
+                {
+                    case "int":
+                        Console.WriteLine("{0} = {1}", name, int.Parse(rowValue));
+                        break;
+                    case "dbl":
+                        Console.WriteLine("{0} = {1}", name, double.Parse(rowValue));
+                        break;
+                    case "str":
+                        Console.WriteLine("{0} = {1}", name, rowValue);
+                        break;
+                }
+            }
         }
 
         /// <summary>

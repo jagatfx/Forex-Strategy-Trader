@@ -90,7 +90,7 @@ namespace MT4Bridge
                 return null;
 
             string[] reply = rc.Substring(3).Split(new char[] { ' ' });
-            if (reply.Length != 27)
+            if (reply.Length != 28)
                 return null;
 
             try {
@@ -126,12 +126,14 @@ namespace MT4Bridge
                 double     positionTakeProfit = StringToDouble(reply[24]);
                 double     positionProfit     = StringToDouble(reply[25]);
                 string     positionComment    = reply[26];
+                string     parameters         = reply[27];
 
                 bridge.barsManager.UpdateBar(symbol, period, bartime, open, high, low, close, volume, bartime10);
 
                 PingInfo pingInfo = new PingInfo(symbol, period, bartime, time, bid, ask, spread, tickvalue,
                     accountBalance, accountEquity, accountProfit, accountFreeMargin, positionTicket, positionType,
-                    positionLots, positionOpenPrice, positionOpenTime, positionStopLoss, positionTakeProfit, positionProfit, positionComment);
+                    positionLots, positionOpenPrice, positionOpenTime, positionStopLoss, positionTakeProfit, positionProfit, positionComment,
+                    parameters);
 
                 return pingInfo;
             } catch (FormatException) {
