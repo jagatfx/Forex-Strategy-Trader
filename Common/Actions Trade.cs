@@ -26,7 +26,6 @@ namespace Forex_Strategy_Trader
         private bool _isEnteredLong; // Whether we have already entered long during this bar.
         private bool _isEnteredShort; // Whether we have already entered short during this bar.
         private double _maximumLots;
-        private double _micron;
         private StrategyPriceType _openStrPriceType;
         private ExecutionTime _openTimeExec;
         private List<string> _openingLogicGroups;
@@ -37,8 +36,6 @@ namespace Forex_Strategy_Trader
         /// </summary>
         private void InitTrade()
         {
-            _micron = Data.InstrProperties.Point/2d;
-
             // Sets the maximum lots
             _maximumLots = 100;
             foreach (IndicatorSlot slot in Data.Strategy.Slot)
@@ -163,11 +160,11 @@ namespace Forex_Strategy_Trader
                     break;
             }
 
-            bool canOpenLong = (buyPrice > oldPrice + _micron && buyPrice < basePrice + _micron) ||
-                               (buyPrice > basePrice - _micron && buyPrice < oldPrice - _micron);
+            bool canOpenLong = (buyPrice > oldPrice + Epsilon && buyPrice < basePrice + Epsilon) ||
+                               (buyPrice > basePrice - Epsilon && buyPrice < oldPrice - Epsilon);
 
-            bool canOpenShort = (sellPrice > Data.OldBid + _micron && sellPrice < Data.Bid + _micron) ||
-                                (sellPrice > Data.Bid - _micron && sellPrice < Data.OldBid - _micron);
+            bool canOpenShort = (sellPrice > Data.OldBid + Epsilon && sellPrice < Data.Bid + Epsilon) ||
+                                (sellPrice > Data.Bid - Epsilon && sellPrice < Data.OldBid - Epsilon);
 
             TradeDirection direction = TradeDirection.None;
 
@@ -190,7 +187,7 @@ namespace Forex_Strategy_Trader
 
             // Do not send entry order when we are not on time
             if (_openTimeExec == ExecutionTime.AtBarOpening &&
-                Math.Abs(Data.Strategy.Slot[Data.Strategy.OpenSlot].Component[0].Value[bar] - 0) < 0.001)
+                Data.Strategy.Slot[Data.Strategy.OpenSlot].Component[0].Value[bar] < Epsilon) // TODO Inspect why we check exactly component 0 
                 return TradeDirection.None;
 
             foreach (IndicatorSlot slot in Data.Strategy.Slot)
@@ -305,24 +302,24 @@ namespace Forex_Strategy_Trader
                         switch (component.PosPriceDependence)
                         {
                             case PositionPriceDependence.PriceBuyHigher:
-                                canOpenLong = canOpenLong && buyPrice > indicatorValue + _micron;
+                                canOpenLong = canOpenLong && buyPrice > indicatorValue + Epsilon;
                                 break;
                             case PositionPriceDependence.PriceBuyLower:
-                                canOpenLong = canOpenLong && buyPrice < indicatorValue - _micron;
+                                canOpenLong = canOpenLong && buyPrice < indicatorValue - Epsilon;
                                 break;
                             case PositionPriceDependence.PriceSellHigher:
-                                canOpenShort = canOpenShort && sellPrice > indicatorValue + _micron;
+                                canOpenShort = canOpenShort && sellPrice > indicatorValue + Epsilon;
                                 break;
                             case PositionPriceDependence.PriceSellLower:
-                                canOpenShort = canOpenShort && sellPrice < indicatorValue - _micron;
+                                canOpenShort = canOpenShort && sellPrice < indicatorValue - Epsilon;
                                 break;
                             case PositionPriceDependence.BuyHigherSellLower:
-                                canOpenLong = canOpenLong && buyPrice > indicatorValue + _micron;
-                                canOpenShort = canOpenShort && sellPrice < indicatorValue - _micron;
+                                canOpenLong = canOpenLong && buyPrice > indicatorValue + Epsilon;
+                                canOpenShort = canOpenShort && sellPrice < indicatorValue - Epsilon;
                                 break;
                             case PositionPriceDependence.BuyLowerSelHigher:
-                                canOpenLong = canOpenLong && buyPrice < indicatorValue - _micron;
-                                canOpenShort = canOpenShort && sellPrice > indicatorValue + _micron;
+                                canOpenLong = canOpenLong && buyPrice < indicatorValue - Epsilon;
+                                canOpenShort = canOpenShort && sellPrice > indicatorValue + Epsilon;
                                 break;
                         }
                     }
@@ -365,7 +362,7 @@ namespace Forex_Strategy_Trader
                             }
                             break;
                         case SameDirSignalAction.Winner:
-                            if (Data.PositionProfit > _micron &&
+                            if (Data.PositionProfit > Epsilon &&
                                 Data.PositionLots + TradingSize(Data.Strategy.AddingLots) <
                                 _maximumLots + Data.InstrProperties.LotStep/2)
                             {
@@ -461,13 +458,13 @@ namespace Forex_Strategy_Trader
             // Check if the closing price was reached.
             if (canCloseLong)
             {
-                canCloseLong = (sellPrice > Data.OldBid + _micron && sellPrice < Data.Bid + _micron) ||
-                               (sellPrice > Data.Bid - _micron && sellPrice < Data.OldBid - _micron);
+                canCloseLong = (sellPrice > Data.OldBid + Epsilon && sellPrice < Data.Bid + Epsilon) ||
+                               (sellPrice > Data.Bid - Epsilon && sellPrice < Data.OldBid - Epsilon);
             }
             if (canCloseShort)
             {
-                canCloseShort = (buyPrice > Data.OldBid + _micron && buyPrice < Data.Bid + _micron) ||
-                                (buyPrice > Data.Bid - _micron && buyPrice < Data.OldBid - _micron);
+                canCloseShort = (buyPrice > Data.OldBid + Epsilon && buyPrice < Data.Bid + Epsilon) ||
+                                (buyPrice > Data.Bid - Epsilon && buyPrice < Data.OldBid - Epsilon);
             }
 
             // Determine the trading direction.
@@ -491,7 +488,7 @@ namespace Forex_Strategy_Trader
             int bar = Data.Bars - 1;
 
             if (_closeTimeExec == ExecutionTime.AtBarClosing &&
-                Math.Abs(Data.Strategy.Slot[Data.Strategy.CloseSlot].Component[0].Value[bar] - 0) < 0.001)
+                Data.Strategy.Slot[Data.Strategy.CloseSlot].Component[0].Value[bar] < Epsilon)  // TODO Inspect why we check exactly component 0 
                 return TradeDirection.None;
 
             if (Data.Strategy.CloseFilters == 0)
@@ -651,15 +648,16 @@ namespace Forex_Strategy_Trader
             double permLimit = Data.Strategy.UsePermanentTP ? Data.Strategy.PermanentTP : double.MaxValue;
             double indLimit = double.MaxValue;
             bool isIndLimit = true;
+            IndicatorSlot closeSlot = Data.Strategy.Slot[Data.Strategy.CloseSlot];
 
-            switch (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndicatorName)
+            switch (closeSlot.IndicatorName)
             {
                 case "Take Profit":
-                    indLimit = Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[0].Value;
+                    indLimit = closeSlot.IndParam.NumParam[0].Value;
                     break;
                 case "Stop Limit":
                 case "Trailing Stop Limit":
-                    indLimit = Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[1].Value;
+                    indLimit = closeSlot.IndParam.NumParam[1].Value;
                     break;
                 default:
                     isIndLimit = false;
@@ -764,9 +762,7 @@ namespace Forex_Strategy_Trader
             var jmsg = new JournalMessage(icon, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
                                                                             Language.T("An entry order sent") + ": " +
                                                                             Language.T(ordDir.ToString()) + " {0} " +
-                                                                            (Math.Abs(lots - 1) < 0.0001
-                                                                                 ? Language.T("lot")
-                                                                                 : Language.T("lots")) + " " +
+                                                                            LotOrLots(lots) + " " +
                                                                             Language.T("at") + " {1}, " +
                                                                             Language.T("Stop Loss") + " {2}, " +
                                                                             Language.T("Take Profit") + " {3}",
@@ -830,9 +826,10 @@ namespace Forex_Strategy_Trader
                 Data.SoundOrderSent.Play();
 
             var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now,
-                                          string.Format(symbol + " " + Data.PeriodMTStr + " " + Language.T("An exit order sent") +
-                                              ": " + Language.T("Close") + " {0} " + (Math.Abs(lots - 1) < 0.00001 ? Language.T("lot") : Language.T("lots")) +
-                                              " " + Language.T("at") + " {1}", lots, price.ToString(Data.FF)));
+                                          string.Format(symbol + " " + Data.PeriodMTStr + " " + Language.T("An exit order sent") + ": " +
+                                          Language.T("Close") + " {0} " +
+                                          LotOrLots(lots) + " " + Language.T("at") + " {1}",
+                                          lots, price.ToString(Data.FF)));
             AppendJournalMessage(jmsg);
 
             bool responseOK = _bridge.OrderClose(ticket, lots, price, slippage);
@@ -847,12 +844,10 @@ namespace Forex_Strategy_Trader
                 if (_bridge.LastError == 0)
                     jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
                                               Language.T("Operation execution") + ": " +
-                                              Language.T("MetaTrader is not responding!").Replace("MetaTrader",
-                                                                                                  Data.TerminalName));
+                                              Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
                 else
                     jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                                              Language.T("MetaTrader failed to execute order! Returned").Replace(
-                                                  "MetaTrader", Data.TerminalName) + ": " +
+                                              Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
                                               MT4_Errors.ErrorDescription(_bridge.LastError));
                 AppendJournalMessage(jmsg);
             }
@@ -961,20 +956,20 @@ namespace Forex_Strategy_Trader
         /// </summary>
         private bool IsWrongStopsExecution()
         {
+            const int maxRetry = 4;
+
             if (Data.PositionDirection == PosDirection.Closed ||
-                Math.Abs(Data.PositionLots - 0) < 0.00001 ||
-                Data.WrongStopsRetry >= 4)
+                Data.PositionLots < Epsilon ||
+                Data.WrongStopsRetry >= maxRetry)
             {
                 Data.WrongStopLoss = 0;
                 Data.WrongTakeProf = 0;
                 Data.WrongStopsRetry = 0;
                 return false;
             }
-            if (Data.WrongStopLoss > 0 && Data.PositionTakeProfit < 0.001 ||
-                Data.WrongTakeProf > 0 && Data.PositionStopLoss < 0.001)
-                return true;
 
-            return false;
+            return Data.WrongStopLoss > 0 && Data.PositionStopLoss < Epsilon ||
+                   Data.WrongTakeProf > 0 && Data.PositionTakeProfit < Epsilon;
         }
 
         /// <summary>
@@ -1119,8 +1114,7 @@ namespace Forex_Strategy_Trader
                 case "Trailing Stop":
                 case "Trailing Stop Limit":
                     trailTrailingStop = (int) Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[0].Value;
-                    if (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.ListParam[1].Text ==
-                        "Trails at a new top/bottom")
+                    if (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.ListParam[1].Text == "Trails at a new top/bottom")
                         trailingStopMode = "TS1";
                     break;
             }
@@ -1135,6 +1129,13 @@ namespace Forex_Strategy_Trader
             string parameters = trailingStopParam + ";" + breakEvenParam;
 
             return parameters;
+        }
+
+        private string LotOrLots(double lots)
+        {
+            return Math.Abs(lots - 1) < Epsilon
+                ? Language.T("lot")
+                : Language.T("lots");
         }
     }
 }

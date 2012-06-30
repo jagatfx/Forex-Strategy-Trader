@@ -394,10 +394,8 @@ namespace Forex_Strategy_Trader
                                                       string.Format(symbol + " " + Data.PeriodMTStr + " " +
                                                                     Language.T("An entry order sent") + ": " +
                                                                     Language.T("Buy") + " {0} " +
-                                                                    (Math.Abs(lots - 1) < 0.0001
-                                                                         ? Language.T("lot")
-                                                                         : Language.T("lots")) + " " + Language.T("at") +
-                                                                    " {1}, " +
+                                                                    LotOrLots(lots) + " " +
+                                                                    Language.T("at") + " {1}, " +
                                                                     Language.T("Stop Loss") + " {2}, " +
                                                                     Language.T("Take Profit") + " {3}", lots,
                                                                     price.ToString(Data.FF), stoploss.ToString(Data.FF),
@@ -466,10 +464,8 @@ namespace Forex_Strategy_Trader
                                                       string.Format(symbol + " " + Data.PeriodMTStr + " " +
                                                                     Language.T("An entry order sent") + ": " +
                                                                     Language.T("Sell") + " {0} " +
-                                                                    (Math.Abs(lots - 1) < 0.00001
-                                                                         ? Language.T("lot")
-                                                                         : Language.T("lots")) + " " + Language.T("at") +
-                                                                    " {1}, " +
+                                                                    LotOrLots(lots) + " " +
+                                                                    Language.T("at") + " {1}, " +
                                                                     Language.T("Stop Loss") + " {2}, " +
                                                                     Language.T("Take Profit") + " {3}", lots,
                                                                     price.ToString(Data.FF), stoploss.ToString(Data.FF),
@@ -497,12 +493,10 @@ namespace Forex_Strategy_Trader
                             if (_bridge.LastError == 0)
                                 jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
                                                           Language.T("Operation execution") + ": " +
-                                                          Language.T("MetaTrader is not responding!").Replace(
-                                                              "MetaTrader", Data.TerminalName));
+                                                          Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
                             else
                                 jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                                                          Language.T("MetaTrader failed to execute order! Returned").
-                                                              Replace("MetaTrader", Data.TerminalName) + ": " +
+                                                          Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
                                                           MT4_Errors.ErrorDescription(_bridge.LastError));
                             AppendJournalMessage(jmsg);
                             Data.WrongStopLoss = stopLossPips;
@@ -533,11 +527,9 @@ namespace Forex_Strategy_Trader
                                                       string.Format(symbol + " " + Data.PeriodMTStr + " " +
                                                                     Language.T("An exit order sent") + ": " +
                                                                     Language.T("Close") + " {0} " +
-                                                                    (Math.Abs(lots - 1) < 0.0001
-                                                                         ? Language.T("lot")
-                                                                         : Language.T("lots")) + " " +
-                                                                    Language.T("at") + " {1}", lots,
-                                                                    price.ToString(Data.FF)));
+                                                                    LotOrLots(lots) + " " +
+                                                                    Language.T("at") + " {1}",
+                                                                    lots, price.ToString(Data.FF)));
                         AppendJournalMessage(jmsg);
 
                         bool responseOK = _bridge.OrderClose(ticket, lots, price, slippage);

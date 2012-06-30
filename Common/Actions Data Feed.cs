@@ -35,6 +35,7 @@ namespace Forex_Strategy_Trader
         private DateTime _tickLocalTime = DateTime.MinValue;
         private DateTime _tickServerTime = DateTime.MinValue;
         private Timer _timerPing;
+        private const double Epsilon = 0.000001;
 
         /// <summary>
         /// Initializes data feed.
@@ -799,11 +800,10 @@ namespace Forex_Strategy_Trader
                 img = (Data.PositionType == 0 ? Resources.pos_buy : Resources.pos_sell);
                 icon = (Data.PositionType == 0 ? JournalIcons.PosBuy : JournalIcons.PosSell);
                 text = string.Format((Data.PositionType == 0 ? Language.T("Long") : Language.T("Short")) + " {0} " +
-                                     (Math.Abs(Data.PositionLots - 1) < 0.00001 ? Language.T("lot") : Language.T("lots")) +
-                                     " " + Language.T("at") + " {1}, " +
+                                     LotOrLots(Data.PositionLots) + " " + Language.T("at") + " {1}, " +
                                      Language.T("Stop Loss") + " {2}, " + Language.T("Take Profit") + " {3}, " +
-                                     Language.T("Profit") +
-                                     " {4} " + Data.AccountCurrency, Data.PositionLots,
+                                     Language.T("Profit") + " {4} " + Data.AccountCurrency,
+                                     Data.PositionLots,
                                      Data.PositionOpenPrice.ToString(format),
                                      Data.PositionStopLoss.ToString(format), Data.PositionTakeProfit.ToString(format),
                                      Data.PositionProfit.ToString("F2"));
