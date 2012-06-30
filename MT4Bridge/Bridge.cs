@@ -5,18 +5,19 @@
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace MT4Bridge
 {
     public class Bridge
     {
-        Server server;
-        Client client;
-        internal BarsManager barsManager = new BarsManager();
+        Server _server;
+        Client _client;
+        internal BarsManager BarsManager = new BarsManager();
 
-        int code;
-        public int LastError { get { return code; } }
+        int _code;
+        public int LastError { get { return _code; } }
 
         ~Bridge()
         {
@@ -25,52 +26,51 @@ namespace MT4Bridge
 
         public void Start(int id)
         {
-            server = new Server(this, id);
-            client = new Client(this, id);
+            _server = new Server(this, id);
+            _client = new Client(this, id);
         }
 
         public void Stop()
         {
-            if (server != null) {
+            if (_server != null) {
                 try {
-                    server.Stop();
+                    _server.Stop();
                 } finally {
-                    server = null;
+                    _server = null;
                 }
             }
         }
 
-        const string LOG_FILENAME = "bridge.log";
-        static bool isWriteLog = true;
+        const string LogFilename = "bridge.log";
+        static bool _isWriteLog = true;
         /// <summary>
         /// Sets if Bridge writes log file.
         /// </summary>
-        public bool WriteLog { set { isWriteLog = value; } }
+        public bool WriteLog { set { _isWriteLog = value; } }
 
         /// <summary>
         /// Writes a massage to the log file.
         /// </summary>
         internal static void Log(string message)
         {
-            if (!isWriteLog)
+            if (!_isWriteLog)
                 return;
             
             lock (typeof(Bridge))
             {
                 try
                 {
-                    using (StreamWriter sw = File.AppendText(LOG_FILENAME))
-                        sw.WriteLine(DateTime.Now.ToString() + " - " + message);
+                    using (StreamWriter sw = File.AppendText(LogFilename))
+                        sw.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + " - " + message);
                 }
-                catch { }
+                catch (Exception exception)
+                { Console.WriteLine(exception.Message);}
             }
-
-            return;
         }
 
         public PingInfo GetPingInfo()
         {
-            PingInfo ping = client.Ping();
+            PingInfo ping = _client.Ping();
             return ping;
         }
 
@@ -83,7 +83,7 @@ namespace MT4Bridge
         {
             if (OnTick != null)
             {
-                TickEventArgs tickea = new TickEventArgs(symbol, period, bartime, time, bid, ask, spread, tickvalue,
+                var tickea = new TickEventArgs(symbol, period, bartime, time, bid, ask, spread, tickvalue,
                     accountBalance, accountEquity, accountProfit, accountFreeMargin,
                     positionTicket, positionType, positionLots, positionOpenPrice, positionOpenTime,
                     positionStopLoss, positionTakeProfit, positionProfit, positionComment, parameters);
@@ -94,53 +94,53 @@ namespace MT4Bridge
 
         public void ResetBarsManager()
         {
-            barsManager = new BarsManager();
+            BarsManager = new BarsManager();
         }
 
         public Bars GetBars(string symbol, PeriodType period)
         {
-            return barsManager.GetBars(symbol, period, client);
+            return BarsManager.GetBars(symbol, period, _client);
         }
 
         public SymbolInfo GetSymbolInfo(string symbol)
         {
-            return client.Symbol(symbol);
+            return _client.Symbol(symbol);
         }
 
         public AccountInfo GetAccountInfo()
         {
-            return client.Account();
+            return _client.Account();
         }
 
         public double GetMarketInfo(string symbol, int mode)
         {
-            return client.MarketInfo(symbol, mode);
+            return _client.MarketInfo(symbol, mode);
         }
 
         public MarketInfo GetMarketInfoAll(string symbol)
         {
-            return client.MarketInfoAll(symbol);
+            return _client.MarketInfoAll(symbol);
         }
 
         public TerminalInfo GetTerminalInfo()
         {
-            return client.Terminal();
+            return _client.Terminal();
         }
 
         public int[] Orders() { return Orders(null); }
         public int[] Orders(string symbol)
         {
-            return client.Orders(symbol);
+            return _client.Orders(symbol);
         }
 
         public OrderInfo OrderInfo(int ticket)
         {
-            return client.OrderInfo(ticket);
+            return _client.OrderInfo(ticket);
         }
 
         bool SaveCode(Response response)
         {
-            code = response.Code;
+            _code = response.Code;
             return response.OK;
         }
 
@@ -150,7 +150,7 @@ namespace MT4Bridge
         }
         public int OrderSend(string symbol, OrderType type, double lots, double price, int slippage, double stoploss, double takeprofit, int magic, DateTime expire, string parameters)
         {
-            Response rc = client.OrderSend(symbol, type, lots, price, slippage, stoploss, takeprofit, magic, expire, parameters);
+            Response rc = _client.OrderSend(symbol, type, lots, price, slippage, stoploss, takeprofit, magic, expire, parameters);
             return SaveCode(rc) ? rc.Code : -1;
         }
 
@@ -160,18 +160,18 @@ namespace MT4Bridge
         }
         public bool OrderModify(int ticket, double price, double stoploss, double takeprofit, DateTime expire, string parameters)
         {
-            return SaveCode(client.OrderModify(ticket, price, stoploss, takeprofit, expire, parameters));
+            return SaveCode(_client.OrderModify(ticket, price, stoploss, takeprofit, expire, parameters));
         }
 
         public bool OrderClose(int ticket, double lots, double price, int slippage)
         {
-            Response rc = client.OrderClose(ticket, lots, price, slippage);
+            Response rc = _client.OrderClose(ticket, lots, price, slippage);
             return SaveCode(rc);
         }
 
         public bool OrderDelete(int ticket)
         {
-            return SaveCode(client.OrderDelete(ticket));
+            return SaveCode(_client.OrderDelete(ticket));
         }
     }
 }

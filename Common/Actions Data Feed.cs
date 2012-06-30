@@ -7,7 +7,10 @@
 using System;
 using System.Drawing;
 using System.Globalization;
+using System.Text;
 using System.Windows.Forms;
+using Forex_Strategy_Trader.Properties;
+using MT4Bridge;
 
 namespace Forex_Strategy_Trader
 {
@@ -16,24 +19,22 @@ namespace Forex_Strategy_Trader
     /// </summary>
     public partial class Actions
     {
-        MT4Bridge.Bridge _bridge;
-        Timer _timerPing;
-
-        bool _isTrading;
-
-        bool _isSetRootDataError;
-        DateTime _tickLocalTime                = DateTime.MinValue;
-        DateTime _tickServerTime               = DateTime.MinValue;
-        DateTime _barOpenTimeForLastCloseEvent = DateTime.MinValue;
-        DateTime _barOpenTimeForLastOpenTick   = DateTime.MinValue;
-        DateTime _barOpenTimeForLastCloseTick  = DateTime.MinValue;
-
-        string      _symbolReconnect;
-        DataPeriods _periodReconnect;
-        int         _accountReconnect;
-
-        bool _nullPing    = true;
-        int  _pingAttempt;
+        private readonly object _lockerDataFeed = new object();
+        private readonly object _lockerTickPing = new object();
+        private int _accountReconnect;
+        private DateTime _barOpenTimeForLastCloseEvent = DateTime.MinValue;
+        private DateTime _barOpenTimeForLastCloseTick = DateTime.MinValue;
+        private DateTime _barOpenTimeForLastOpenTick = DateTime.MinValue;
+        private Bridge _bridge;
+        private bool _isSetRootDataError;
+        private bool _isTrading;
+        private bool _nullPing = true;
+        private DataPeriods _periodReconnect;
+        private int _pingAttempt;
+        private string _symbolReconnect;
+        private DateTime _tickLocalTime = DateTime.MinValue;
+        private DateTime _tickServerTime = DateTime.MinValue;
+        private Timer _timerPing;
 
         /// <summary>
         /// Initializes data feed.
@@ -42,9 +43,9 @@ namespace Forex_Strategy_Trader
         {
             _tickLocalTime = DateTime.MinValue;
 
-            _bridge = new MT4Bridge.Bridge {WriteLog = Configs.BridgeWritesLog};
+            _bridge = new Bridge {WriteLog = Configs.BridgeWritesLog};
             _bridge.Start(Data.ConnectionID);
-            _bridge.OnTick  += Bridge_OnTick;
+            _bridge.OnTick += Bridge_OnTick;
 
             _timerPing = new Timer {Interval = 1000};
             _timerPing.Tick += TimerPingTick;
@@ -61,37 +62,37 @@ namespace Forex_Strategy_Trader
 
             StopTrade();
 
-            if (_bridge != null)
-            {
-                _bridge.OnTick -= Bridge_OnTick;
-                _bridge.Stop();
-            }
+            if (_bridge == null) return;
+            _bridge.OnTick -= Bridge_OnTick;
+            _bridge.Stop();
         }
 
-        readonly object _lockerTickPing = new object();
         /// <summary>
         /// Pings the server in order to check the connection.
         /// </summary>
-        void TimerPingTick(object sender, EventArgs e)
+        private void TimerPingTick(object sender, EventArgs e)
         {
             if (DateTime.Now < _tickLocalTime.AddSeconds(1))
                 return; // The last tick was soon enough.
 
             lock (_lockerTickPing)
             {
-                MT4Bridge.PingInfo ping = _bridge.GetPingInfo();
+                PingInfo ping = _bridge.GetPingInfo();
 
                 if (ping == null && !_nullPing)
-                {   // Wrong ping.
+                {
+                    // Wrong ping.
                     _pingAttempt++;
-                    if ((_pingAttempt == 1 || _pingAttempt % 10 == 0) && JournalShowSystemMessages)
+                    if ((_pingAttempt == 1 || _pingAttempt%10 == 0) && JournalShowSystemMessages)
                     {
-                        var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now, Language.T("Unsuccessful ping") + " No " + _pingAttempt + ".");
+                        var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
+                                                         Language.T("Unsuccessful ping") + " No " + _pingAttempt + ".");
                         AppendJournalMessage(jmsgsys);
                     }
                     if (_pingAttempt == 30)
                     {
-                        var jmsgsys = new JournalMessage(JournalIcons.Warning, DateTime.Now, Language.T("There is no connection with MetaTrader."));
+                        var jmsgsys = new JournalMessage(JournalIcons.Warning, DateTime.Now,
+                                                         Language.T("There is no connection with MetaTrader."));
                         AppendJournalMessage(jmsgsys);
                         if (Configs.PlaySounds)
                             Data.SoundError.Play();
@@ -105,26 +106,29 @@ namespace Forex_Strategy_Trader
                     Disconnect();
                 }
                 else if (ping != null)
-                {   // Successful ping.
+                {
+                    // Successful ping.
                     _nullPing = false;
                     bool bUpdateData = false;
-                    if (!Data.IsConnected || IsChartChangeged(ping.Symbol, (DataPeriods)(int)ping.Period))
-                    {   // Disconnected or chart change.
+                    if (!Data.IsConnected || IsChartChangeged(ping.Symbol, (DataPeriods) (int) ping.Period))
+                    {
+                        // Disconnected or chart change.
                         _pingAttempt = 0;
 
                         if (JournalShowSystemMessages)
                         {
                             var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                                ping.Symbol + " " + ping.Period.ToString() + " " + Language.T("Successful ping."));
+                                                             ping.Symbol + " " + ping.Period.ToString() + " " +
+                                                             Language.T("Successful ping."));
                             AppendJournalMessage(jmsgsys);
                         }
                         StopTrade();
-                        if (!UpdateDataFeedInfo(ping.Time, ping.Symbol, (DataPeriods)(int)ping.Period))
+                        if (!UpdateDataFeedInfo(ping.Time, ping.Symbol, (DataPeriods) (int) ping.Period))
                             return;
 
                         Data.Bid = ping.Bid;
                         Data.Ask = ping.Ask;
-                        Data.InstrProperties.Spread    = ping.Spread;
+                        Data.InstrProperties.Spread = ping.Spread;
                         Data.InstrProperties.TickValue = ping.TickValue;
 
                         Data.IsConnected = true;
@@ -137,14 +141,16 @@ namespace Forex_Strategy_Trader
                         if (Configs.PlaySounds)
                             Data.SoundConnect.Play();
 
-                        MT4Bridge.TerminalInfo te = _bridge.GetTerminalInfo();
+                        TerminalInfo te = _bridge.GetTerminalInfo();
                         string connection = Language.T("Connected to a MetaTrader terminal.");
                         if (te != null)
                         {
-                            connection = string.Format(Language.T("Connected to") + " {0} " + Language.T("by") + " {1}", te.TerminalName, te.TerminalCompany);
-                            Data.ExpertVersion  = te.ExpertVersion;
+                            connection = string.Format(
+                                Language.T("Connected to") + " {0} " + Language.T("by") + " {1}", te.TerminalName,
+                                te.TerminalCompany);
+                            Data.ExpertVersion = te.ExpertVersion;
                             Data.LibraryVersion = te.LibraryVersion;
-                            Data.TerminalName   = te.TerminalName;
+                            Data.TerminalName = te.TerminalName;
                         }
 
                         SetLblConnectionText(connection);
@@ -154,19 +160,22 @@ namespace Forex_Strategy_Trader
                         AppendJournalMessage(jmsg);
 
                         // Check for reconnection.
-                        if (_symbolReconnect == Data.Symbol && _periodReconnect == Data.Period && _accountReconnect == Data.AccountNumber)
+                        if (_symbolReconnect == Data.Symbol && _periodReconnect == Data.Period &&
+                            _accountReconnect == Data.AccountNumber)
                             StartTrade(); // Restart trade.
                     }
                     else if (_pingAttempt > 0 && JournalShowSystemMessages)
-                    {   // After a wrong ping.
+                    {
+                        // After a wrong ping.
                         _pingAttempt = 0;
 
                         var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                            ping.Symbol + " " + ping.Period.ToString() + " " + Language.T("Successful ping."));
+                                                         ping.Symbol + " " + ping.Period.ToString() + " " +
+                                                         Language.T("Successful ping."));
                         AppendJournalMessage(jmsgsys);
                     }
 
-                    bool isNewPrice = Math.Abs(Data.Bid - ping.Bid) > Data.InstrProperties.Point / 2;
+                    bool isNewPrice = Math.Abs(Data.Bid - ping.Bid) > Data.InstrProperties.Point/2;
                     DateTime dtPingServerTime = _tickServerTime.Add(DateTime.Now - _tickLocalTime);
 
                     string sBid = ping.Bid.ToString(Data.FF);
@@ -175,14 +184,18 @@ namespace Forex_Strategy_Trader
 
                     Data.Bid = ping.Bid;
                     Data.Ask = ping.Ask;
-                    Data.InstrProperties.Spread    = ping.Spread;
+                    Data.InstrProperties.Spread = ping.Spread;
                     Data.InstrProperties.TickValue = ping.TickValue;
 
                     Data.ServerTime = ping.Time;
 
-                    bool isAccChanged = Data.SetCurrentAccount(ping.Time, ping.AccountBalance, ping.AccountEquity, ping.AccountProfit, ping.AccountFreeMargin);
-                    bool isPosChanged = Data.SetCurrentPosition(ping.PositionTicket, ping.PositionType, ping.PositionLots, ping.PositionOpenPrice, ping.PositionOpenTime,
-                                                              ping.PositionStopLoss, ping.PositionTakeProfit, ping.PositionProfit, ping.PositionComment);
+                    bool isAccChanged = Data.SetCurrentAccount(ping.Time, ping.AccountBalance, ping.AccountEquity,
+                                                               ping.AccountProfit, ping.AccountFreeMargin);
+                    bool isPosChanged = Data.SetCurrentPosition(ping.PositionTicket, ping.PositionType,
+                                                                ping.PositionLots, ping.PositionOpenPrice,
+                                                                ping.PositionOpenTime,
+                                                                ping.PositionStopLoss, ping.PositionTakeProfit,
+                                                                ping.PositionProfit, ping.PositionComment);
 
                     ParseAndSetParametrs(ping.Parameters);
 
@@ -194,14 +207,18 @@ namespace Forex_Strategy_Trader
                     if (isAccChanged)
                     {
                         var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now,
-                            string.Format(Language.T("Account Balance") + " {0:F2}, " + Language.T("Equity") + " {1:F2}, " + Language.T("Profit") + ", {2:F2}, " + Language.T("Free Margin") + " {3:F2}",
-                            ping.AccountBalance, ping.AccountEquity, ping.AccountProfit, ping.AccountFreeMargin));
+                                                      string.Format(
+                                                          Language.T("Account Balance") + " {0:F2}, " +
+                                                          Language.T("Equity") + " {1:F2}, " + Language.T("Profit") +
+                                                          ", {2:F2}, " + Language.T("Free Margin") + " {3:F2}",
+                                                          ping.AccountBalance, ping.AccountEquity, ping.AccountProfit,
+                                                          ping.AccountFreeMargin));
                         AppendJournalMessage(jmsg);
                     }
 
                     if (Data.IsBalanceDataChganged)
                         UpdateBalanceChart(Data.BalanceData, Data.BalanceDataPoints);
-                   
+
                     SetTickInfoText(string.Format("{0} {1} / {2}", ping.Time.ToString("HH:mm:ss"), sBid, sAsk));
                     SetConnIcon(1);
 
@@ -209,6 +226,108 @@ namespace Forex_Strategy_Trader
                     if (IsWrongStopsExecution())
                         ResendWrongStops();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Bridge OnTick 
+        /// </summary>
+        private void Bridge_OnTick(object source, TickEventArgs tea)
+        {
+            lock (_lockerTickPing)
+            {
+                if (_pingAttempt > 0 && JournalShowSystemMessages)
+                {
+                    var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
+                                                     tea.Symbol + " " + tea.Period + " " +
+                                                     Language.T("Tick received after an unsuccessful ping."));
+                    AppendJournalMessage(jmsgsys);
+                }
+                _pingAttempt = 0;
+
+                if (!Data.IsConnected)
+                    return;
+
+                _tickLocalTime = DateTime.Now;
+                _tickServerTime = tea.Time;
+                if (IsChartChangeged(tea.Symbol, (DataPeriods) (int) tea.Period))
+                {
+                    StopTrade();
+                    Data.IsConnected = false;
+                    SetFormText();
+
+                    if (Configs.PlaySounds)
+                        Data.SoundDisconnect.Play();
+
+                    var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
+                                                  tea.Symbol + " " + tea.Period + " " +
+                                                  Language.T("Tick received from a different chart!"));
+                    AppendJournalMessage(jmsg);
+
+                    return;
+                }
+
+                bool bNewPrice = Math.Abs(Data.Bid - tea.Bid) > Data.InstrProperties.Point/2;
+
+                Data.Bid = tea.Bid;
+                Data.Ask = tea.Ask;
+                Data.InstrProperties.Spread = tea.Spread;
+                Data.InstrProperties.TickValue = tea.TickValue;
+
+                Data.ServerTime = tea.Time;
+
+                Data.SetTick(tea.Bid);
+
+                bool isAccChanged = Data.SetCurrentAccount(tea.Time, tea.AccountBalance, tea.AccountEquity,
+                                                           tea.AccountProfit, tea.AccountFreeMargin);
+                bool isPosChanged = Data.SetCurrentPosition(tea.PositionTicket, tea.PositionType, tea.PositionLots,
+                                                            tea.PositionOpenPrice, tea.PositionOpenTime,
+                                                            tea.PositionStopLoss, tea.PositionTakeProfit,
+                                                            tea.PositionProfit, tea.PositionComment);
+
+                ParseAndSetParametrs(tea.Parameters);
+
+                const bool updateData = true;
+                SetDataAndCalculate(tea.Symbol, tea.Period, tea.Time, bNewPrice, updateData);
+
+                string bidText = tea.Bid.ToString(Data.FF);
+                string askText = tea.Ask.ToString(Data.FF);
+                SetLblBidAskText(bidText + " / " + askText);
+
+                // Tick data label
+                if (JournalShowTicks)
+                {
+                    string tickInfo = string.Format("{0} {1} {2} {3} / {4}", tea.Symbol, tea.Period,
+                                                    tea.Time.ToString("HH:mm:ss"), bidText, askText);
+                    var jmsg = new JournalMessage(JournalIcons.Globe, DateTime.Now, tickInfo);
+                    AppendJournalMessage(jmsg);
+                }
+
+                UpdateTickChart(Data.InstrProperties.Point, Data.ListTicks.ToArray());
+                SetEquityInfoText(string.Format("{0:F2} {1}", tea.AccountEquity, Data.AccountCurrency));
+                ShowCurrentPosition(isPosChanged);
+
+                if (isAccChanged)
+                {
+                    var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now,
+                                                  string.Format(
+                                                      Language.T("Account Balance") + " {0:F2}, " + Language.T("Equity") +
+                                                      " {1:F2}, " + Language.T("Profit") + ", {2:F2}, " +
+                                                      Language.T("Free Margin") + " {3:F2}",
+                                                      tea.AccountBalance, tea.AccountEquity, tea.AccountProfit,
+                                                      tea.AccountFreeMargin));
+                    AppendJournalMessage(jmsg);
+                }
+
+                if (Data.IsBalanceDataChganged)
+                    UpdateBalanceChart(Data.BalanceData, Data.BalanceDataPoints);
+
+                SetTickInfoText(string.Format("{0} {1} / {2}", tea.Time.ToString("HH:mm:ss"), bidText, askText));
+                SetConnIcon(2);
+
+                // Sends OrderModify on SL/TP errors
+                if (IsWrongStopsExecution())
+                    ResendWrongStops();
             }
         }
 
@@ -231,8 +350,8 @@ namespace Forex_Strategy_Trader
             Data.Bid = 0;
             Data.Ask = 0;
             Data.SetCurrentAccount(DateTime.MinValue, 0, 0, 0, 0);
-            bool poschanged = Data.SetCurrentPosition(0, -1, 0, 0, DateTime.MinValue, 0, 0, 0, "");
-            ShowCurrentPosition(poschanged);
+            bool isPosChanged = Data.SetCurrentPosition(0, -1, 0, 0, DateTime.MinValue, 0, 0, 0, "");
+            ShowCurrentPosition(isPosChanged);
             SetEquityInfoText(string.Format("{0} {1}", 0, Data.AccountCurrency));
             UpdateBalanceChart(Data.BalanceData, Data.BalanceDataPoints);
             SetTradeStrip();
@@ -245,101 +364,9 @@ namespace Forex_Strategy_Trader
         }
 
         /// <summary>
-        /// Bridge OnTick 
-        /// </summary>
-        void Bridge_OnTick(object source, MT4Bridge.TickEventArgs tea)
-        {
-            lock (_lockerTickPing)
-            {
-                if (_pingAttempt > 0 && JournalShowSystemMessages)
-                {
-                    var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                        tea.Symbol + " " + tea.Period.ToString() + " " + Language.T("Tick received after an unsuccessful ping."));
-                    AppendJournalMessage(jmsgsys);
-                }
-                _pingAttempt = 0;
-
-                if (!Data.IsConnected)
-                    return;
-
-                _tickLocalTime  = DateTime.Now;
-                _tickServerTime = tea.Time;
-                if (IsChartChangeged(tea.Symbol, (DataPeriods)(int)tea.Period))
-                {
-                    StopTrade();
-                    Data.IsConnected = false;
-                    SetFormText();
-
-                    if (Configs.PlaySounds)
-                        Data.SoundDisconnect.Play();
-
-                    var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                        tea.Symbol + " " + tea.Period.ToString() + " " + Language.T("Tick received from a different chart!"));
-                    AppendJournalMessage(jmsg);
-                    
-                    return;
-                }
-
-                bool bNewPrice = Math.Abs(Data.Bid - tea.Bid) > Data.InstrProperties.Point / 2;
-
-                Data.Bid = tea.Bid;
-                Data.Ask = tea.Ask;
-                Data.InstrProperties.Spread    = tea.Spread;
-                Data.InstrProperties.TickValue = tea.TickValue;
-
-                Data.ServerTime = tea.Time;
-
-                Data.SetTick(tea.Bid);
-                
-                bool isAccChanged = Data.SetCurrentAccount(tea.Time, tea.AccountBalance, tea.AccountEquity, tea.AccountProfit, tea.AccountFreeMargin);
-                bool isPosChanged = Data.SetCurrentPosition(tea.PositionTicket, tea.PositionType, tea.PositionLots, tea.PositionOpenPrice, tea.PositionOpenTime,
-                                                          tea.PositionStopLoss, tea.PositionTakeProfit, tea.PositionProfit, tea.PositionComment);
-
-                ParseAndSetParametrs(tea.Parameters);
-
-                const bool updateData = true;
-                SetDataAndCalculate(tea.Symbol, tea.Period, tea.Time, bNewPrice, updateData);
-
-                string bidText = tea.Bid.ToString(Data.FF);
-                string askText = tea.Ask.ToString(Data.FF);
-                SetLblBidAskText(bidText + " / " + askText);
-
-                // Tick data label
-                if (JournalShowTicks)
-                {
-                    string tickInfo = string.Format("{0} {1} {2} {3} / {4}", tea.Symbol, tea.Period, tea.Time.ToString("HH:mm:ss"), bidText, askText);
-                    var jmsg = new JournalMessage(JournalIcons.Globe, DateTime.Now, tickInfo);
-                    AppendJournalMessage(jmsg);
-                }
-                
-                UpdateTickChart(Data.InstrProperties.Point, Data.ListTicks.ToArray());
-                SetEquityInfoText(string.Format("{0:F2} {1}", tea.AccountEquity, Data.AccountCurrency));
-                ShowCurrentPosition(isPosChanged);
-
-                if (isAccChanged)
-                {
-                    var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now,
-                        string.Format(Language.T("Account Balance") + " {0:F2}, " + Language.T("Equity") + " {1:F2}, " + Language.T("Profit") + ", {2:F2}, " + Language.T("Free Margin") + " {3:F2}",
-                        tea.AccountBalance, tea.AccountEquity, tea.AccountProfit, tea.AccountFreeMargin));
-                    AppendJournalMessage(jmsg);
-                }
-
-                if (Data.IsBalanceDataChganged)
-                    UpdateBalanceChart(Data.BalanceData, Data.BalanceDataPoints);
-                
-                SetTickInfoText(string.Format("{0} {1} / {2}", tea.Time.ToString("HH:mm:ss"), bidText, askText));
-                SetConnIcon(2);
-
-                // Sends OrderModify on SL/TP errors
-                if (IsWrongStopsExecution())
-                    ResendWrongStops();
-            }
-        }
-
-        /// <summary>
         /// Check if the incoming data is from the same chart.
         /// </summary>
-        bool IsChartChangeged(string symbol, DataPeriods period)
+        private bool IsChartChangeged(string symbol, DataPeriods period)
         {
             if (!Data.IsConnected)
                 return true;
@@ -350,11 +377,10 @@ namespace Forex_Strategy_Trader
             return false;
         }
 
-        readonly object _lockerDataFeed = new object();
         /// <summary>
         /// Sets the instrument's properties after connecting;
         /// </summary>
-        bool UpdateDataFeedInfo(DateTime time, string symbol, DataPeriods period)
+        private bool UpdateDataFeedInfo(DateTime time, string symbol, DataPeriods period)
         {
             lock (_lockerDataFeed)
             {
@@ -371,59 +397,64 @@ namespace Forex_Strategy_Trader
                     if (JournalShowSystemMessages)
                     {
                         var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                            symbol + " " + (MT4Bridge.PeriodType)(int)period + " " + Language.T("Cannot update market info."));
+                                                         symbol + " " + (PeriodType) (int) period + " " +
+                                                         Language.T("Cannot update market info."));
                         AppendJournalMessage(jmsgsys);
                     }
                     return false;
                 }
 
                 // Sets instrument properties
-                Data.Period                         = period;
-                Data.InstrProperties.Symbol         = symbol;
-                Data.InstrProperties.LotSize        = (int)marketInfo.ModeLotSize;
-                Data.InstrProperties.MinLot         = marketInfo.ModeMinLot;
-                Data.InstrProperties.MaxLot         = marketInfo.ModeMaxLot;
-                Data.InstrProperties.LotStep        = marketInfo.ModeLotStep;
-                Data.InstrProperties.Digits         = (int)marketInfo.ModeDigits;
-                Data.InstrProperties.Spread         = marketInfo.ModeSpread;
-                Data.InstrProperties.SwapLong       = marketInfo.ModeSwapLong;
-                Data.InstrProperties.SwapShort      = marketInfo.ModeSwapShort;
-                Data.InstrProperties.TickValue      = marketInfo.ModeTickValue;
-                Data.InstrProperties.StopLevel      = marketInfo.ModeStopLevel;
+                Data.Period = period;
+                Data.InstrProperties.Symbol = symbol;
+                Data.InstrProperties.LotSize = (int) marketInfo.ModeLotSize;
+                Data.InstrProperties.MinLot = marketInfo.ModeMinLot;
+                Data.InstrProperties.MaxLot = marketInfo.ModeMaxLot;
+                Data.InstrProperties.LotStep = marketInfo.ModeLotStep;
+                Data.InstrProperties.Digits = (int) marketInfo.ModeDigits;
+                Data.InstrProperties.Spread = marketInfo.ModeSpread;
+                Data.InstrProperties.SwapLong = marketInfo.ModeSwapLong;
+                Data.InstrProperties.SwapShort = marketInfo.ModeSwapShort;
+                Data.InstrProperties.TickValue = marketInfo.ModeTickValue;
+                Data.InstrProperties.StopLevel = marketInfo.ModeStopLevel;
                 Data.InstrProperties.MarginRequired = marketInfo.ModeMarginRequired;
 
                 SetNumUpDownLots(marketInfo.ModeMinLot, marketInfo.ModeLotStep, marketInfo.ModeMaxLot);
 
                 // Sets Market Info
-                var values = new[] {
-                    symbol,
-                    Data.DataPeriodToString(period),
-                    marketInfo.ModeLotSize.ToString(CultureInfo.InvariantCulture),
-                    marketInfo.ModePoint.ToString("F" + marketInfo.ModeDigits.ToString(CultureInfo.InvariantCulture)),
-                    marketInfo.ModeSpread.ToString(CultureInfo.InvariantCulture),
-                    marketInfo.ModeSwapLong.ToString(CultureInfo.InvariantCulture),
-                    marketInfo.ModeSwapShort.ToString(CultureInfo.InvariantCulture)};
+                var values = new[]
+                                 {
+                                     symbol,
+                                     Data.DataPeriodToString(period),
+                                     marketInfo.ModeLotSize.ToString(CultureInfo.InvariantCulture),
+                                     marketInfo.ModePoint.ToString("F" + marketInfo.ModeDigits.ToString(CultureInfo.InvariantCulture)),
+                                     marketInfo.ModeSpread.ToString(CultureInfo.InvariantCulture),
+                                     marketInfo.ModeSwapLong.ToString(CultureInfo.InvariantCulture),
+                                     marketInfo.ModeSwapShort.ToString(CultureInfo.InvariantCulture)
+                                 };
                 UpdateStatusPageMarketInfo(values);
 
-                MT4Bridge.Bars bars = _bridge.GetBars(symbol, (MT4Bridge.PeriodType)(int)period);
+                Bars bars = _bridge.GetBars(symbol, (PeriodType) (int) period);
                 if (bars == null)
                 {
                     if (JournalShowSystemMessages)
                     {
                         Data.SoundError.Play();
                         var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                            symbol + " " + (MT4Bridge.PeriodType)(int)period + " " + Language.T("Cannot receive bars!"));
+                                                         symbol + " " + (PeriodType) (int) period + " " +
+                                                         Language.T("Cannot receive bars!"));
                         AppendJournalMessage(jmsgsys);
                     }
                     return false;
                 }
-                if (bars.Count < MaxBarsCount((int)period))
+                if (bars.Count < MaxBarsCount((int) period))
                 {
                     if (JournalShowSystemMessages)
                     {
                         Data.SoundError.Play();
                         var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                            symbol + " " + (MT4Bridge.PeriodType)(int)period + " " + Language.T("Cannot receive enough bars!"));
+                                                      symbol + " " + (PeriodType) (int) period + " " +
+                                                      Language.T("Cannot receive enough bars!"));
                         AppendJournalMessage(jmsg);
                     }
                     return false;
@@ -431,19 +462,21 @@ namespace Forex_Strategy_Trader
                 if (JournalShowSystemMessages)
                 {
                     var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                        symbol + " " + (MT4Bridge.PeriodType)(int)period + " " + Language.T("Market data updated, bars downloaded."));
+                                                     symbol + " " + (PeriodType) (int) period + " " +
+                                                     Language.T("Market data updated, bars downloaded."));
                     AppendJournalMessage(jmsgsys);
                 }
 
                 // Account Information.
-                MT4Bridge.AccountInfo account = _bridge.GetAccountInfo();
+                AccountInfo account = _bridge.GetAccountInfo();
                 if (account == null)
                 {
                     if (JournalShowSystemMessages)
                     {
                         Data.SoundError.Play();
                         var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                            symbol + " " + (MT4Bridge.PeriodType)(int)period + " " + Language.T("Cannot receive account information!"));
+                                                      symbol + " " + (PeriodType) (int) period + " " +
+                                                      Language.T("Cannot receive account information!"));
                         AppendJournalMessage(jmsg);
                     }
                     return false;
@@ -451,11 +484,12 @@ namespace Forex_Strategy_Trader
                 if (JournalShowSystemMessages)
                 {
                     var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                        symbol + " " + (MT4Bridge.PeriodType)(int)period + " " + Language.T("Account information received."));
+                                                     symbol + " " + (PeriodType) (int) period + " " +
+                                                     Language.T("Account information received."));
                     AppendJournalMessage(jmsgsys);
                 }
-                Data.AccountName     = account.Name;
-                Data.IsDemoAccount   = account.IsDemo;
+                Data.AccountName = account.Name;
+                Data.IsDemoAccount = account.IsDemo;
                 Data.AccountCurrency = account.Currency;
                 Data.SetCurrentAccount(time, account.Balance, account.Equity, account.Profit, account.FreeMargin);
                 UpdateBalanceChart(Data.BalanceData, Data.BalanceDataPoints);
@@ -470,29 +504,31 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Copies data to Data and calculates.
         /// </summary>
-        void SetDataAndCalculate(string symbol, MT4Bridge.PeriodType period, DateTime time, bool isPriceChange, bool isUpdateData)
+        private void SetDataAndCalculate(string symbol, PeriodType period, DateTime time, bool isPriceChange, bool isUpdateData)
         {
             lock (_lockerDataFeed)
             {
                 bool isUpdateChart = isUpdateData;
 
-                MT4Bridge.Bars bars = _bridge.GetBars(symbol, period);
+                Bars bars = _bridge.GetBars(symbol, period);
 
                 if (bars == null && JournalShowSystemMessages)
                 {
                     _isSetRootDataError = true;
                     Data.SoundError.Play();
                     var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                        symbol + " " + period.ToString() + " " + Language.T("Cannot receive bars!"));
+                                                  symbol + " " + period.ToString() + " " +
+                                                  Language.T("Cannot receive bars!"));
                     AppendJournalMessage(jmsg);
                     return;
                 }
-                if (bars != null && (bars.Count < MaxBarsCount((int)period) && JournalShowSystemMessages))
+                if (bars != null && (bars.Count < MaxBarsCount((int) period) && JournalShowSystemMessages))
                 {
                     _isSetRootDataError = true;
                     Data.SoundError.Play();
                     var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                        symbol + " " + period.ToString() + " " + Language.T("Cannot receive enough bars!"));
+                                                  symbol + " " + period.ToString() + " " +
+                                                  Language.T("Cannot receive enough bars!"));
                     AppendJournalMessage(jmsg);
                     return;
                 }
@@ -500,7 +536,8 @@ namespace Forex_Strategy_Trader
                 {
                     _isSetRootDataError = false;
                     var jmsg = new JournalMessage(JournalIcons.Information, DateTime.Now,
-                        symbol + " " + period.ToString() + " " + Language.T("Enough bars received!"));
+                                                  symbol + " " + period.ToString() + " " +
+                                                  Language.T("Enough bars received!"));
                     AppendJournalMessage(jmsg);
                 }
 
@@ -514,24 +551,27 @@ namespace Forex_Strategy_Trader
                     if (Data.Bars != countBars ||
                         Data.Time[countBars - 1] != bars.Time[countBars - 1] ||
                         Data.Volume[countBars - 1] != bars.Volume[countBars - 1] ||
-                        Math.Abs(Data.Close[countBars - 1] - bars.Close[countBars - 1]) > Data.InstrProperties.Point / 2d)
+                        Math.Abs(Data.Close[countBars - 1] - bars.Close[countBars - 1]) > Data.InstrProperties.Point/2d)
                     {
-                        if (Data.Bars == countBars && Data.Time[countBars - 1] == bars.Time[countBars - 1] && Data.Time[countBars - 10] == bars.Time[countBars - 10])
-                        {   // Update the last bar only.
-                            Data.Open  [countBars - 1] = bars.Open  [countBars - 1];
-                            Data.High  [countBars - 1] = bars.High  [countBars - 1];
-                            Data.Low   [countBars - 1] = bars.Low   [countBars - 1];
-                            Data.Close [countBars - 1] = bars.Close [countBars - 1];
+                        if (Data.Bars == countBars && Data.Time[countBars - 1] == bars.Time[countBars - 1] &&
+                            Data.Time[countBars - 10] == bars.Time[countBars - 10])
+                        {
+                            // Update the last bar only.
+                            Data.Open[countBars - 1] = bars.Open[countBars - 1];
+                            Data.High[countBars - 1] = bars.High[countBars - 1];
+                            Data.Low[countBars - 1] = bars.Low[countBars - 1];
+                            Data.Close[countBars - 1] = bars.Close[countBars - 1];
                             Data.Volume[countBars - 1] = bars.Volume[countBars - 1];
                         }
                         else
-                        {   // Update all the bars.
-                            Data.Bars   = countBars;
-                            Data.Time   = new DateTime[countBars];
-                            Data.Open   = new double[countBars];
-                            Data.High   = new double[countBars];
-                            Data.Low    = new double[countBars];
-                            Data.Close  = new double[countBars];
+                        {
+                            // Update all the bars.
+                            Data.Bars = countBars;
+                            Data.Time = new DateTime[countBars];
+                            Data.Open = new double[countBars];
+                            Data.High = new double[countBars];
+                            Data.Low = new double[countBars];
+                            Data.Close = new double[countBars];
                             Data.Volume = new int[countBars];
                             bars.Time.CopyTo(Data.Time, 0);
                             bars.Open.CopyTo(Data.Open, 0);
@@ -541,7 +581,6 @@ namespace Forex_Strategy_Trader
                             bars.Volume.CopyTo(Data.Volume, 0);
                         }
 
-                        // Calculate the strategy indicators.
                         Data.LastClose = Data.Close[countBars - 1];
                         CalculateStrategy(true);
                         isUpdateChart = true;
@@ -552,7 +591,8 @@ namespace Forex_Strategy_Trader
 
                 if (_isTrading)
                 {
-                    TickType tickType = GetTickType((DataPeriods)(int)period, Data.Time[Data.Bars - 1], time, Data.Volume[Data.Bars - 1]);
+                    TickType tickType = GetTickType((DataPeriods) (int) period, Data.Time[Data.Bars - 1], time,
+                                                    Data.Volume[Data.Bars - 1]);
 
                     if (tickType == TickType.Close || isPriceChange || isBarChanged)
                     {
@@ -575,7 +615,9 @@ namespace Forex_Strategy_Trader
                                 icon = JournalIcons.Warning;
                                 text = Language.T("A new tick arrived after a Bar Close event!");
                             }
-                            var jmsg = new JournalMessage(icon, DateTime.Now, symbol + " " + Data.PeriodMTStr + " " + time.ToString("HH:mm:ss") + " " + text);
+                            var jmsg = new JournalMessage(icon, DateTime.Now,
+                                                          symbol + " " + Data.PeriodMTStr + " " +
+                                                          time.ToString("HH:mm:ss") + " " + text);
                             AppendJournalMessage(jmsg);
                         }
 
@@ -584,7 +626,9 @@ namespace Forex_Strategy_Trader
                             if (JournalShowSystemMessages)
                             {
                                 var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now, symbol + " " +
-                                    Data.PeriodMTStr + " " + time.ToString("HH:mm:ss") + " A Bar Changed event!");
+                                                                                                  Data.PeriodMTStr + " " +
+                                                                                                  time.ToString("HH:mm:ss") +
+                                                                                                  " A Bar Changed event!");
                                 AppendJournalMessage(jmsg);
                             }
 
@@ -596,7 +640,9 @@ namespace Forex_Strategy_Trader
                             if (JournalShowSystemMessages)
                             {
                                 var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now, symbol + " " +
-                                    Data.PeriodMTStr + " " + time.ToString("HH:mm:ss") + " A secondary Bar Close event!");
+                                                                                                  Data.PeriodMTStr + " " +
+                                                                                                  time.ToString("HH:mm:ss") +
+                                                                                                  " A secondary Bar Close event!");
                                 AppendJournalMessage(jmsg);
                             }
                             tickType = TickType.OpenClose;
@@ -618,7 +664,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Shows if the bar was changed.
         /// </summary>
-        bool IsBarChanged(DateTime open)
+        private bool IsBarChanged(DateTime open)
         {
             bool barChanged = _barOpenTimeForLastOpenTick != open;
             _barOpenTimeForLastOpenTick = open;
@@ -629,11 +675,11 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Gets the tick type depending on its time.
         /// </summary>
-        TickType GetTickType(DataPeriods period, DateTime open, DateTime time, int volume)
+        private TickType GetTickType(DataPeriods period, DateTime open, DateTime time, int volume)
         {
             TickType tick = TickType.Regular;
-            bool isOpen  = volume == 1 && _barOpenTimeForLastOpenTick != open;
-            bool isClose = (open.AddMinutes((int)period) - time) < TimeSpan.FromSeconds(Configs.BarCloseAdvance);
+            bool isOpen = volume == 1 && _barOpenTimeForLastOpenTick != open;
+            bool isClose = (open.AddMinutes((int) period) - time) < TimeSpan.FromSeconds(Configs.BarCloseAdvance);
 
             if (isOpen)
             {
@@ -660,13 +706,15 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Returns the count of chart's bars.
         /// </summary>
-        int MaxBarsCount(int period)
+        private int MaxBarsCount(int period)
         {
-            return Math.Max(2 * 1440 / period + 10, Configs.MinChartBars);
+            return Math.Max(2*1440/period + 10, Configs.MinChartBars);
         }
 
-        void ParseAndSetParametrs(string parameters)
+        private void ParseAndSetParametrs(string parameters)
         {
+            if(string.IsNullOrEmpty(parameters)) return;
+
             string[] splitParams = parameters.Split(new[] {';'});
 
             foreach (string param in splitParams)
@@ -675,25 +723,25 @@ namespace Forex_Strategy_Trader
                 string name = pair[0];
                 string rowValue = pair[1];
 
-                switch (name)
-                {
-                    case "int":
-                        Console.WriteLine("{0} = {1}", name, int.Parse(rowValue));
-                        break;
-                    case "dbl":
-                        Console.WriteLine("{0} = {1}", name, double.Parse(rowValue));
-                        break;
-                    case "str":
-                        Console.WriteLine("{0} = {1}", name, rowValue);
-                        break;
-                }
+                //switch (name)
+                //{
+                //    case "int":
+                //        Console.WriteLine("{0} = {1}", name, int.Parse(rowValue));
+                //        break;
+                //    case "dbl":
+                //        Console.WriteLine("{0} = {1}", name, double.Parse(rowValue));
+                //        break;
+                //    case "str":
+                //        Console.WriteLine("{0} = {1}", name, rowValue);
+                //        break;
+                //}
             }
         }
 
         /// <summary>
         /// Starts the trade.
         /// </summary>
-        void StartTrade()
+        private void StartTrade()
         {
             _isTrading = true;
 
@@ -704,8 +752,8 @@ namespace Forex_Strategy_Trader
             var msg = new JournalMessage(JournalIcons.StartTrading, DateTime.Now, Language.T("Automatic trade started."));
             AppendJournalMessage(msg);
 
-            _symbolReconnect  = Data.Symbol;
-            _periodReconnect  = Data.Period;
+            _symbolReconnect = Data.Symbol;
+            _periodReconnect = Data.Period;
             _accountReconnect = Data.AccountNumber;
             _barOpenTimeForLastCloseEvent = Data.Time[Data.Bars - 1];
 
@@ -715,7 +763,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Stops the trade.
         /// </summary>
-        void StopTrade()
+        private void StopTrade()
         {
             if (!_isTrading)
                 return;
@@ -734,7 +782,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Shows current position on the status bar.
         /// </summary>
-        void ShowCurrentPosition(bool showInJournal)
+        private void ShowCurrentPosition(bool showInJournal)
         {
             if (!Data.IsConnected)
             {
@@ -744,24 +792,29 @@ namespace Forex_Strategy_Trader
 
             string format = Data.FF;
             string text = Language.T("Square");
-            JournalIcons  icon  = JournalIcons.PosSquare;
-            Image img = Properties.Resources.pos_square;
+            JournalIcons icon = JournalIcons.PosSquare;
+            Image img = Resources.pos_square;
             if (Data.PositionTicket > 0)
             {
-                img  = (Data.PositionType == 0 ? Properties.Resources.pos_buy : Properties.Resources.pos_sell);
+                img = (Data.PositionType == 0 ? Resources.pos_buy : Resources.pos_sell);
                 icon = (Data.PositionType == 0 ? JournalIcons.PosBuy : JournalIcons.PosSell);
                 text = string.Format((Data.PositionType == 0 ? Language.T("Long") : Language.T("Short")) + " {0} " +
-                        (Math.Abs(Data.PositionLots - 1) < 0.00001 ? Language.T("lot") : Language.T("lots")) + " " + Language.T("at") + " {1}, " +
-                        Language.T("Stop Loss") + " {2}, " + Language.T("Take Profit") + " {3}, " + Language.T("Profit") +
-                        " {4} " + Data.AccountCurrency, Data.PositionLots, Data.PositionOpenPrice.ToString(format),
-                        Data.PositionStopLoss.ToString(format), Data.PositionTakeProfit.ToString(format), Data.PositionProfit.ToString("F2"));
+                                     (Math.Abs(Data.PositionLots - 1) < 0.00001 ? Language.T("lot") : Language.T("lots")) +
+                                     " " + Language.T("at") + " {1}, " +
+                                     Language.T("Stop Loss") + " {2}, " + Language.T("Take Profit") + " {3}, " +
+                                     Language.T("Profit") +
+                                     " {4} " + Data.AccountCurrency, Data.PositionLots,
+                                     Data.PositionOpenPrice.ToString(format),
+                                     Data.PositionStopLoss.ToString(format), Data.PositionTakeProfit.ToString(format),
+                                     Data.PositionProfit.ToString("F2"));
             }
 
             SetPositionInfoText(img, text);
 
             if (showInJournal)
             {
-                var jmsg = new JournalMessage(icon, DateTime.Now, string.Format(Data.Symbol + " " + Data.PeriodMTStr + " " + text));
+                var jmsg = new JournalMessage(icon, DateTime.Now,
+                                              string.Format(Data.Symbol + " " + Data.PeriodMTStr + " " + text));
                 AppendJournalMessage(jmsg);
             }
         }
@@ -769,21 +822,21 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Sets the trade button's icon and text.
         /// </summary>
-        void SetTradeStrip()
+        private void SetTradeStrip()
         {
-            string connectText = Data.IsConnected ?
-                Language.T("Connected to") + " " + Data.Symbol + " " + Data.PeriodMTStr :
-                Language.T("Not Connected");
+            string connectText = Data.IsConnected
+                                     ? Language.T("Connected to") + " " + Data.Symbol + " " + Data.PeriodMTStr
+                                     : Language.T("Not Connected");
 
             SetTradeStripThreadSafely(connectText, Data.IsConnected, _isTrading);
         }
 
-        delegate void SetTradeStripDelegate(string connectText, bool isConnectedNow, bool isTradingNow);
-        void SetTradeStripThreadSafely(string connectText, bool isConnectedNow, bool isTradingNow)
+        private void SetTradeStripThreadSafely(string connectText, bool isConnectedNow, bool isTradingNow)
         {
             if (tsTradeControl.InvokeRequired)
             {
-                tsTradeControl.BeginInvoke(new SetTradeStripDelegate(SetTradeStripThreadSafely), new object[] { connectText, isConnectedNow, isTradingNow });
+                tsTradeControl.BeginInvoke(new SetTradeStripDelegate(SetTradeStripThreadSafely),
+                                           new object[] {connectText, isConnectedNow, isTradingNow});
             }
             else
             {
@@ -793,13 +846,13 @@ namespace Forex_Strategy_Trader
                 // Sets button Automatic Execution
                 if (isTradingNow)
                 {
-                    tsbtnTrading.Image = Properties.Resources.stop;
-                    tsbtnTrading.Text  = Language.T("Stop Automatic Execution");
+                    tsbtnTrading.Image = Resources.stop;
+                    tsbtnTrading.Text = Language.T("Stop Automatic Execution");
                 }
                 else
                 {
-                    tsbtnTrading.Image = Properties.Resources.play;
-                    tsbtnTrading.Text  = Language.T("Start Automatic Execution");
+                    tsbtnTrading.Image = Resources.play;
+                    tsbtnTrading.Text = Language.T("Start Automatic Execution");
                 }
                 tsbtnTrading.Enabled = isConnectedNow;
                 tsbtnConnectionHelp.Visible = !isConnectedNow;
@@ -811,7 +864,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuMultipleInstances_OnClick(object sender, EventArgs e)
         {
-            Configs.MultipleInstances = ((ToolStripMenuItem)sender).Checked;
+            Configs.MultipleInstances = ((ToolStripMenuItem) sender).Checked;
             if (Configs.MultipleInstances)
             {
                 Configs.SaveConfigs();
@@ -819,9 +872,9 @@ namespace Forex_Strategy_Trader
                 DeinitDataFeed();
 
                 tsTradeControl.SuspendLayout();
-                tsbtnChangeID.Visible   = false;
+                tsbtnChangeID.Visible = false;
                 tslblConnection.Visible = false;
-                tsbtnTrading.Visible    = false;
+                tsbtnTrading.Visible = false;
 
                 tslblConnectionID.Visible = true;
                 tstbxConnectionID.Visible = true;
@@ -836,9 +889,9 @@ namespace Forex_Strategy_Trader
                 Data.ConnectionID = 0;
 
                 tsTradeControl.SuspendLayout();
-                tsbtnChangeID.Visible   = false;
+                tsbtnChangeID.Visible = false;
                 tslblConnection.Visible = true;
-                tsbtnTrading.Visible    = true;
+                tsbtnTrading.Visible = true;
 
                 tslblConnectionID.Visible = false;
                 tstbxConnectionID.Visible = false;
@@ -857,7 +910,7 @@ namespace Forex_Strategy_Trader
         protected override void TstbxConnectionID_KeyPress(object sender, KeyPressEventArgs e)
         {
             tsbtnConnectionGo.Enabled = true;
-            if (e.KeyChar == (char)Keys.Return)
+            if (e.KeyChar == (char) Keys.Return)
                 ConnectionGo();
         }
 
@@ -875,10 +928,10 @@ namespace Forex_Strategy_Trader
                     Disconnect();
 
                     tsTradeControl.SuspendLayout();
-                    tsbtnChangeID.Text        = string.Format("ID = {0}", tstbxConnectionID.Text);
-                    tsbtnChangeID.Visible     = true;
-                    tslblConnection.Visible   = true;
-                    tsbtnTrading.Visible      = true;
+                    tsbtnChangeID.Text = string.Format("ID = {0}", tstbxConnectionID.Text);
+                    tsbtnChangeID.Visible = true;
+                    tslblConnection.Visible = true;
+                    tsbtnTrading.Visible = true;
                     tslblConnectionID.Visible = false;
                     tstbxConnectionID.Visible = false;
                     tsbtnConnectionGo.Visible = false;
@@ -907,9 +960,9 @@ namespace Forex_Strategy_Trader
             DeinitDataFeed();
 
             tsTradeControl.SuspendLayout();
-            tsbtnChangeID.Visible   = false;
+            tsbtnChangeID.Visible = false;
             tslblConnection.Visible = false;
-            tsbtnTrading.Visible    = false;
+            tsbtnTrading.Visible = false;
 
             tslblConnectionID.Visible = true;
             tstbxConnectionID.Visible = true;
@@ -949,55 +1002,57 @@ namespace Forex_Strategy_Trader
                 return;
             }
 
-            MT4Bridge.AccountInfo ai = _bridge.GetAccountInfo();
+            AccountInfo ai = _bridge.GetAccountInfo();
             if (ai == null)
             {
                 SetBarDataText("   " + Language.T("Cannot receive account information!"));
                 return;
             }
 
-            var asParams = new[] {
-                "Name",
-                "Number",
-                "Company",
-                "Server",
-                "Currency",
-                "Leverage",
-                "Balance",
-                "Equity",
-                "Profit",
-                "Credit",
-                "Margin",
-                "Free margin mode",
-                "Free margin",
-                "Stop out mode",
-                "Stop out level",
-                "Is demo account"
-            };
+            var parameters = new[]
+                              {
+                                  "Name",
+                                  "Number",
+                                  "Company",
+                                  "Server",
+                                  "Currency",
+                                  "Leverage",
+                                  "Balance",
+                                  "Equity",
+                                  "Profit",
+                                  "Credit",
+                                  "Margin",
+                                  "Free margin mode",
+                                  "Free margin",
+                                  "Stop out mode",
+                                  "Stop out level",
+                                  "Is demo account"
+                              };
 
-            var asValues = new[] {
-                ai.Name,
-                ai.Number.ToString(CultureInfo.InvariantCulture),
-                ai.Company,
-                ai.Server,
-                ai.Currency,
-                ai.Leverage.ToString(CultureInfo.InvariantCulture),
-                ai.Balance.ToString(CultureInfo.InvariantCulture),
-                ai.Equity.ToString(CultureInfo.InvariantCulture),
-                ai.Profit.ToString(CultureInfo.InvariantCulture),
-                ai.Credit.ToString(CultureInfo.InvariantCulture),
-                ai.Margin.ToString(CultureInfo.InvariantCulture),
-                ai.FreeMarginMode.ToString(CultureInfo.InvariantCulture),
-                ai.FreeMargin.ToString(CultureInfo.InvariantCulture),
-                ai.StopOutMode.ToString(CultureInfo.InvariantCulture),
-                ai.StopOutLevel.ToString(CultureInfo.InvariantCulture),
-                ai.IsDemo ? "Yes" : "No"
-            };
+            var values = new[]
+                             {
+                                 ai.Name,
+                                 ai.Number.ToString(CultureInfo.InvariantCulture),
+                                 ai.Company,
+                                 ai.Server,
+                                 ai.Currency,
+                                 ai.Leverage.ToString(CultureInfo.InvariantCulture),
+                                 ai.Balance.ToString(CultureInfo.InvariantCulture),
+                                 ai.Equity.ToString(CultureInfo.InvariantCulture),
+                                 ai.Profit.ToString(CultureInfo.InvariantCulture),
+                                 ai.Credit.ToString(CultureInfo.InvariantCulture),
+                                 ai.Margin.ToString(CultureInfo.InvariantCulture),
+                                 ai.FreeMarginMode.ToString(CultureInfo.InvariantCulture),
+                                 ai.FreeMargin.ToString(CultureInfo.InvariantCulture),
+                                 ai.StopOutMode.ToString(CultureInfo.InvariantCulture),
+                                 ai.StopOutLevel.ToString(CultureInfo.InvariantCulture),
+                                 ai.IsDemo ? "Yes" : "No"
+                             };
 
-            var sb = new System.Text.StringBuilder();
-            for (int i = 0; i < asParams.Length; i++)
+            var sb = new StringBuilder();
+            for (int i = 0; i < parameters.Length; i++)
             {
-                sb.AppendLine(string.Format("      {0,-25} {1}", asParams[i], asValues[i]));
+                sb.AppendLine(string.Format("      {0,-25} {1}", parameters[i], values[i]));
             }
             SetBarDataText(sb.ToString());
         }
@@ -1010,68 +1065,70 @@ namespace Forex_Strategy_Trader
                 return;
             }
 
-            var mi = _bridge.GetMarketInfoAll(Data.Symbol);
+            MT4Bridge.MarketInfo mi = _bridge.GetMarketInfoAll(Data.Symbol);
             if (mi == null)
             {
                 SetBarDataText("   " + Language.T("Cannot update market info."));
                 return;
             }
 
-            var asMIParams = new[] {
-                "Point",
-                "Digit",
-                "Spread",
-                "Stop Level",
-                "Lot Size",
-                "Tick Value",
-                "Tick Size",
-                "Swap Long",
-                "Swap Short",
-                "Starting",
-                "Expiration",
-                "Trade Allowed",
-                "Min Lot",
-                "Lot Step",
-                "Max Lot",
-                "Swap Type",
-                "Profit Calc Mode",
-                "Margin Calc Mode",
-                "Margin Init",
-                "Margin Maintenance",
-                "Margin Hedged",
-                "Margin Required",
-                "Freeze Level",
-                "Markup"};
+            var asMIParams = new[]
+                                 {
+                                     "Point",
+                                     "Digit",
+                                     "Spread",
+                                     "Stop Level",
+                                     "Lot Size",
+                                     "Tick Value",
+                                     "Tick Size",
+                                     "Swap Long",
+                                     "Swap Short",
+                                     "Starting",
+                                     "Expiration",
+                                     "Trade Allowed",
+                                     "Min Lot",
+                                     "Lot Step",
+                                     "Max Lot",
+                                     "Swap Type",
+                                     "Profit Calc Mode",
+                                     "Margin Calc Mode",
+                                     "Margin Init",
+                                     "Margin Maintenance",
+                                     "Margin Hedged",
+                                     "Margin Required",
+                                     "Freeze Level",
+                                     "Markup"
+                                 };
 
             var asMIValues = new[]
-            {
-                mi.ModePoint.ToString("F" + mi.ModeDigits.ToString(CultureInfo.InvariantCulture)),
-                mi.ModeDigits.ToString(CultureInfo.InvariantCulture),
-                mi.ModeSpread.ToString(CultureInfo.InvariantCulture),
-                mi.ModeStopLevel.ToString(CultureInfo.InvariantCulture),
-                mi.ModeLotSize.ToString(CultureInfo.InvariantCulture),
-                mi.ModeTickValue.ToString(CultureInfo.InvariantCulture),
-                mi.ModeTickSize.ToString("F" + mi.ModeDigits.ToString(CultureInfo.InvariantCulture)),
-                mi.ModeSwapLong.ToString(CultureInfo.InvariantCulture),
-                mi.ModeSwapShort.ToString(CultureInfo.InvariantCulture),
-                mi.ModeStarting.ToString(CultureInfo.InvariantCulture),
-                mi.ModeExpiration.ToString(CultureInfo.InvariantCulture),
-                mi.ModeTradeAllowed.ToString(CultureInfo.InvariantCulture),
-                mi.ModeMinLot.ToString(CultureInfo.InvariantCulture),
-                mi.ModeLotStep.ToString(CultureInfo.InvariantCulture),
-                mi.ModeMaxLot.ToString(CultureInfo.InvariantCulture),
-                mi.ModeSwapType.ToString(CultureInfo.InvariantCulture),
-                mi.ModeProfitCalcMode.ToString(CultureInfo.InvariantCulture),
-                mi.ModeMarginCalcMode.ToString(CultureInfo.InvariantCulture),
-                mi.ModeMarginInit.ToString(CultureInfo.InvariantCulture),
-                mi.ModeMarginMaintenance.ToString(CultureInfo.InvariantCulture),
-                mi.ModeMarginHedged.ToString(CultureInfo.InvariantCulture),
-                mi.ModeMarginRequired.ToString(CultureInfo.InvariantCulture),
-                mi.ModeFreezeLevel.ToString(CultureInfo.InvariantCulture),
-                Math.Round((Data.LastClose - Data.Bid) / Data.InstrProperties.Point).ToString(CultureInfo.InvariantCulture)
-            };
+                                 {
+                                     mi.ModePoint.ToString("F" + mi.ModeDigits.ToString(CultureInfo.InvariantCulture)),
+                                     mi.ModeDigits.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeSpread.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeStopLevel.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeLotSize.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeTickValue.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeTickSize.ToString("F" + mi.ModeDigits.ToString(CultureInfo.InvariantCulture)),
+                                     mi.ModeSwapLong.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeSwapShort.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeStarting.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeExpiration.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeTradeAllowed.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeMinLot.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeLotStep.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeMaxLot.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeSwapType.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeProfitCalcMode.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeMarginCalcMode.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeMarginInit.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeMarginMaintenance.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeMarginHedged.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeMarginRequired.ToString(CultureInfo.InvariantCulture),
+                                     mi.ModeFreezeLevel.ToString(CultureInfo.InvariantCulture),
+                                     Math.Round((Data.LastClose - Data.Bid)/Data.InstrProperties.Point).ToString(CultureInfo.InvariantCulture)
+                                 };
 
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i < asMIParams.Length; i++)
             {
                 sb.AppendLine(string.Format("      {0,-20} {1}", asMIParams[i], asMIValues[i]));
@@ -1079,34 +1136,43 @@ namespace Forex_Strategy_Trader
             SetBarDataText(sb.ToString());
 
             // Sets Market Info
-            var asValue = new[] {
-                    Data.Symbol,
-                    Data.DataPeriodToString(Data.Period),
-                    mi.ModeLotSize.ToString(CultureInfo.InvariantCulture),
-                    mi.ModePoint.ToString("F" + mi.ModeDigits.ToString(CultureInfo.InvariantCulture)),
-                    mi.ModeSpread.ToString(CultureInfo.InvariantCulture),
-                    mi.ModeSwapLong.ToString(CultureInfo.InvariantCulture),
-                    mi.ModeSwapShort.ToString(CultureInfo.InvariantCulture)};
+            var asValue = new[]
+                              {
+                                  Data.Symbol,
+                                  Data.DataPeriodToString(Data.Period),
+                                  mi.ModeLotSize.ToString(CultureInfo.InvariantCulture),
+                                  mi.ModePoint.ToString("F" + mi.ModeDigits.ToString(CultureInfo.InvariantCulture)),
+                                  mi.ModeSpread.ToString(CultureInfo.InvariantCulture),
+                                  mi.ModeSwapLong.ToString(CultureInfo.InvariantCulture),
+                                  mi.ModeSwapShort.ToString(CultureInfo.InvariantCulture)
+                              };
             UpdateStatusPageMarketInfo(asValue);
         }
 
         protected override void BtnShowBars_Click(object sender, EventArgs e)
         {
-            var sb = new System.Text.StringBuilder(Data.Bars + 2);
-            
-            sb.AppendLine("                  " + 
-                Data.Symbol + " " + Data.PeriodMTStr + " " + Data.Time[Data.Bars - 1].ToString(CultureInfo.InvariantCulture));
+            var sb = new StringBuilder(Data.Bars + 2);
+
+            sb.AppendLine("                  " +
+                          Data.Symbol + " " + Data.PeriodMTStr + " " +
+                          Data.Time[Data.Bars - 1].ToString(CultureInfo.InvariantCulture));
             sb.AppendLine(string.Format("  {0,-5} {1,-16} {2,-8} {3,-8} {4,-8} {5,-8} {6}",
-                   "No", "Bar open time", "Open", "High", "Low", "Close", "Volume"));
-            
+                                        "No", "Bar open time", "Open", "High", "Low", "Close", "Volume"));
+
             for (int i = 0; i < Data.Bars; i++)
             {
                 sb.AppendLine(string.Format("  {0,-5} {1,-16} {2,-8} {3,-8} {4,-8} {5,-8} {6}",
-                   i + 1, Data.Time[i].ToString(Data.DF) + " " + Data.Time[i].ToString("HH:mm"),
-                   Data.Open[i], Data.High[i], Data.Low[i], Data.Close[i], Data.Volume[i]));
+                                            i + 1, Data.Time[i].ToString(Data.DF) + " " + Data.Time[i].ToString("HH:mm"),
+                                            Data.Open[i], Data.High[i], Data.Low[i], Data.Close[i], Data.Volume[i]));
             }
 
             SetBarDataText(sb.ToString());
         }
+
+        #region Nested type: SetTradeStripDelegate
+
+        private delegate void SetTradeStripDelegate(string connectText, bool isConnectedNow, bool isTradingNow);
+
+        #endregion
     }
 }

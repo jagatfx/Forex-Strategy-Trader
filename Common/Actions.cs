@@ -5,6 +5,7 @@
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -17,12 +18,69 @@ namespace Forex_Strategy_Trader
     public partial class Actions : Controls
     {
         /// <summary>
+        /// The default constructor
+        /// </summary>
+        public Actions()
+        {
+            StartPosition = FormStartPosition.CenterScreen;
+            Size = new Size(785, 560);
+            MinimumSize = new Size(600, 370);
+            Icon = Data.Icon;
+            Text = Data.ProgramName;
+            FormClosing += ActionsFormClosing;
+            Application.Idle += ApplicationIdle;
+
+            // Load a data file
+            LoadInstrument();
+
+            // Prepare custom indicators
+            UpdateSplashScreeStatus("Loading custom indicators...");
+            if (Configs.LoadCustomIndicators)
+                Custom_Indicators.LoadCustomIndicators();
+
+            // Load a strategy
+            UpdateSplashScreeStatus("Loading strategy...");
+            string strategyPath = Data.StrategyPath;
+            if (Configs.RememberLastStr && Configs.LastStrategy != "")
+            {
+                string lastStrategy = Path.GetDirectoryName(Configs.LastStrategy);
+                if (lastStrategy != "")
+                    lastStrategy = Configs.LastStrategy;
+                else
+                {
+                    string path = Path.Combine(Data.ProgramDir, Data.DefaultStrategyDir);
+                    lastStrategy = Path.Combine(path, Configs.LastStrategy);
+                }
+                if (File.Exists(lastStrategy))
+                    strategyPath = lastStrategy;
+            }
+
+            if (OpenStrategy(strategyPath) == 0)
+            {
+                CalculateStrategy(true);
+                AfterStrategyOpening();
+            }
+
+            ChangeTabPage(Configs.LastTab);
+
+            var liveContent = new LiveContent(Data.SystemDir, miLiveContent, miForex, pnlUsefulLinks, pnlForexBrokers);
+
+            // Starting tips
+            if (Configs.ShowStartingTip)
+            {
+                var startingTips = new Starting_Tips();
+                startingTips.Show();
+            }
+
+            UpdateSplashScreeStatus("Loading user interface...");
+        }
+
+        /// <summary>
         /// The starting point of the application
         /// </summary>
-        [STAThreadAttribute]
+        [STAThread]
         public static void Main()
         {
-
             UpdateSplashScreeStatus("Loading...");
             Data.Start();
             Configs.LoadConfigs();
@@ -30,11 +88,13 @@ namespace Forex_Strategy_Trader
             // Checks if this is the only running copy of FST.
             if (!Configs.MultipleInstances)
             {
-                System.Diagnostics.Process[] procs = System.Diagnostics.Process.GetProcessesByName(Data.ProgramName);
+                Process[] procs = Process.GetProcessesByName(Data.ProgramName);
                 if (procs.Length > 1)
                 {
                     RemoveSplashScreen();
-                    MessageBox.Show("Forex Strategy Trader is already running! You can allow multiple instances of the program from Tools menu.", Data.ProgramName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show(
+                        "Forex Strategy Trader is already running! You can allow multiple instances of the program from Tools menu.",
+                        Data.ProgramName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
                     return;
                 }
@@ -46,90 +106,26 @@ namespace Forex_Strategy_Trader
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Actions());
-
-            return;
-        }
-
-        /// <summary>
-        /// The default constructor
-        /// </summary>
-        public Actions()
-        {
-            StartPosition     = FormStartPosition.CenterScreen;
-            Size              = new Size(785, 560);
-            MinimumSize       = new Size(600, 370);
-            Icon              = Data.Icon;
-            Text              = Data.ProgramName;
-            FormClosing      += new FormClosingEventHandler(Actions_FormClosing);
-            Application.Idle += new EventHandler(Application_Idle);
-
-            // Load a data file
-            LoadInstrument(true);
-
-            // Prepare custom indicators
-            UpdateSplashScreeStatus("Loading custom indicators...");
-            if (Configs.LoadCustomIndicators)
-                Custom_Indicators.LoadCustomIndicators();
-
-            // Load a strategy
-            UpdateSplashScreeStatus("Loading strategy...");
-            string sStrategyPath = Data.StrategyPath;
-            if (Configs.RememberLastStr && Configs.LastStrategy != "")
-            {
-                string sLastStrategy = Path.GetDirectoryName(Configs.LastStrategy);
-                if (sLastStrategy != "")
-                    sLastStrategy = Configs.LastStrategy;
-                else
-                {
-                    string sPath = Path.Combine(Data.ProgramDir, Data.DefaultStrategyDir);
-                    sLastStrategy = Path.Combine(sPath, Configs.LastStrategy);
-                }
-                if (File.Exists(sLastStrategy))
-                    sStrategyPath = sLastStrategy;
-            }
-
-            if (OpenStrategy(sStrategyPath) == 0)
-            {
-                CalculateStrategy(true);
-                AfterStrategyOpening();
-            }
-
-            ChangeTabPage(Configs.LastTab);
-
-            Live_Content liveContent = new Live_Content(Data.SystemDir, miLiveContent, miForex, pnlUsefulLinks, pnlForexBrokers);
-
-            // Starting tips
-            if (Configs.ShowStartingTip)
-            {
-                Starting_Tips startingTips = new Starting_Tips();
-                startingTips.Show();
-            }
-
-            UpdateSplashScreeStatus("Loading user interface...");
-
-            return;
         }
 
         /// <summary>
         /// Application idle
         /// </summary>
-        void Application_Idle(object sender, EventArgs e)
+        private void ApplicationIdle(object sender, EventArgs e)
         {
-            Application.Idle -= new EventHandler(Application_Idle);
+            Application.Idle -= ApplicationIdle;
             RemoveSplashScreen();
 
             SetSrategyOverview();
 
             if (!Configs.MultipleInstances)
                 InitDataFeed();
-
-            return;
         }
 
         /// <summary>
         /// Removes the splash screen.
         /// </summary>
-        static void RemoveSplashScreen()
+        private static void RemoveSplashScreen()
         {
             string sLockFile = GetLockFile();
             if (!string.IsNullOrEmpty(sLockFile))
@@ -139,15 +135,20 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Updates the splash screen label.
         /// </summary>
-        static void UpdateSplashScreeStatus(string comment)
+        private static void UpdateSplashScreeStatus(string comment)
         {
             try
             {
-                TextWriter tw = new StreamWriter(GetLockFile(), false);
+                string lockFile = GetLockFile();
+                if(string.IsNullOrEmpty(lockFile)) return;
+                TextWriter tw = new StreamWriter(lockFile, false);
                 tw.WriteLine(comment);
                 tw.Close();
             }
-            catch { }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         /// <summary>
@@ -155,7 +156,7 @@ namespace Forex_Strategy_Trader
         /// command line argument -lockfile="c:\temp\C1679A85-A4FA-48a2-BF77-E74F73E08768.lock"
         /// </summary>
         /// <returns>Lock file path</returns>
-        static string GetLockFile()
+        private static string GetLockFile()
         {
             foreach (string arg in Environment.GetCommandLineArgs())
                 if (arg.StartsWith("-lockfile="))
@@ -167,7 +168,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Checks whether the strategy have been saved or not
         /// </summary>
-        void Actions_FormClosing(object sender, FormClosingEventArgs e)
+        private void ActionsFormClosing(object sender, FormClosingEventArgs e)
         {
             DialogResult dialogResult = WhetherSaveChangedStrategy();
 
@@ -193,11 +194,9 @@ namespace Forex_Strategy_Trader
 
                 DeinitDataFeed();
                 Configs.SaveConfigs();
-                this.Hide();
+                Hide();
                 Data.SendStats();
             }
-
-            return;
         }
 
 // ---------------------------------------------------------- //
@@ -205,70 +204,70 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Edits the Strategy Properties Slot
         /// </summary>
-        void EditStrategyProperties()
+        private void EditStrategyProperties()
         {
-            Strategy_Properties strprp = new Strategy_Properties();
-            strprp.SameDirAverg    = Data.Strategy.SameSignalAction;
-            strprp.OppDirAverg     = Data.Strategy.OppSignalAction;
-            strprp.UseAccountPercentEntry = Data.Strategy.UseAccountPercentEntry;
-            strprp.MaxOpenLots     = Data.Strategy.MaxOpenLots;
-            strprp.EntryLots       = Data.Strategy.EntryLots;
-            strprp.AddingLots      = Data.Strategy.AddingLots;
-            strprp.ReducingLots    = Data.Strategy.ReducingLots;
-            strprp.UsePermanentSL  = Data.Strategy.UsePermanentSL;
-            strprp.PermanentSLType = Data.Strategy.PermanentSLType;
-            strprp.PermanentSL     = Data.Strategy.PermanentSL;
-            strprp.UsePermanentTP  = Data.Strategy.UsePermanentTP;
-            strprp.PermanentTPType = Data.Strategy.PermanentTPType;
-            strprp.PermanentTP     = Data.Strategy.PermanentTP;
-            strprp.UseBreakEven    = Data.Strategy.UseBreakEven;
-            strprp.BreakEven       = Data.Strategy.BreakEven;
+            var strprp = new StrategyProperties
+                             {
+                                 SameDirAverg = Data.Strategy.SameSignalAction,
+                                 OppDirAverg = Data.Strategy.OppSignalAction,
+                                 UseAccountPercentEntry = Data.Strategy.UseAccountPercentEntry,
+                                 MaxOpenLots = Data.Strategy.MaxOpenLots,
+                                 EntryLots = Data.Strategy.EntryLots,
+                                 AddingLots = Data.Strategy.AddingLots,
+                                 ReducingLots = Data.Strategy.ReducingLots,
+                                 UsePermanentSL = Data.Strategy.UsePermanentSL,
+                                 PermanentSLType = Data.Strategy.PermanentSLType,
+                                 PermanentSL = Data.Strategy.PermanentSL,
+                                 UsePermanentTP = Data.Strategy.UsePermanentTP,
+                                 PermanentTPType = Data.Strategy.PermanentTPType,
+                                 PermanentTP = Data.Strategy.PermanentTP,
+                                 UseBreakEven = Data.Strategy.UseBreakEven,
+                                 BreakEven = Data.Strategy.BreakEven,
+                                 UseMartingale = Data.Strategy.UseMartingale,
+                                 MartingaleMultiplier = Data.Strategy.MartingaleMultiplier
+                             };
             strprp.SetParams();
             strprp.ShowDialog();
 
-            if (strprp.DialogResult == DialogResult.OK)
-            {
-                OnStrategyChange();
+            if (strprp.DialogResult != DialogResult.OK) return;
+            OnStrategyChange();
 
-                Data.StackStrategy.Push(Data.Strategy.Clone());
+            Data.StackStrategy.Push(Data.Strategy.Clone());
 
-                Data.Strategy.SameSignalAction = strprp.SameDirAverg;
-                Data.Strategy.OppSignalAction  = strprp.OppDirAverg;
-                Data.Strategy.UseAccountPercentEntry = strprp.UseAccountPercentEntry;
-                Data.Strategy.MaxOpenLots      = strprp.MaxOpenLots;
-                Data.Strategy.EntryLots        = strprp.EntryLots;
-                Data.Strategy.AddingLots       = strprp.AddingLots;
-                Data.Strategy.ReducingLots     = strprp.ReducingLots;
-                Data.Strategy.UsePermanentSL   = strprp.UsePermanentSL;
-                Data.Strategy.PermanentSLType  = strprp.PermanentSLType;
-                Data.Strategy.PermanentSL      = strprp.PermanentSL;
-                Data.Strategy.UsePermanentTP   = strprp.UsePermanentTP;
-                Data.Strategy.PermanentTPType  = strprp.PermanentTPType;
-                Data.Strategy.PermanentTP      = strprp.PermanentTP;
-                Data.Strategy.UseBreakEven     = strprp.UseBreakEven;
-                Data.Strategy.BreakEven        = strprp.BreakEven;
+            Data.Strategy.SameSignalAction = strprp.SameDirAverg;
+            Data.Strategy.OppSignalAction = strprp.OppDirAverg;
+            Data.Strategy.UseAccountPercentEntry = strprp.UseAccountPercentEntry;
+            Data.Strategy.MaxOpenLots = strprp.MaxOpenLots;
+            Data.Strategy.EntryLots = strprp.EntryLots;
+            Data.Strategy.AddingLots = strprp.AddingLots;
+            Data.Strategy.ReducingLots = strprp.ReducingLots;
+            Data.Strategy.UsePermanentSL = strprp.UsePermanentSL;
+            Data.Strategy.PermanentSLType = strprp.PermanentSLType;
+            Data.Strategy.PermanentSL = strprp.PermanentSL;
+            Data.Strategy.UsePermanentTP = strprp.UsePermanentTP;
+            Data.Strategy.PermanentTPType = strprp.PermanentTPType;
+            Data.Strategy.PermanentTP = strprp.PermanentTP;
+            Data.Strategy.UseBreakEven = strprp.UseBreakEven;
+            Data.Strategy.BreakEven = strprp.BreakEven;
+            Data.Strategy.UseMartingale = strprp.UseMartingale;
+            Data.Strategy.MartingaleMultiplier = strprp.MartingaleMultiplier;
 
-                RebuildStrategyLayout();
-                SetSrategyOverview();
+            RebuildStrategyLayout();
+            SetSrategyOverview();
 
-                Data.IsStrategyChanged = true;
+            Data.IsStrategyChanged = true;
 
-                CalculateStrategy(false);
-            }
-
-            return;
+            CalculateStrategy(false);
         }
 
         /// <summary>
         /// Edits the Strategy Slot
         /// </summary>
         /// <param name="iSlot">The slot number</param>
-        void EditSlot(int iSlot)
+        private void EditSlot(int iSlot)
         {
-            Data.IsStrategyReady = false;
-
-            SlotTypes slotType   = Data.Strategy.Slot[iSlot].SlotType;
-            bool      bIsDefined = Data.Strategy.Slot[iSlot].IsDefined;
+            SlotTypes slotType = Data.Strategy.Slot[iSlot].SlotType;
+            bool bIsDefined = Data.Strategy.Slot[iSlot].IsDefined;
 
             //We put the current Strategy into the stack only if this function is called from the
             //button SlotButton. If it is called from Add/Remove Filters the stack is already updated.
@@ -277,7 +276,7 @@ namespace Forex_Strategy_Trader
                 Data.StackStrategy.Push(Data.Strategy.Clone());
             }
 
-            Indicator_Dialog id = new Indicator_Dialog(iSlot, slotType, bIsDefined);
+            var id = new Indicator_Dialog(iSlot, slotType, bIsDefined);
             id.ShowDialog();
 
             if (id.DialogResult == DialogResult.OK)
@@ -290,19 +289,16 @@ namespace Forex_Strategy_Trader
                 SetSrategyOverview();
             }
             else
-            {   // Cancel was pressed
+            {
+                // Cancel was pressed
                 UndoStrategy();
             }
-
-            Data.IsStrategyReady = true;
-
-            return;
         }
 
         /// <summary>
         /// Moves a Slot Upwards
         /// </summary>
-        void MoveSlotUpwards(int iSlotToMove)
+        private void MoveSlotUpwards(int iSlotToMove)
         {
             Data.StackStrategy.Push(Data.Strategy.Clone());
             Data.Strategy.MoveFilterUpwards(iSlotToMove);
@@ -313,14 +309,12 @@ namespace Forex_Strategy_Trader
             SetSrategyOverview();
 
             CalculateStrategy(true);
-
-            return;
         }
 
         /// <summary>
         /// Moves a Slot Downwards
         /// </summary>
-        void MoveSlotDownwards(int iSlotToMove)
+        private void MoveSlotDownwards(int iSlotToMove)
         {
             Data.StackStrategy.Push(Data.Strategy.Clone());
             Data.Strategy.MoveFilterDownwards(iSlotToMove);
@@ -331,14 +325,12 @@ namespace Forex_Strategy_Trader
             SetSrategyOverview();
 
             CalculateStrategy(true);
-
-            return;
         }
 
         /// <summary>
         /// Duplicates a Slot
         /// </summary>
-        void DuplicateSlot(int iSlotToDuplicate)
+        private void DuplicateSlot(int iSlotToDuplicate)
         {
             OnStrategyChange();
 
@@ -351,43 +343,37 @@ namespace Forex_Strategy_Trader
             SetSrategyOverview();
 
             CalculateStrategy(true);
-
-            return;
         }
 
         /// <summary>
         /// Adds a new Open filter
         /// </summary>
-        void AddOpenFilter()
+        private void AddOpenFilter()
         {
             OnStrategyChange();
 
             Data.StackStrategy.Push(Data.Strategy.Clone());
             Data.Strategy.AddOpenFilter();
             EditSlot(Data.Strategy.OpenFilters);
-
-            return;
         }
 
         /// <summary>
         /// Adds a new Close filter
         /// </summary>
-        void AddCloseFilter()
+        private void AddCloseFilter()
         {
             OnStrategyChange();
 
             Data.StackStrategy.Push(Data.Strategy.Clone());
             Data.Strategy.AddCloseFilter();
             EditSlot(Data.Strategy.Slots - 1);
-
-            return;
         }
 
         /// <summary>
         /// Removes a strategy slot.
         /// </summary>
         /// <param name="iSlot">Slot to remove</param>
-        void RemoveSlot(int iSlot)
+        private void RemoveSlot(int iSlot)
         {
             OnStrategyChange();
 
@@ -405,7 +391,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Undoes the strategy
         /// </summary>
-        void UndoStrategy()
+        private void UndoStrategy()
         {
             OnStrategyChange();
 
@@ -423,23 +409,23 @@ namespace Forex_Strategy_Trader
 
                 CalculateStrategy(true);
             }
-
-            return;
         }
 
         /// <summary>
         /// Performs actions when UPBV has been changed
         /// </summary>
-        void UsePreviousBarValue_Change()
+        private void UsePreviousBarValueChange()
         {
             if (miStrategyAUPBV.Checked == false)
             {
                 // Confirmation Message
-                string sMessageText = Language.T("Are you sure you want to control \"Use previous bar value\" manually?");
-                DialogResult dialogResult = MessageBox.Show(sMessageText, Language.T("Use previous bar value"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                string messageText = Language.T("Are you sure you want to control \"Use previous bar value\" manually?");
+                DialogResult dialogResult = MessageBox.Show(messageText, Language.T("Use previous bar value"),
+                                                            MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
                 if (dialogResult == DialogResult.Yes)
-                {   // OK, we are sure
+                {
+                    // OK, we are sure
                     OnStrategyChange();
 
                     Data.AutoUsePrvBarValue = false;
@@ -450,7 +436,8 @@ namespace Forex_Strategy_Trader
                                 checkParam.Enabled = true;
                 }
                 else
-                {   // Not just now
+                {
+                    // Not just now
                     miStrategyAUPBV.Checked = true;
                 }
             }
@@ -463,20 +450,20 @@ namespace Forex_Strategy_Trader
                 RepaintStrategyLayout();
                 CalculateStrategy(true);
             }
-
-            return;
         }
 
         /// <summary>
         /// Ask for saving the changed strategy
         /// </summary>
-        DialogResult WhetherSaveChangedStrategy()
+        private DialogResult WhetherSaveChangedStrategy()
         {
             DialogResult dr = DialogResult.No;
             if (Data.IsStrategyChanged)
             {
-                string sMessageText = Language.T("Do you want to save the current strategy?") + "\r\n" + Data.StrategyName;
-                dr = MessageBox.Show(sMessageText, Data.ProgramName, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                string sMessageText = Language.T("Do you want to save the current strategy?") + "\r\n" +
+                                      Data.StrategyName;
+                dr = MessageBox.Show(sMessageText, Data.ProgramName, MessageBoxButtons.YesNoCancel,
+                                     MessageBoxIcon.Question);
             }
 
             return dr;
@@ -485,82 +472,73 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// LoadInstrument
         /// </summary>
-        int LoadInstrument(bool bUseResource)
+        private void LoadInstrument()
         {
-            string      sSymbol    = "EURUSD";
-            DataPeriods dataPeriod = DataPeriods.day;
+            const string symbol = "EURUSD";
+            const DataPeriods dataPeriod = DataPeriods.day;
 
-            Instrument_Properties instrProperties = new Instrument_Properties(sSymbol);
-            Instrument instrument = new Instrument(instrProperties, (int)dataPeriod);
-            int iLoadDataResult = instrument.LoadResourceData();
+            var instrProperties = new Instrument_Properties(symbol);
+            var instrument = new Instrument(instrProperties, (int) dataPeriod);
+            int loadResourceData = instrument.LoadResourceData();
 
-            if (instrument.Bars > 0 && iLoadDataResult == 0)
+            if (instrument.Bars <= 0 || loadResourceData != 0) return;
+
+            Data.InstrProperties = instrProperties.Clone();
+            Data.Bars = instrument.Bars;
+            Data.Period = dataPeriod;
+            Data.Time = new DateTime[Data.Bars];
+            Data.Open = new double[Data.Bars];
+            Data.High = new double[Data.Bars];
+            Data.Low = new double[Data.Bars];
+            Data.Close = new double[Data.Bars];
+            Data.Volume = new int[Data.Bars];
+
+            for (int bar = 0; bar < Data.Bars; bar++)
             {
-                Data.InstrProperties = instrProperties.Clone();
-
-                Data.Bars   = instrument.Bars;
-                Data.Period = dataPeriod;
-
-                Data.Time   = new DateTime[Data.Bars];
-                Data.Open   = new double[Data.Bars];
-                Data.High   = new double[Data.Bars];
-                Data.Low    = new double[Data.Bars];
-                Data.Close  = new double[Data.Bars];
-                Data.Volume = new int[Data.Bars];
-
-                for (int iBar = 0; iBar < Data.Bars; iBar++)
-                {
-                    Data.Open[iBar]   = instrument.Open(iBar);
-                    Data.High[iBar]   = instrument.High(iBar);
-                    Data.Low[iBar]    = instrument.Low(iBar);
-                    Data.Close[iBar]  = instrument.Close(iBar);
-                    Data.Time[iBar]   = instrument.Time(iBar);
-                    Data.Volume[iBar] = instrument.Volume(iBar);
-                }
-
-                Data.IsData = true;
+                Data.Open[bar] = instrument.Open(bar);
+                Data.High[bar] = instrument.High(bar);
+                Data.Low[bar] = instrument.Low(bar);
+                Data.Close[bar] = instrument.Close(bar);
+                Data.Time[bar] = instrument.Time(bar);
+                Data.Volume[bar] = instrument.Volume(bar);
             }
 
-            return 0;
+            Data.IsData = true;
         }
 
         /// <summary>
         /// Open a strategy file
         /// </summary>
-        void ShowOpenFileDialog()
+        private void ShowOpenFileDialog()
         {
-            OpenFileDialog opendlg = new OpenFileDialog();
+            var opendlg = new OpenFileDialog
+                              {
+                                  InitialDirectory = Data.StrategyDir,
+                                  Filter = Language.T("Strategy file") + " (*.xml)|*.xml",
+                                  Title = Language.T("Open Strategy")
+                              };
 
-            opendlg.InitialDirectory = Data.StrategyDir;
-            opendlg.Filter = Language.T("Strategy file") + " (*.xml)|*.xml";
-            opendlg.Title  = Language.T("Open Strategy");
 
             if (opendlg.ShowDialog() == DialogResult.OK)
             {
-                string sStrategyfullName = opendlg.FileName;
-                LoadStrategyFile(sStrategyfullName);
+                LoadStrategyFile(opendlg.FileName);
             }
-
-            return;
         }
 
         /// <summary>
         /// New Strategy
         /// </summary>
-        void NewStrategy()
+        private void NewStrategy()
         {
             Data.StrategyDir = Path.Combine(Data.ProgramDir, Data.DefaultStrategyDir);
-            string sStrategyfullName = Path.Combine(Data.StrategyDir, "New.xml");
-
-            LoadStrategyFile(sStrategyfullName);
-
-            return;
+            string strategyfullName = Path.Combine(Data.StrategyDir, "New.xml");
+            LoadStrategyFile(strategyfullName);
         }
 
         /// <summary>
         /// Loads the strategy given.
         /// </summary>
-        void LoadStrategyFile(string strategyfullName)
+        private void LoadStrategyFile(string strategyfullName)
         {
             try
             {
@@ -574,18 +552,18 @@ namespace Forex_Strategy_Trader
             {
                 MessageBox.Show(exc.Message, Text);
             }
-
-            return;
         }
 
         /// <summary>
         ///Reloads the Custom Indicators.
         /// </summary>
-        void ReloadCustomIndicators()
-        {   // Check if the strategy contains custom indicators
+        private void ReloadCustomIndicators()
+        {
+            // Check if the strategy contains custom indicators
             bool bStrategyHasCustomIndicator = false;
             foreach (IndicatorSlot slot in Data.Strategy.Slot)
-            {   // Searching the strategy slots for a custom indicator
+            {
+                // Searching the strategy slots for a custom indicator
                 if (Indicator_Store.CustomIndicatorNames.Contains(slot.IndicatorName))
                 {
                     bStrategyHasCustomIndicator = true;
@@ -597,7 +575,8 @@ namespace Forex_Strategy_Trader
             Custom_Indicators.LoadCustomIndicators();
 
             if (bStrategyHasCustomIndicator)
-            {   // Load and calculate a new strategy
+            {
+                // Load and calculate a new strategy
                 Data.StrategyDir = Path.Combine(Data.ProgramDir, Data.DefaultStrategyDir);
 
                 if (OpenStrategy(Path.Combine(Data.StrategyDir, "New.xml")) == 0)
@@ -606,30 +585,31 @@ namespace Forex_Strategy_Trader
                     AfterStrategyOpening();
                 }
             }
-
-            return;
         }
 
         /// <summary>
         /// Reads the strategy from a file.
         /// </summary>
-        /// <param name="sStrategyName">The strategy name.</param>
+        /// <param name="strategyName">The strategy name.</param>
         /// <returns>0 - success.</returns>
-        int OpenStrategy(string sStrategyName)
+        private int OpenStrategy(string strategyName)
         {
             try
             {
-                if (File.Exists(sStrategyName) && Strategy.Load(sStrategyName) == 0)
-                {   // Successfully opened
-                    Data.Strategy.StrategyName = Path.GetFileNameWithoutExtension(sStrategyName);
-                    Data.StrategyDir  = Path.GetDirectoryName(sStrategyName);
-                    Data.StrategyName = Path.GetFileName(sStrategyName);
+                if (File.Exists(strategyName) && Strategy.Load(strategyName))
+                {
+                    // Successfully opened
+                    Data.Strategy.StrategyName = Path.GetFileNameWithoutExtension(strategyName);
+                    Data.StrategyDir = Path.GetDirectoryName(strategyName);
+                    Data.StrategyName = Path.GetFileName(strategyName);
                 }
                 else
                 {
                     Strategy.GenerateNew();
-                    string sMessageText = Language.T("The strategy could not be loaded correctly!") + Environment.NewLine + Language.T("A new strategy has been generated!");
-                    MessageBox.Show(sMessageText, Language.T("Strategy Loading"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    string sMessageText = Language.T("The strategy could not be loaded correctly!") +
+                                          Environment.NewLine + Language.T("A new strategy has been generated!");
+                    MessageBox.Show(sMessageText, Language.T("Strategy Loading"), MessageBoxButtons.OK,
+                                    MessageBoxIcon.Exclamation);
                     Data.LoadedSavedStrategy = "";
                 }
 
@@ -638,7 +618,7 @@ namespace Forex_Strategy_Trader
                 RebuildStrategyLayout();
                 SetSrategyOverview();
 
-                SetFormText(); 
+                SetFormText();
                 Data.IsStrategyChanged = false;
                 Data.LoadedSavedStrategy = Data.StrategyPath;
 
@@ -647,8 +627,10 @@ namespace Forex_Strategy_Trader
             catch
             {
                 Strategy.GenerateNew();
-                string sMessageText = Language.T("The strategy could not be loaded correctly!") + Environment.NewLine + Language.T("A new strategy has been generated!");
-                MessageBox.Show(sMessageText, Language.T("Strategy Loading"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                string sMessageText = Language.T("The strategy could not be loaded correctly!") + Environment.NewLine +
+                                      Language.T("A new strategy has been generated!");
+                MessageBox.Show(sMessageText, Language.T("Strategy Loading"), MessageBoxButtons.OK,
+                                MessageBoxIcon.Exclamation);
                 Data.LoadedSavedStrategy = "";
                 SetFormText();
                 RebuildStrategyLayout();
@@ -661,7 +643,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Save the current strategy
         /// </summary>
-        int SaveStrategy()
+        private void SaveStrategy()
         {
             if (Data.StrategyName == "New.xml")
             {
@@ -679,33 +661,31 @@ namespace Forex_Strategy_Trader
                 catch (Exception exc)
                 {
                     MessageBox.Show(exc.Message, Text);
-                    return -1;
                 }
             }
-
-            return 0;
         }
 
         /// <summary>
         /// Save the current strategy
         /// </summary>
-        int SaveAsStrategy()
+        private void SaveAsStrategy()
         {
             //Creates a dialog form SaveFileDialog
-            SaveFileDialog savedlg = new SaveFileDialog();
-
-            savedlg.InitialDirectory = Data.StrategyDir;
-            savedlg.FileName         = Path.GetFileName(Data.StrategyName);
-            savedlg.AddExtension     = true;
-            savedlg.Title   = Language.T("Save the Strategy As");
-            savedlg.Filter  = Language.T("Strategy file") + " (*.xml)|*.xml";
+            var savedlg = new SaveFileDialog
+                              {
+                                  InitialDirectory = Data.StrategyDir,
+                                  FileName = Path.GetFileName(Data.StrategyName),
+                                  AddExtension = true,
+                                  Title = Language.T("Save the Strategy As"),
+                                  Filter = Language.T("Strategy file") + " (*.xml)|*.xml"
+                              };
 
             if (savedlg.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
                     Data.StrategyName = Path.GetFileName(savedlg.FileName);
-                    Data.StrategyDir  = Path.GetDirectoryName(savedlg.FileName);
+                    Data.StrategyDir = Path.GetDirectoryName(savedlg.FileName);
                     Data.Strategy.Save(savedlg.FileName);
                     Data.IsStrategyChanged = false;
                     Data.LoadedSavedStrategy = Data.StrategyPath;
@@ -715,43 +695,37 @@ namespace Forex_Strategy_Trader
                 catch (Exception exc)
                 {
                     MessageBox.Show(exc.Message, Text);
-                    return -1;
                 }
             }
-
-            return 0;
         }
 
         /// <summary>
         /// Calculates the strategy.
         /// </summary>
-        /// <param name="bRecalcIndicators">true - to recalculate all the indicators.</param>
-        void CalculateStrategy(bool bRecalcIndicators)
+        /// <param name="recalcIndicators">true - to recalculate all the indicators.</param>
+        private void CalculateStrategy(bool recalcIndicators)
         {
             // Calculates the indicators by slots if it's necessary
-            if (bRecalcIndicators)
+            if (recalcIndicators)
                 Data.FirstBar = Data.Strategy.Calculate();
-
-            return;
         }
 
         /// <summary>
         /// Stops trade and shows a message.
         /// </summary>
-        void AfterStrategyOpening()
+        private void AfterStrategyOpening()
         {
             StopTrade();
-            JournalMessage msg = new JournalMessage(JournalIcons.Information, DateTime.Now,
-                Language.T("Strategy") + " \"" + Data.Strategy.StrategyName + "\" " + Language.T("loaded successfully."));
+            var msg = new JournalMessage(JournalIcons.Information, DateTime.Now,
+                                         Language.T("Strategy") + " \"" + Data.Strategy.StrategyName + "\" " +
+                                         Language.T("loaded successfully."));
             AppendJournalMessage(msg);
-
-            return;
         }
 
         /// <summary>
         /// Stops trade and selects Strategy page.
         /// </summary>
-        void OnStrategyChange()
+        private void OnStrategyChange()
         {
             // Stops auto trade
             StopTrade();
@@ -763,7 +737,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Loads a color scheme.
         /// </summary>
-        void LoadColorScheme()
+        private void LoadColorScheme()
         {
             string colorSchemeFile = Path.Combine(Data.ColorDir, Configs.ColorScheme + ".xml");
 
@@ -772,14 +746,12 @@ namespace Forex_Strategy_Trader
                 LayoutColors.LoadColorScheme(colorSchemeFile);
                 SetColors();
             }
-
-            return;
         }
 
         /// <summary>
         /// Sets the caption text of the application.
         /// </summary>
-        void SetFormText()
+        private void SetFormText()
         {
             string connection = "";
             if (Configs.MultipleInstances)
@@ -793,17 +765,22 @@ namespace Forex_Strategy_Trader
             SetFormTextThreadSafely(text);
         }
 
-        delegate void SetFormTextDelegate(string text);
-        void SetFormTextThreadSafely(string text)
+        private void SetFormTextThreadSafely(string text)
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
-                this.BeginInvoke(new SetFormTextDelegate(SetFormTextThreadSafely), new object[] { text });
+                BeginInvoke(new SetFormTextDelegate(SetFormTextThreadSafely), new object[] {text});
             }
             else
             {
-                this.Text = text;
+                Text = text;
             }
         }
+
+        #region Nested type: SetFormTextDelegate
+
+        private delegate void SetFormTextDelegate(string text);
+
+        #endregion
     }
 }

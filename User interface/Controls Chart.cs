@@ -22,9 +22,9 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public void Initialize_PageChart()
         {
-            tabPageChart.Name = "tabPageChart";
-            tabPageChart.Text = Language.T("Chart");
-            tabPageChart.ImageIndex = 2;
+            TabPageChart.Name = "tabPageChart";
+            TabPageChart.Text = Language.T("Chart");
+            TabPageChart.ImageIndex = 2;
 
             return;
         }
@@ -48,11 +48,11 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void CreateChart()
         {
-            if (tabControlBase.SelectedTab == tabPageChart)
+            if (TabControlBase.SelectedTab == TabPageChart)
             {
                 Chart_Data chartData = GetChartDataObject();
                 chart = new Chart(chartData);
-                chart.Parent = tabPageChart;
+                chart.Parent = TabPageChart;
                 chart.Dock   = DockStyle.Fill;
                 chart.InitChart(chartData);
             }

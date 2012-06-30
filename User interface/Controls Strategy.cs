@@ -6,219 +6,230 @@
 
 using System;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
+using Forex_Strategy_Trader.Properties;
 
 namespace Forex_Strategy_Trader
 {
     /// <summary>
     /// Class Controls : Menu_and_StatusBar
     /// </summary>
-    public partial class Controls : Menu_and_StatusBar
+    public partial class Controls
     {
-        Panel           pnlStrategyBase;
-        Panel           pnlOverviewBase;
-        Strategy_Layout strategyLayout;
-        Fancy_Panel     pnlBrawserBase;
-        WebBrowser      browserOverview;
+        private WebBrowser BrowserOverview { get; set; }
+        private Fancy_Panel PnlBrawserBase { get; set; }
+        private Panel PnlOverviewBase { get; set; }
+        private Panel PnlStrategyBase { get; set; }
+        private Strategy_Layout StrategyLayout { get; set; }
 
-        ToolStrip       tsStrategy;
+        private ToolStrip TsStrategy { get; set; }
 
         /// <summary>
         /// Sets the controls in tabPageStrategy
         /// </summary>
-        void Initialize_PageStrategy()
+        private void InitializePageStrategy()
         {
             // tabPageStrategy
-            tabPageStrategy.Name = "tabPageStrategy";
-            tabPageStrategy.Text = Language.T("Strategy");
-            tabPageStrategy.ImageIndex = 1;
-            tabPageStrategy.Resize += new EventHandler(TabPageStrategy_Resize);
+            TabPageStrategy.Name = "tabPageStrategy";
+            TabPageStrategy.Text = Language.T("Strategy");
+            TabPageStrategy.ImageIndex = 1;
+            TabPageStrategy.Resize += TabPageStrategyResize;
 
-            pnlOverviewBase = new Panel();
-            pnlOverviewBase.Parent  = tabPageStrategy;
-            pnlOverviewBase.Dock    = DockStyle.Fill;
+            PnlOverviewBase = new Panel {Parent = TabPageStrategy, Dock = DockStyle.Fill};
 
-            pnlStrategyBase = new Panel();
-            pnlStrategyBase.Parent  = tabPageStrategy;
-            pnlStrategyBase.Dock    = DockStyle.Left;
+            PnlStrategyBase = new Panel {Parent = TabPageStrategy, Dock = DockStyle.Left};
 
             // Panel Browser Base
-            pnlBrawserBase = new Fancy_Panel(Language.T("Strategy Overview"));
-            pnlBrawserBase.Padding = new Padding(2, (int)pnlBrawserBase.CaptionHeight, 2, 2);
-            pnlBrawserBase.Parent  = pnlOverviewBase;
-            pnlBrawserBase.Dock    = DockStyle.Fill;
+            PnlBrawserBase = new Fancy_Panel(Language.T("Strategy Overview"));
+            PnlBrawserBase.Padding = new Padding(2, (int) PnlBrawserBase.CaptionHeight, 2, 2);
+            PnlBrawserBase.Parent = PnlOverviewBase;
+            PnlBrawserBase.Dock = DockStyle.Fill;
 
             // BrowserOverview
-            browserOverview = new WebBrowser();
-            browserOverview.Parent = pnlBrawserBase;
-            browserOverview.Dock   = DockStyle.Fill;
-            //browserOverview.AllowNavigation = false;
-            browserOverview.WebBrowserShortcutsEnabled = false;
-            browserOverview.AllowWebBrowserDrop = false;
+            BrowserOverview = new WebBrowser
+                                  {
+                                      Parent = PnlBrawserBase,
+                                      Dock = DockStyle.Fill,
+                                      WebBrowserShortcutsEnabled = false,
+                                      AllowWebBrowserDrop = false
+                                  };
 
             // StrategyLayout
-            strategyLayout = new Strategy_Layout(Data.Strategy.Clone());
-            strategyLayout.Parent = pnlStrategyBase;
-            strategyLayout.btnAddOpenFilter.Click  += new EventHandler(BtnAddOpenFilter_Click);
-            strategyLayout.btnAddCloseFilter.Click += new EventHandler(BtnAddCloseFilter_Click);
+            StrategyLayout = new Strategy_Layout(Data.Strategy.Clone()) {Parent = PnlStrategyBase};
+            StrategyLayout.btnAddOpenFilter.Click += BtnAddOpenFilterClick;
+            StrategyLayout.btnAddCloseFilter.Click += BtnAddCloseFilterClick;
 
             // ToolStrip Strategy
-            tsStrategy = new ToolStrip();
-            tsStrategy.Parent = pnlStrategyBase;
-            tsStrategy.Dock   = DockStyle.None;
-            tsStrategy.AutoSize = false;
+            TsStrategy = new ToolStrip {Parent = PnlStrategyBase, Dock = DockStyle.None, AutoSize = false};
 
             // Button tsbtStrategyNew
-            ToolStripButton tsbtStrategyNew = new ToolStripButton();
-            tsbtStrategyNew.Name         = "New";
-            tsbtStrategyNew.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategyNew.Image        = Properties.Resources.strategy_new;
-            tsbtStrategyNew.Click       += new EventHandler(BtnStrategyIO_Click);
-            tsbtStrategyNew.ToolTipText  = Language.T("Open the default strategy \"New.xml\".");
-            tsStrategy.Items.Add(tsbtStrategyNew);
+            var tsbtStrategyNew = new ToolStripButton
+                                      {
+                                          Name = "New",
+                                          DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                          Image = Resources.strategy_new
+                                      };
+            tsbtStrategyNew.Click += BtnStrategyIoClick;
+            tsbtStrategyNew.ToolTipText = Language.T("Open the default strategy \"New.xml\".");
+            TsStrategy.Items.Add(tsbtStrategyNew);
 
             // Button tsbtStrategyOpen
-            ToolStripButton tsbtStrategyOpen = new ToolStripButton();
-            tsbtStrategyOpen.Name         = "Open";
-            tsbtStrategyOpen.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategyOpen.Image        = Properties.Resources.strategy_open;
-            tsbtStrategyOpen.Click       += new EventHandler(BtnStrategyIO_Click);
-            tsbtStrategyOpen.ToolTipText  = Language.T("Open a strategy.");
-            tsStrategy.Items.Add(tsbtStrategyOpen);
+            var tsbtStrategyOpen = new ToolStripButton
+                                       {
+                                           Name = "Open",
+                                           DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                           Image = Resources.strategy_open
+                                       };
+            tsbtStrategyOpen.Click += BtnStrategyIoClick;
+            tsbtStrategyOpen.ToolTipText = Language.T("Open a strategy.");
+            TsStrategy.Items.Add(tsbtStrategyOpen);
 
             // Button tsbtStrategySave
-            ToolStripButton tsbtStrategySave = new ToolStripButton();
-            tsbtStrategySave.Name         = "Save";
-            tsbtStrategySave.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategySave.Image        = Properties.Resources.strategy_save;
-            tsbtStrategySave.Click       += new EventHandler(BtnStrategyIO_Click);
-            tsbtStrategySave.ToolTipText  = Language.T("Save the strategy.");
-            tsStrategy.Items.Add(tsbtStrategySave);
+            var tsbtStrategySave = new ToolStripButton
+                                       {
+                                           Name = "Save",
+                                           DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                           Image = Resources.strategy_save
+                                       };
+            tsbtStrategySave.Click += BtnStrategyIoClick;
+            tsbtStrategySave.ToolTipText = Language.T("Save the strategy.");
+            TsStrategy.Items.Add(tsbtStrategySave);
 
             // Button tsbtStrategySaveAs
-            ToolStripButton tsbtStrategySaveAs = new ToolStripButton();
-            tsbtStrategySaveAs.Name         = "SaveAs";
-            tsbtStrategySaveAs.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategySaveAs.Image        = Properties.Resources.strategy_save_as;
-            tsbtStrategySaveAs.Click       += new EventHandler(BtnStrategyIO_Click);
-            tsbtStrategySaveAs.ToolTipText  = Language.T("Save a copy of the strategy.");
-            tsStrategy.Items.Add(tsbtStrategySaveAs);
+            var tsbtStrategySaveAs = new ToolStripButton
+                                         {
+                                             Name = "SaveAs",
+                                             DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                             Image = Resources.strategy_save_as
+                                         };
+            tsbtStrategySaveAs.Click += BtnStrategyIoClick;
+            tsbtStrategySaveAs.ToolTipText = Language.T("Save a copy of the strategy.");
+            TsStrategy.Items.Add(tsbtStrategySaveAs);
 
-            tsStrategy.Items.Add(new ToolStripSeparator());
+            TsStrategy.Items.Add(new ToolStripSeparator());
 
             // Button tsbtStrategyUndo
-            ToolStripButton tsbtStrategyUndo = new ToolStripButton();
-            tsbtStrategyUndo.Name         = "Undo";
-            tsbtStrategyUndo.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategyUndo.Image        = Properties.Resources.strategy_undo;
-            tsbtStrategyUndo.Click       += new EventHandler(MenuStrategyUndo_OnClick);
-            tsbtStrategyUndo.ToolTipText  = Language.T("Undo the last change in the strategy.");
-            tsStrategy.Items.Add(tsbtStrategyUndo);
+            var tsbtStrategyUndo = new ToolStripButton
+                                       {
+                                           Name = "Undo",
+                                           DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                           Image = Resources.strategy_undo
+                                       };
+            tsbtStrategyUndo.Click += MenuStrategyUndo_OnClick;
+            tsbtStrategyUndo.ToolTipText = Language.T("Undo the last change in the strategy.");
+            TsStrategy.Items.Add(tsbtStrategyUndo);
 
             // Button tsbtStrategyCopy
-            ToolStripButton tsbtStrategyCopy = new ToolStripButton();
-            tsbtStrategyCopy.Name         = "Copy";
-            tsbtStrategyCopy.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategyCopy.Image        = Properties.Resources.copy;
-            tsbtStrategyCopy.Click       += new EventHandler(MenuStrategyCopy_OnClick);
-            tsbtStrategyCopy.ToolTipText  = Language.T("Copy the entire strategy to the clipboard.");
-            tsStrategy.Items.Add(tsbtStrategyCopy);
+            var tsbtStrategyCopy = new ToolStripButton
+                                       {
+                                           Name = "Copy",
+                                           DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                           Image = Resources.copy
+                                       };
+            tsbtStrategyCopy.Click += MenuStrategyCopy_OnClick;
+            tsbtStrategyCopy.ToolTipText = Language.T("Copy the entire strategy to the clipboard.");
+            TsStrategy.Items.Add(tsbtStrategyCopy);
 
             // Button tsbtStrategyPaste
-            ToolStripButton tsbtStrategyPaste = new ToolStripButton();
-            tsbtStrategyPaste.Name         = "Paste";
-            tsbtStrategyPaste.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategyPaste.Image        = Properties.Resources.paste;
-            tsbtStrategyPaste.Click       += new EventHandler(MenuStrategyPaste_OnClick);
-            tsbtStrategyPaste.ToolTipText  = Language.T("Load a strategy from the clipboard.");
-            tsStrategy.Items.Add(tsbtStrategyPaste);
+            var tsbtStrategyPaste = new ToolStripButton
+                                        {
+                                            Name = "Paste",
+                                            DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                            Image = Resources.paste
+                                        };
+            tsbtStrategyPaste.Click += MenuStrategyPaste_OnClick;
+            tsbtStrategyPaste.ToolTipText = Language.T("Load a strategy from the clipboard.");
+            TsStrategy.Items.Add(tsbtStrategyPaste);
 
-            tsStrategy.Items.Add(new ToolStripSeparator());
+            TsStrategy.Items.Add(new ToolStripSeparator());
 
             // Button tsbtStrategyZoomIn
-            ToolStripButton tsbtStrategyZoomIn = new ToolStripButton();
-            tsbtStrategyZoomIn.Name         = "ZoomIn";
-            tsbtStrategyZoomIn.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategyZoomIn.Image        = Properties.Resources.strategy_zoom_in;
-            tsbtStrategyZoomIn.Click       += new EventHandler(BtnStrategyZoom_Click);
-            tsbtStrategyZoomIn.ToolTipText  = Language.T("Expand the information in the strategy slots.");
-            tsStrategy.Items.Add(tsbtStrategyZoomIn);
+            var tsbtStrategyZoomIn = new ToolStripButton
+                                         {
+                                             Name = "ZoomIn",
+                                             DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                             Image = Resources.strategy_zoom_in
+                                         };
+            tsbtStrategyZoomIn.Click += BtnStrategyZoomClick;
+            tsbtStrategyZoomIn.ToolTipText = Language.T("Expand the information in the strategy slots.");
+            TsStrategy.Items.Add(tsbtStrategyZoomIn);
 
             // Button tsbtStrategyZoomOut
-            ToolStripButton tsbtStrategyZoomOut = new ToolStripButton();
-            tsbtStrategyZoomOut.Name         = "ZoomOut";
-            tsbtStrategyZoomOut.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategyZoomOut.Image        = Properties.Resources.strategy_zoom_out;
-            tsbtStrategyZoomOut.Click       += new EventHandler(BtnStrategyZoom_Click);
-            tsbtStrategyZoomOut.ToolTipText  = Language.T("Reduce the information in the strategy slots.");
-            tsStrategy.Items.Add(tsbtStrategyZoomOut);
+            var tsbtStrategyZoomOut = new ToolStripButton
+                                          {
+                                              Name = "ZoomOut",
+                                              DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                              Image = Resources.strategy_zoom_out
+                                          };
+            tsbtStrategyZoomOut.Click += BtnStrategyZoomClick;
+            tsbtStrategyZoomOut.ToolTipText = Language.T("Reduce the information in the strategy slots.");
+            TsStrategy.Items.Add(tsbtStrategyZoomOut);
 
-            tsStrategy.Items.Add(new ToolStripSeparator());
+            TsStrategy.Items.Add(new ToolStripSeparator());
 
             // Button tsbtStrategyDescription
-            ToolStripButton tsbtStrategyDescription = new ToolStripButton();
-            tsbtStrategyDescription.Name         = "Description";
-            tsbtStrategyDescription.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategyDescription.Image        = Properties.Resources.strategy_description;
-            tsbtStrategyDescription.Click       += new EventHandler(BtnStrategyDescription_Click);
-            tsbtStrategyDescription.ToolTipText  = Language.T("Edit the strategy description.");
-            tsStrategy.Items.Add(tsbtStrategyDescription);
+            var tsbtStrategyDescription = new ToolStripButton
+                                              {
+                                                  Name = "Description",
+                                                  DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                                  Image = Resources.strategy_description
+                                              };
+            tsbtStrategyDescription.Click += BtnStrategyDescriptionClick;
+            tsbtStrategyDescription.ToolTipText = Language.T("Edit the strategy description.");
+            TsStrategy.Items.Add(tsbtStrategyDescription);
 
             // Button tsbtStrategyPublish
-            ToolStripButton tsbtStrategyPublish = new ToolStripButton();
-            tsbtStrategyPublish.Name         = "Publish";
-            tsbtStrategyPublish.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategyPublish.Image        = Properties.Resources.strategy_publish;
-            tsbtStrategyPublish.Click       += new EventHandler(MenuStrategyBBcode_OnClick);
-            tsbtStrategyPublish.ToolTipText  = Language.T("Publish the strategy in the program's forum.");
-            tsStrategy.Items.Add(tsbtStrategyPublish);
+            var tsbtStrategyPublish = new ToolStripButton
+                                          {
+                                              Name = "Publish",
+                                              DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                              Image = Resources.strategy_publish
+                                          };
+            tsbtStrategyPublish.Click += MenuStrategyBBcode_OnClick;
+            tsbtStrategyPublish.ToolTipText = Language.T("Publish the strategy in the program's forum.");
+            TsStrategy.Items.Add(tsbtStrategyPublish);
 
-            tsStrategy.Items.Add(new ToolStripSeparator());
+            TsStrategy.Items.Add(new ToolStripSeparator());
 
             // Button tsbtStrategySettings
-            ToolStripButton tsbtStrategySettings = new ToolStripButton();
-            tsbtStrategySettings.Name         = "Settings";
-            tsbtStrategySettings.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbtStrategySettings.Image        = Properties.Resources.strategy_settings;
-            tsbtStrategySettings.Click       += new EventHandler(BtnStrategySettings_Click);
-            tsbtStrategySettings.ToolTipText  = Language.T("Trade settings.");
-            tsStrategy.Items.Add(tsbtStrategySettings);
+            var tsbtStrategySettings = new ToolStripButton
+                                           {
+                                               Name = "Settings",
+                                               DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                               Image = Resources.strategy_settings
+                                           };
+            tsbtStrategySettings.Click += BtnStrategySettings_Click;
+            tsbtStrategySettings.ToolTipText = Language.T("Trade settings.");
+            TsStrategy.Items.Add(tsbtStrategySettings);
 
             SetStrategyColors();
             RebuildStrategyLayout();
             SetSrategyOverview();
-
-            return;
         }
 
         /// <summary>
         /// TabPageStrategy_Resize
         /// </summary>
-        void TabPageStrategy_Resize(object sender, EventArgs e)
+        private void TabPageStrategyResize(object sender, EventArgs e)
         {
-            pnlStrategyBase.Width = tabPageStrategy.ClientSize.Width / 2;
+            PnlStrategyBase.Width = TabPageStrategy.ClientSize.Width/2;
 
-            tsStrategy.Width    =  pnlStrategyBase.Width - space;
-            tsStrategy.Location = Point.Empty;
+            TsStrategy.Width = PnlStrategyBase.Width - space;
+            TsStrategy.Location = Point.Empty;
 
-            strategyLayout.Width    = pnlStrategyBase.Width - space;
-            strategyLayout.Height   = tabPageStrategy.ClientSize.Height - tsStrategy.Bottom - space;
-            strategyLayout.Location = new Point(0, tsStrategy.Bottom + space);
-
-            return;
+            StrategyLayout.Width = PnlStrategyBase.Width - space;
+            StrategyLayout.Height = TabPageStrategy.ClientSize.Height - TsStrategy.Bottom - space;
+            StrategyLayout.Location = new Point(0, TsStrategy.Bottom + space);
         }
 
         /// <summary>
         /// Sets the colors of tab page Strategy.
         /// </summary>
-        void SetStrategyColors()
+        private void SetStrategyColors()
         {
-            tabPageStrategy.BackColor = LayoutColors.ColorFormBack;
-            pnlBrawserBase.SetColors();
+            TabPageStrategy.BackColor = LayoutColors.ColorFormBack;
+            PnlBrawserBase.SetColors();
             SetSrategyOverview();
-
-            return;
         }
 
         /// <summary>
@@ -226,59 +237,76 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected void RebuildStrategyLayout()
         {
-            strategyLayout.RebuildStrategyControls(Data.Strategy.Clone());
-            strategyLayout.pnlProperties.Click += new EventHandler(PnlAveraging_Click);
-            for (int iSlot = 0; iSlot < Data.Strategy.Slots; iSlot++)
+            StrategyLayout.RebuildStrategyControls(Data.Strategy.Clone());
+            StrategyLayout.pnlProperties.Click += PnlAveragingClick;
+            for (int slot = 0; slot < Data.Strategy.Slots; slot++)
             {
-                ToolStripMenuItem miEdit = new ToolStripMenuItem();
-                miEdit.Text   = Language.T("Edit") + "...";
-                miEdit.Image  = Properties.Resources.edit;
-                miEdit.Name   = "Edit";
-                miEdit.Tag    = iSlot;
-                miEdit.Click += new EventHandler(SlotContextMenu_Click);
+                var miEdit = new ToolStripMenuItem
+                                 {
+                                     Text = Language.T("Edit") + "...",
+                                     Image = Resources.edit,
+                                     Name = "Edit",
+                                     Tag = slot
+                                 };
+                miEdit.Click += SlotContextMenuClick;
 
-                ToolStripMenuItem miUpwards = new ToolStripMenuItem();
-                miUpwards.Text    = Language.T("Move Up");
-                miUpwards.Image   = Properties.Resources.up_arrow;
-                miUpwards.Name    = "Upwards";
-                miUpwards.Tag     = iSlot;
-                miUpwards.Click  += new EventHandler(SlotContextMenu_Click);
-                miUpwards.Enabled = (iSlot > 1 && Data.Strategy.Slot[iSlot].SlotType == Data.Strategy.Slot[iSlot - 1].SlotType);
+                var miUpwards = new ToolStripMenuItem
+                                    {
+                                        Text = Language.T("Move Up"),
+                                        Image = Resources.up_arrow,
+                                        Name = "Upwards",
+                                        Tag = slot
+                                    };
+                miUpwards.Click += SlotContextMenuClick;
+                miUpwards.Enabled = (slot > 1 &&
+                                     Data.Strategy.Slot[slot].SlotType == Data.Strategy.Slot[slot - 1].SlotType);
 
-                ToolStripMenuItem miDownwards = new ToolStripMenuItem();
-                miDownwards.Text    = Language.T("Move Down");
-                miDownwards.Image   = Properties.Resources.down_arrow;
-                miDownwards.Name    = "Downwards";
-                miDownwards.Tag     = iSlot;
-                miDownwards.Click  += new EventHandler(SlotContextMenu_Click);
-                miDownwards.Enabled = (iSlot < Data.Strategy.Slots - 1 && Data.Strategy.Slot[iSlot].SlotType == Data.Strategy.Slot[iSlot + 1].SlotType);
+                var miDownwards = new ToolStripMenuItem
+                                      {
+                                          Text = Language.T("Move Down"),
+                                          Image = Resources.down_arrow,
+                                          Name = "Downwards",
+                                          Tag = slot
+                                      };
+                miDownwards.Click += SlotContextMenuClick;
+                miDownwards.Enabled = (slot < Data.Strategy.Slots - 1 &&
+                                       Data.Strategy.Slot[slot].SlotType == Data.Strategy.Slot[slot + 1].SlotType);
 
-                ToolStripMenuItem miDuplicate = new ToolStripMenuItem();
-                miDuplicate.Text    = Language.T("Duplicate");
-                miDuplicate.Image   = Properties.Resources.duplicate;
-                miDuplicate.Name    = "Duplicate";
-                miDuplicate.Tag     = iSlot;
-                miDuplicate.Click  += new EventHandler(SlotContextMenu_Click);
-                miDuplicate.Enabled = ( Data.Strategy.Slot[iSlot].SlotType == SlotTypes.OpenFilter  && Data.Strategy.OpenFilters  < Strategy.MaxOpenFilters ||
-                                        Data.Strategy.Slot[iSlot].SlotType == SlotTypes.CloseFilter && Data.Strategy.CloseFilters < Strategy.MaxCloseFilters);
+                var miDuplicate = new ToolStripMenuItem
+                                      {
+                                          Text = Language.T("Duplicate"),
+                                          Image = Resources.duplicate,
+                                          Name = "Duplicate",
+                                          Tag = slot
+                                      };
+                miDuplicate.Click += SlotContextMenuClick;
+                miDuplicate.Enabled = (Data.Strategy.Slot[slot].SlotType == SlotTypes.OpenFilter &&
+                                       Data.Strategy.OpenFilters < Strategy.MaxOpenFilters ||
+                                       Data.Strategy.Slot[slot].SlotType == SlotTypes.CloseFilter &&
+                                       Data.Strategy.CloseFilters < Strategy.MaxCloseFilters);
 
-                ToolStripMenuItem miDelete = new ToolStripMenuItem();
-                miDelete.Text    = Language.T("Delete");
-                miDelete.Image   = Properties.Resources.close_button;
-                miDelete.Name    = "Delete";
-                miDelete.Tag     = iSlot;
-                miDelete.Click  += new EventHandler(SlotContextMenu_Click);
-                miDelete.Enabled = (Data.Strategy.Slot[iSlot].SlotType == SlotTypes.OpenFilter || Data.Strategy.Slot[iSlot].SlotType == SlotTypes.CloseFilter);
+                var miDelete = new ToolStripMenuItem
+                                   {
+                                       Text = Language.T("Delete"),
+                                       Image = Resources.close_button,
+                                       Name = "Delete",
+                                       Tag = slot
+                                   };
+                miDelete.Click += SlotContextMenuClick;
+                miDelete.Enabled = (Data.Strategy.Slot[slot].SlotType == SlotTypes.OpenFilter ||
+                                    Data.Strategy.Slot[slot].SlotType == SlotTypes.CloseFilter);
 
-                strategyLayout.apnlSlot[iSlot].ContextMenuStrip = new ContextMenuStrip();
-                strategyLayout.apnlSlot[iSlot].ContextMenuStrip.Items.AddRange(new ToolStripMenuItem[] { miEdit, miUpwards, miDownwards, miDuplicate, miDelete });
+                StrategyLayout.apnlSlot[slot].ContextMenuStrip = new ContextMenuStrip();
+                StrategyLayout.apnlSlot[slot].ContextMenuStrip.Items.AddRange(new ToolStripItem[]
+                                                                                  {
+                                                                                      miEdit, miUpwards, miDownwards,
+                                                                                      miDuplicate, miDelete
+                                                                                  });
 
-                strategyLayout.apnlSlot[iSlot].MouseClick += new MouseEventHandler(PnlSlot_MouseUp);
-                if (iSlot != Data.Strategy.OpenSlot && iSlot != Data.Strategy.CloseSlot)
-                    strategyLayout.abtnRemoveSlot[iSlot].Click += new EventHandler(BtnRemoveSlot_Click);
+                StrategyLayout.apnlSlot[slot].MouseClick += PnlSlotMouseUp;
+                if (slot != Data.Strategy.OpenSlot && slot != Data.Strategy.CloseSlot)
+                    StrategyLayout.abtnRemoveSlot[slot].Click += BtnRemoveSlotClick;
             }
-
-            return;
         }
 
         /// <summary>
@@ -286,96 +314,94 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected void RepaintStrategyLayout()
         {
-            strategyLayout.RepaintStrategyControls(Data.Strategy.Clone());
+            StrategyLayout.RepaintStrategyControls(Data.Strategy.Clone());
         }
 
         /// <summary>
         /// Rearranges the strategy slots without changing its kind and count.
         /// </summary>
-        protected void RearangeStrategyLayout()
+        private void RearangeStrategyLayout()
         {
-            strategyLayout.RearangeStrategyControls();
+            StrategyLayout.RearangeStrategyControls();
         }
 
         /// <summary>
         /// Opens the averaging parameters dialog.
         /// </summary>
-        protected virtual void PnlAveraging_Click(object sender, EventArgs e)
+        protected virtual void PnlAveragingClick(object sender, EventArgs e)
         {
         }
 
         /// <summary>
         /// Click on a strategy slot
         /// </summary>
-        protected virtual void PnlSlot_MouseUp(object sender, MouseEventArgs e)
+        protected virtual void PnlSlotMouseUp(object sender, MouseEventArgs e)
         {
         }
 
         /// <summary>
         /// Click on a strategy slot
         /// </summary>
-        protected virtual void SlotContextMenu_Click(object sender, EventArgs e)
+        protected virtual void SlotContextMenuClick(object sender, EventArgs e)
         {
         }
-        
+
         /// <summary>
         /// Performs actions after the button add open filter was clicked.
         /// </summary>
-        protected virtual void BtnAddOpenFilter_Click(object sender, EventArgs e)
+        protected virtual void BtnAddOpenFilterClick(object sender, EventArgs e)
         {
         }
 
         /// <summary>
         /// Performs actions after the button add close filter was clicked.
         /// </summary>
-        protected virtual void BtnAddCloseFilter_Click(object sender, EventArgs e)
+        protected virtual void BtnAddCloseFilterClick(object sender, EventArgs e)
         {
         }
 
         /// <summary>
         /// Removes the corresponding slot.
         /// </summary>
-        protected virtual void BtnRemoveSlot_Click(object sender, EventArgs e)
+        protected virtual void BtnRemoveSlotClick(object sender, EventArgs e)
         {
         }
 
         /// <summary>
         /// IO strategy
         /// </summary>
-        protected virtual void BtnStrategyIO_Click(object sender, EventArgs e)
+        protected virtual void BtnStrategyIoClick(object sender, EventArgs e)
         {
         }
 
         /// <summary>
         /// Changes the slot size
         /// </summary>
-        protected virtual void BtnStrategyZoom_Click(object sender, EventArgs e)
+        private void BtnStrategyZoomClick(object sender, EventArgs e)
         {
-            ToolStripButton btn = (ToolStripButton)sender;
+            var btn = (ToolStripButton) sender;
 
             switch (btn.Name)
             {
                 case "ZoomIn":
-                    if (strategyLayout.SlotMinMidMax == SlotSizeMinMidMax.min)
+                    if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.min)
                     {
-                        strategyLayout.SlotMinMidMax = SlotSizeMinMidMax.mid;
+                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.mid;
                     }
-                    else if (strategyLayout.SlotMinMidMax == SlotSizeMinMidMax.mid)
+                    else if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.mid)
                     {
-                        strategyLayout.SlotMinMidMax = SlotSizeMinMidMax.max;
+                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.max;
                     }
                     break;
                 case "ZoomOut":
-                    if (strategyLayout.SlotMinMidMax == SlotSizeMinMidMax.max)
+                    if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.max)
                     {
-                        strategyLayout.SlotMinMidMax = SlotSizeMinMidMax.mid;
+                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.mid;
                     }
-                    else if (strategyLayout.SlotMinMidMax == SlotSizeMinMidMax.mid)
+                    else if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.mid)
                     {
-                        strategyLayout.SlotMinMidMax = SlotSizeMinMidMax.min;
+                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.min;
                     }
-                    break;
-                default:
                     break;
             }
 
@@ -385,19 +411,15 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// View / edit the strategy description.
         /// </summary>
-        protected virtual void BtnStrategyDescription_Click(object sender, EventArgs e)
+        private void BtnStrategyDescriptionClick(object sender, EventArgs e)
         {
-            string sOldInfo = Data.Strategy.Description;
-            Strategy_Description si = new Strategy_Description();
+            string oldInfo = Data.Strategy.Description;
+            var si = new Strategy_Description();
             si.ShowDialog();
-            if (sOldInfo != Data.Strategy.Description)
-            {
-                Data.SetStrategyIndicators();
-                SetSrategyOverview();
-                Data.IsStrategyChanged = true;
-            }
-
-            return;
+            if (oldInfo == Data.Strategy.Description) return;
+            Data.SetStrategyIndicators();
+            SetSrategyOverview();
+            Data.IsStrategyChanged = true;
         }
 
         /// <summary>
@@ -405,20 +427,16 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected void SetSrategyOverview()
         {
-            browserOverview.DocumentText = Data.Strategy.GenerateHTMLOverview();
-            
-            return;
+            BrowserOverview.DocumentText = Data.Strategy.GenerateHTMLOverview();
         }
 
         /// <summary>
         /// Trade settings
         /// </summary>
-        void BtnStrategySettings_Click(object sender, EventArgs e)
+        private void BtnStrategySettings_Click(object sender, EventArgs e)
         {
-            TradeSettings ts = new TradeSettings();
+            var ts = new TradeSettings();
             ts.ShowDialog();
-
-            return;
         }
     }
 }

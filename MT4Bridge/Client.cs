@@ -5,34 +5,35 @@
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
+using System.Globalization;
 using MT4Bridge.NamedPipes;
 
 namespace MT4Bridge
 {
     internal class Client
     {
-        static string _userName = System.Windows.Forms.SystemInformation.UserName;
-        static string _clientPipeName = "FST-MT4_" + _userName + "-";
-        static int    _clientID = 0;
+        static readonly string UserName = System.Windows.Forms.SystemInformation.UserName;
+        static readonly string ClientPipeName = "FST-MT4_" + UserName + "-";
+        static int    _clientID;
 
-        static string PipeName { get { return _clientPipeName + _clientID.ToString(); } }
+        static string PipeName { get { return ClientPipeName + _clientID.ToString(CultureInfo.InvariantCulture); } }
 
-        Bridge bridge;
+        readonly Bridge _bridge;
 
         public Client(Bridge bridge, int id)
         {
             _clientID   = id;
-            this.bridge = bridge;
+            _bridge = bridge;
         }
 
-        public string Command(string command)
+        private string Command(string command)
         {
-            using (ClientPipe pipe = new ClientPipe(PipeName)) {
+            using (var pipe = new ClientPipe(PipeName)) {
                 if (!pipe.Connect())
                     return "ER Cannot connect to pipe server";
                 try {
                     return pipe.Command(command);
-                } catch (NamedPipes.PipeException e) {
+                } catch (PipeException e) {
                     return "ER " + e.Message;
                 }
             }
@@ -49,7 +50,7 @@ namespace MT4Bridge
             if (rc.Length < 4)
                 return new Response(ok);
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             int code;
             if (reply.Length != 1 || !int.TryParse(reply[0], out code))
                 return new Response(ok);
@@ -63,13 +64,13 @@ namespace MT4Bridge
 
         DateTime FromTimestamp(int timestamp)
         {
-            DateTime time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             return time.AddSeconds(timestamp);
         }
 
         int ToTimestamp(DateTime time)
         {
-            DateTime utc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var utc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             if (time < utc)
                 return 0;
             return (int)((time - utc).TotalSeconds);
@@ -89,13 +90,13 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             if (reply.Length != 28)
                 return null;
 
             try {
                 string     symbol  = reply[0];
-                PeriodType period  = (PeriodType)int.Parse(reply[1]);
+                var period  = (PeriodType)int.Parse(reply[1]);
 
                 DateTime   time      = FromTimestamp(reply[2]);
                 double     bid       = StringToDouble(reply[3]);
@@ -128,9 +129,9 @@ namespace MT4Bridge
                 string     positionComment    = reply[26];
                 string     parameters         = reply[27];
 
-                bridge.barsManager.UpdateBar(symbol, period, bartime, open, high, low, close, volume, bartime10);
+                _bridge.BarsManager.UpdateBar(symbol, period, bartime, open, high, low, close, volume, bartime10);
 
-                PingInfo pingInfo = new PingInfo(symbol, period, bartime, time, bid, ask, spread, tickvalue,
+                var pingInfo = new PingInfo(symbol, period, bartime, time, bid, ask, spread, tickvalue,
                     accountBalance, accountEquity, accountProfit, accountFreeMargin, positionTicket, positionType,
                     positionLots, positionOpenPrice, positionOpenTime, positionStopLoss, positionTakeProfit, positionProfit, positionComment,
                     parameters);
@@ -147,7 +148,7 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             if (reply.Length != 7 || reply[0] != symbol)
                 return null;
 
@@ -165,7 +166,7 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             if (reply.Length != 16)
                 return null;
 
@@ -188,7 +189,7 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return double.NaN;
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             if (reply.Length != 3 || reply[0] != symbol)
                 return double.NaN;
 
@@ -207,7 +208,7 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             if (reply.Length != 23)
                 return null;
 
@@ -232,7 +233,7 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             if (reply.Length != 5)
                 return null;
 
@@ -243,18 +244,13 @@ namespace MT4Bridge
             }
         }
 
-        public Bars GetBars(string symbol, PeriodType period, ref int count)
-        {
-            return GetBars(symbol, period, ref count, 0);
-        }
-
         public Bars GetBars(string symbol, PeriodType period, ref int count, int offset)
         {
             string rc = Command(string.Format("BR {0} {1} {2} {3}", symbol, (int)period, offset, count));
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             if (reply.Length < 5 || reply[0] != symbol)
                 return null;
 
@@ -271,7 +267,7 @@ namespace MT4Bridge
                 return null;
 
             count = rbars;
-            Bars bars = new Bars(symbol, period);
+            var bars = new Bars(symbol, period);
             for (int i = 5; i < reply.Length; i += 6) {
                 try {
                     DateTime time   = FromTimestamp(int.Parse(reply[i]));
@@ -298,7 +294,7 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             int count, start;
             if (symbol != null) {
                 if (reply.Length < 2 || reply[0] != symbol)
@@ -312,7 +308,7 @@ namespace MT4Bridge
                 start = 1;
             }
 
-            int[] tickets = new int[count];
+            var tickets = new int[count];
             for (int i = 0; i < count; i++)
                 tickets[i] = int.Parse(reply[start + i]);
             return tickets;
@@ -324,7 +320,7 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new char[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] { ' ' });
             if (reply.Length != 13)
                 return null;
 
@@ -374,7 +370,7 @@ namespace MT4Bridge
 
         double StringToDouble(string input)
         {
-            string decimalPoint = System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
+            string decimalPoint = NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
 
             if (!input.Contains(decimalPoint))
             {
@@ -395,8 +391,8 @@ namespace MT4Bridge
 
         string DoubleToString(double number)
         {
-            string decimalPoint = System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
-            string strNumb = number.ToString();
+            string decimalPoint = NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
+            string strNumb = number.ToString(CultureInfo.InvariantCulture);
 
                 strNumb = strNumb.Replace(decimalPoint, ".");
 

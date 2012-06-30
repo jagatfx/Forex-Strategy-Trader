@@ -5,7 +5,6 @@
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using Microsoft.Win32;

@@ -14,265 +14,265 @@ using System.Media;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Windows.Forms;
+using Forex_Strategy_Trader.Properties;
+using MT4Bridge;
 
 namespace Forex_Strategy_Trader
 {
-    /// <summary>
-    /// Data Periods.
-    /// The value of each period is equal to its duration in minutes.
-    /// </summary>
-    public enum DataPeriods
-    {
-        min1  = 1,
-        min5  = 5,
-        min15 = 15,
-        min30 = 30,
-        hour1 = 60,
-        hour4 = 240,
-        day   = 1440,
-        week  = 10080
-    }
-
-    // Size of the Slot panels
-    public enum SlotSizeMinMidMax { min, mid, max };
-
     /// <summary>
     ///  Base class containing the data.
     /// </summary>
     public static partial class Data
     {
-        static bool   isBetaVersion = false; // Is the program Beta
-
-        static string programVersion; // Program version
-        static int    programID;      // Program version
-        static string programName          = "Forex Strategy Trader"; // Program title
-        static string systemDir            = @"System\";     // System dir
-        static string languageDir          = @"Languages\";  // Contains the language files
-        static string colorDir             = @"Colors\";     // Contains the color scheme files
-        static string strategyDir          = @"Strategies\"; // Strategy dir
-        static string defaultStrategyDir   = @"Strategies\"; // Strategy dir
-        static string sourceFolder         = @"Custom Indicators\"; // Contains the sources of custom indicators
-        static string programDir           = @"";            // Program dir
-        static string strategyName         = "New.xml";      // Starting strategy name
-        static string loadedSavedStrategy  = "";             // The strategy for Configs.LastStrategy
-        static string logFileName          = "Logfile.txt";  // Logfile name
-        static string dateFormat           = "dd.MM.yy";     // Date Format
-        static string shortDateFormat      = "dd.MM";        // Date Format Short
-        static char   decimalPoint         = '.';            // Point character
-        static int    firstBar             = 40;    // First bar that can be calculated
-        static bool   isAutoUsePrvBarValue = true;  // Auto adjust use previous bar value
-        static bool   isStrategyChanged    = false; // If the strategy has been changed
-        static bool   isStrategyReady      = true;  // If construction is done
-        static bool   isToLog              = false; // Log to logfile
-        static bool   isDebug              = false; // Debug Mode
-
-        static string[] indicatorsForBacktestOnly = new string[] {
-                "Random Filter",
-                "Date Filter",
-                "Data Bars Filter",
-                "Lot Limiter"
-            };
-
-        static SoundPlayer soundConnect;
-        static SoundPlayer soundDisconnect;
-        static SoundPlayer soundError;
-        static SoundPlayer soundPositionChanged;
-        static SoundPlayer soundOrderSent;
-
-        static StreamWriter swLogFile = StreamWriter.Null; // For the Log file
-
-        static float horizontalDLU;
-        static float verticalDLU;
-
-        // The current strategy.
-        static Strategy strategy;
-
-        // Strategy Undo
-        static Stack<Strategy> stckStrategy;
-
-        /// <summary>
-        /// Gets the program name.
-        /// </summary>
-        public static string ProgramName { get { return programName; } }
-
-        /// <summary>
-        /// Gets the program version.
-        /// </summary>
-        public static string ProgramVersion { get { return programVersion; } }
-
-        /// <summary>
-        /// Gets the program Beta state.
-        /// </summary>
-        public static bool IsProgramBeta { get { return isBetaVersion; } }
-
-        /// <summary>
-        /// Gets the program ID
-        /// </summary>
-        public static int ProgramID { get { return programID; } }
-
-        /// <summary>
-        /// Gets the program current working directory.
-        /// </summary>
-        public static string ProgramDir { get { return programDir; } }
-
-        /// <summary>
-        /// Gets the path to System Dir.
-        /// </summary>
-        public static string SystemDir { get { return systemDir; } }
-
-        /// <summary>
-        /// Gets the path to LanguageDir Dir.
-        /// </summary>
-        public static string LanguageDir { get { return languageDir; } }
-
-        /// <summary>
-        /// Gets the path to Color Scheme Dir.
-        /// </summary>
-        public static string ColorDir { get { return colorDir; } }
-
-        /// <summary>
-        /// Gets the path to Default Strategy Dir.
-        /// </summary>
-        public static string DefaultStrategyDir { get { return defaultStrategyDir; } }
-
-        /// <summary>
-        /// Gets or sets the path to dir Strategy.
-        /// </summary>
-        public static string StrategyDir { get { return strategyDir; } set { strategyDir = value; } }
-
-        /// <summary>
-        /// Gets or sets the strategy name with extension.
-        /// </summary>
-        public static string StrategyName { get { return strategyName; } set { strategyName = value; } }
-
-        /// <summary>
-        /// Gets the current strategy full path. 
-        /// </summary>
-        public static string StrategyPath { get { return Path.Combine(strategyDir, strategyName); } }
-
-        public static bool IsStrategyReady { get { return isStrategyReady; } set { isStrategyReady = value; } }
-        public static bool IsStrategyChanged { get { return isStrategyChanged; } set { isStrategyChanged = value; } }
-        public static int FirstBar { get { return firstBar; } set { firstBar = value; } }
-
-        /// <summary>
-        /// Gets or sets the custom indicators folder
-        /// </summary>
-        public static string SourceFolder { get { return sourceFolder; } }
-
-        /// <summary>
-        /// Gets or sets the strategy name for Configs.LastStrategy
-        /// </summary>
-        public static string LoadedSavedStrategy { get { return loadedSavedStrategy; } set { loadedSavedStrategy = value; } }
-
-        /// <summary>
-        /// Gets the application's icon.
-        /// </summary>
-        public static Icon Icon { get { return Properties.Resources.Icon; } }
-
-        /// <summary>
-        /// The current strategy.
-        /// </summary>
-        public static Strategy Strategy { get { return strategy; } set { strategy = value; } }
-
-        /// <summary>
-        /// The current strategy undo
-        /// </summary>
-        public static Stack<Strategy> StackStrategy { get { return stckStrategy; } set { stckStrategy = value; } }
-
-        /// <for>
-        /// Whether to log
-        /// </summary>
-        public static bool ToLog { get { return isToLog; } set { isToLog = value; } }
-
-        /// <for>
-        /// Debug mode
-        /// </summary>
-        public static bool Debug { get { return isDebug; } set { isDebug = value; } }
-
-        /// <summary>
-        /// Sets or gets value of the AutoUsePrvBarValue
-        /// </summary>
-        public static bool AutoUsePrvBarValue { get { return isAutoUsePrvBarValue; } set { isAutoUsePrvBarValue = value; } }
-
-        /// <summary>
-        /// Gets the number format.
-        /// </summary>
-        public static string FF { get { return "F" + instrProperties.Digits.ToString(); } }
-
-        /// <summary>
-        /// Gets the date format.
-        /// </summary>
-        public static string DF { get { return dateFormat; } }
-
-        /// <summary>
-        /// Gets the short date format.
-        /// </summary>
-        public static string DFS { get { return shortDateFormat; } }
-
-        /// <summary>
-        /// Gets the point character
-        /// </summary>
-        public static char PointChar { get { return decimalPoint; } }
-
-        /// <summary>
-        /// Relative font height
-        /// </summary>
-        public static float VerticalDLU { get { return verticalDLU; } set { verticalDLU = value; } }
-
-        /// <summary>
-        /// Relative font width
-        /// </summary>
-        public static float HorizontalDLU { get { return horizontalDLU; } set { horizontalDLU = value; } }
-
-        /// <summary>
-        /// Gets connect sound
-        /// </summary>
-        public static SoundPlayer SoundConnect { get { return soundConnect; } }
-
-        /// <summary>
-        /// Gets disconnect sound
-        /// </summary>
-        public static SoundPlayer SoundDisconnect { get { return soundDisconnect; } }
-
-        /// <summary>
-        /// Gets error sound
-        /// </summary>
-        public static SoundPlayer SoundError { get { return soundError; } }
-
-        /// <summary>
-        /// Gets order sent sound
-        /// </summary>
-        public static SoundPlayer SoundOrderSent { get { return soundOrderSent; } }
-
-        /// <summary>
-        /// Gets position changed sound
-        /// </summary>
-        public static SoundPlayer SoundPositionChanged { get { return soundPositionChanged; } }
-
-        /// <summary>
-        /// Gets indicators that are for back testing only.
-        /// </summary>
-        public static string[] IndicatorsForBacktestOnly { get { return indicatorsForBacktestOnly; } }
-
-        static bool bIsData = false;
-        public static bool IsData { get { return bIsData; } set { bIsData = value; } }
-        public static string PeriodStr { get { return DataPeriodToString(period); } }
-        public static string PeriodMTStr { get { return ((MT4Bridge.PeriodType)(int)period).ToString(); } }
+        private static string _logFileName = "Logfile.txt"; // Logfile name
+        private static StreamWriter _swLogFile = StreamWriter.Null; // For the Log file
+        private static string[] _asStrategyIndicators;
 
         /// <summary>
         /// The default constructor.
         /// </summary>
         static Data()
         {
-            programName = "Forex Strategy Trader";
-            programVersion = Application.ProductVersion;
-            string[] asVersion = programVersion.Split('.');
-            programID = 1000000 * int.Parse(asVersion[0]) + 10000 * int.Parse(asVersion[1]) +
-                100 * int.Parse(asVersion[2]) + int.Parse(asVersion[3]);
+            IndicatorsForBacktestOnly = new[]
+                                            {
+                                                "Random Filter",
+                                                "Date Filter",
+                                                "Data Bars Filter",
+                                                "Lot Limiter"
+                                            };
+            PositionOpenTime = DateTime.MinValue;
+            PositionType = -1;
+            BalanceData = new Balance_Chart_Unit[BalanceLenght];
+            LibraryVersion = "unknown";
+            ExpertVersion = "unknown";
+            TerminalName = "MetaTrader";
+            PointChar = '.';
+            DFS = "dd.MM";
+            DF = "dd.MM.yy";
+            AutoUsePrvBarValue = true;
+            SourceFolder = @"Custom Indicators\";
+            LoadedSavedStrategy = "";
+            FirstBar = 40;
+            StrategyName = "New.xml";
+            StrategyDir = @"Strategies\";
+            DefaultStrategyDir = @"Strategies\";
+            ColorDir = @"Colors\";
+            LanguageDir = @"Languages\";
+            SystemDir = @"System\";
+            ProgramDir = @"";
+            ToLog = false;
+            IsProgramBeta = false;
+            IsStrategyChanged = false;
+            Debug = false;
+            IsData = false;
+            IsConnected = false;
+            ConnectionID = 0;
+            PositionComment = "";
+            PositionProfit = 0;
+            PositionTakeProfit = 0;
+            PositionStopLoss = 0;
+            PositionOpenPrice = 0;
+            PositionLots = 0;
+            PositionTicket = 0;
+            WrongStopsRetry = 0;
+            WrongTakeProf = 0;
+            WrongStopLoss = 0;
+            SecondsLiveTrading = 0;
+            SavedStrategies = 0;
+            SecondsDemoTrading = 0;
+            LiveTradeStartTime = DateTime.Now;
+            DemoTradeStartTime = DateTime.Now;
+            ProgramName = "Forex Strategy Trader";
+            ProgramVersion = Application.ProductVersion;
+            string[] asVersion = ProgramVersion.Split('.');
+            ProgramID = 1000000*int.Parse(asVersion[0]) + 10000*int.Parse(asVersion[1]) +
+                        100*int.Parse(asVersion[2]) + int.Parse(asVersion[3]);
             Strategy.GenerateNew();
-            stckStrategy = new Stack<Strategy>();
+            StackStrategy = new Stack<Strategy>();
+        }
 
-            return;
+        /// <summary>
+        /// Gets the program name.
+        /// </summary>
+        public static string ProgramName { get; private set; }
+
+        /// <summary>
+        /// Gets the program version.
+        /// </summary>
+        public static string ProgramVersion { get; private set; }
+
+        /// <summary>
+        /// Gets the program Beta state.
+        /// </summary>
+        public static bool IsProgramBeta { get; private set; }
+
+        /// <summary>
+        /// Gets the program ID
+        /// </summary>
+        public static int ProgramID { get; private set; }
+
+        /// <summary>
+        /// Gets the program current working directory.
+        /// </summary>
+        public static string ProgramDir { get; private set; }
+
+        /// <summary>
+        /// Gets the path to System Dir.
+        /// </summary>
+        public static string SystemDir { get; private set; }
+
+        /// <summary>
+        /// Gets the path to LanguageDir Dir.
+        /// </summary>
+        public static string LanguageDir { get; private set; }
+
+        /// <summary>
+        /// Gets the path to Color Scheme Dir.
+        /// </summary>
+        public static string ColorDir { get; private set; }
+
+        /// <summary>
+        /// Gets the path to Default Strategy Dir.
+        /// </summary>
+        public static string DefaultStrategyDir { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the path to dir Strategy.
+        /// </summary>
+        public static string StrategyDir { get; set; }
+
+        /// <summary>
+        /// Gets or sets the strategy name with extension.
+        /// </summary>
+        public static string StrategyName { get; set; }
+
+        /// <summary>
+        /// Gets the current strategy full path. 
+        /// </summary>
+        public static string StrategyPath
+        {
+            get { return Path.Combine(StrategyDir, StrategyName); }
+        }
+
+        public static bool IsStrategyChanged { get; set; }
+        public static int FirstBar { get; set; }
+
+        /// <summary>
+        /// Gets or sets the custom indicators folder
+        /// </summary>
+        public static string SourceFolder { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the strategy name for Configs.LastStrategy
+        /// </summary>
+        public static string LoadedSavedStrategy { get; set; }
+
+        /// <summary>
+        /// Gets the application's icon.
+        /// </summary>
+        public static Icon Icon
+        {
+            get { return Resources.Icon; }
+        }
+
+        /// <summary>
+        /// The current strategy.
+        /// </summary>
+        public static Strategy Strategy { get; set; }
+
+        /// <summary>
+        /// The current strategy undo
+        /// </summary>
+        public static Stack<Strategy> StackStrategy { get; private set; }
+
+        /// <summary>
+        /// Whether to log
+        /// </summary>
+        private static bool ToLog { get; set; }
+
+        /// <summary>
+        /// Debug mode
+        /// </summary>
+        public static bool Debug { get; set; }
+
+        /// <summary>
+        /// Sets or gets value of the AutoUsePrvBarValue
+        /// </summary>
+        public static bool AutoUsePrvBarValue { get; set; }
+
+        /// <summary>
+        /// Gets the number format.
+        /// </summary>
+        public static string FF
+        {
+            get { return "F" + InstrProperties.Digits.ToString(CultureInfo.InvariantCulture); }
+        }
+
+        /// <summary>
+        /// Gets the date format.
+        /// </summary>
+        public static string DF { get; private set; }
+
+        /// <summary>
+        /// Gets the short date format.
+        /// </summary>
+        public static string DFS { get; private set; }
+
+        /// <summary>
+        /// Gets the point character
+        /// </summary>
+        public static char PointChar { get; private set; }
+
+        /// <summary>
+        /// Relative font height
+        /// </summary>
+        public static float VerticalDLU { get; set; }
+
+        /// <summary>
+        /// Relative font width
+        /// </summary>
+        public static float HorizontalDLU { get; set; }
+
+        /// <summary>
+        /// Gets connect sound
+        /// </summary>
+        public static SoundPlayer SoundConnect { get; private set; }
+
+        /// <summary>
+        /// Gets disconnect sound
+        /// </summary>
+        public static SoundPlayer SoundDisconnect { get; private set; }
+
+        /// <summary>
+        /// Gets error sound
+        /// </summary>
+        public static SoundPlayer SoundError { get; private set; }
+
+        /// <summary>
+        /// Gets order sent sound
+        /// </summary>
+        public static SoundPlayer SoundOrderSent { get; private set; }
+
+        /// <summary>
+        /// Gets position changed sound
+        /// </summary>
+        private static SoundPlayer SoundPositionChanged { get; set; }
+
+        /// <summary>
+        /// Gets indicators that are for back testing only.
+        /// </summary>
+        public static string[] IndicatorsForBacktestOnly { get; private set; }
+
+        public static bool IsData { get; set; }
+
+        public static string PeriodStr
+        {
+            get { return DataPeriodToString(Period); }
+        }
+
+        public static string PeriodMTStr
+        {
+            get { return ((PeriodType) (int) Period).ToString(); }
         }
 
         /// <summary>
@@ -281,73 +281,74 @@ namespace Forex_Strategy_Trader
         public static void Start()
         {
             // Sets the date format.
-            dateFormat = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
-            if (dateFormat == "dd/MM yyyy") dateFormat = "dd/MM/yyyy"; // Fixes the Uzbek (Latin) issue
-            dateFormat = dateFormat.Replace(" ", ""); // Fixes the Sloven issue
-            char[]   acDS = DateTimeFormatInfo.CurrentInfo.DateSeparator.ToCharArray();
-            string[] asSS = dateFormat.Split(acDS, 3);
-            asSS[0] = asSS[0].Substring(0, 1) + asSS[0].Substring(0, 1);
-            asSS[1] = asSS[1].Substring(0, 1) + asSS[1].Substring(0, 1);
-            asSS[2] = asSS[2].Substring(0, 1) + asSS[2].Substring(0, 1);
-            dateFormat = asSS[0] + acDS[0].ToString() + asSS[1] + acDS[0].ToString() + asSS[2];
+            if (DateTimeFormatInfo.CurrentInfo != null)
+            {
+                DF = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                if (DF == "dd/MM yyyy") DF = "dd/MM/yyyy"; // Fixes the Uzbek (Latin) issue
+                DF = DF.Replace(" ", ""); // Fixes the Sloven issue
+                char[] acDS = DateTimeFormatInfo.CurrentInfo.DateSeparator.ToCharArray();
+                string[] asSS = DF.Split(acDS, 3);
+                asSS[0] = asSS[0].Substring(0, 1) + asSS[0].Substring(0, 1);
+                asSS[1] = asSS[1].Substring(0, 1) + asSS[1].Substring(0, 1);
+                asSS[2] = asSS[2].Substring(0, 1) + asSS[2].Substring(0, 1);
+                DF = asSS[0] + acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[1] +
+                             acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[2];
 
-            if (asSS[0].ToUpper() == "YY")
-                shortDateFormat = asSS[1] + acDS[0].ToString() + asSS[2];
-            else if (asSS[1].ToUpper() == "YY")
-                shortDateFormat = asSS[0] + acDS[0].ToString() + asSS[2];
-            else
-                shortDateFormat = asSS[0] + acDS[0].ToString() + asSS[1];
+                if (asSS[0].ToUpper() == "YY")
+                    DFS = asSS[1] + acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[2];
+                else if (asSS[1].ToUpper() == "YY")
+                    DFS = asSS[0] + acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[2];
+                else
+                    DFS = asSS[0] + acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[1];
+            }
 
             // Point character
             CultureInfo culInf = CultureInfo.CurrentCulture;
-            decimalPoint = culInf.NumberFormat.NumberDecimalSeparator.ToCharArray()[0];
+            PointChar = culInf.NumberFormat.NumberDecimalSeparator.ToCharArray()[0];
 
             // Set the working directories
-            programDir   = Directory.GetCurrentDirectory();
-            strategyDir  = Path.Combine(programDir, defaultStrategyDir);
-            sourceFolder = Path.Combine(programDir, sourceFolder);
-            systemDir    = Path.Combine(programDir, systemDir);
-            languageDir  = Path.Combine(systemDir,  languageDir);
-            colorDir     = Path.Combine(systemDir,  colorDir);
-            logFileName  = Path.Combine(programDir, logFileName);
+            ProgramDir = Directory.GetCurrentDirectory();
+            StrategyDir = Path.Combine(ProgramDir, DefaultStrategyDir);
+            SourceFolder = Path.Combine(ProgramDir, SourceFolder);
+            SystemDir = Path.Combine(ProgramDir, SystemDir);
+            LanguageDir = Path.Combine(SystemDir, LanguageDir);
+            ColorDir = Path.Combine(SystemDir, ColorDir);
+            _logFileName = Path.Combine(ProgramDir, _logFileName);
 
             try
             {
-                soundConnect         = new SoundPlayer(Path.Combine(systemDir, @"Sounds\connect.wav"));
-                soundDisconnect      = new SoundPlayer(Path.Combine(systemDir, @"Sounds\disconnect.wav"));
-                soundError           = new SoundPlayer(Path.Combine(systemDir, @"Sounds\error.wav"));
-                soundOrderSent       = new SoundPlayer(Path.Combine(systemDir, @"Sounds\order_sent.wav"));
-                soundPositionChanged = new SoundPlayer(Path.Combine(systemDir, @"Sounds\position_changed.wav"));
+                SoundConnect = new SoundPlayer(Path.Combine(SystemDir, @"Sounds\connect.wav"));
+                SoundDisconnect = new SoundPlayer(Path.Combine(SystemDir, @"Sounds\disconnect.wav"));
+                SoundError = new SoundPlayer(Path.Combine(SystemDir, @"Sounds\error.wav"));
+                SoundOrderSent = new SoundPlayer(Path.Combine(SystemDir, @"Sounds\order_sent.wav"));
+                SoundPositionChanged = new SoundPlayer(Path.Combine(SystemDir, @"Sounds\position_changed.wav"));
             }
             catch
             {
-                soundConnect         = new SoundPlayer(Properties.Resources.sound_connect);
-                soundDisconnect      = new SoundPlayer(Properties.Resources.sound_disconnect);
-                soundError           = new SoundPlayer(Properties.Resources.sound_error);
-                soundOrderSent       = new SoundPlayer(Properties.Resources.sound_order_sent);
-                soundPositionChanged = new SoundPlayer(Properties.Resources.sound_position_changed);
+                SoundConnect = new SoundPlayer(Resources.sound_connect);
+                SoundDisconnect = new SoundPlayer(Resources.sound_disconnect);
+                SoundError = new SoundPlayer(Resources.sound_error);
+                SoundOrderSent = new SoundPlayer(Resources.sound_order_sent);
+                SoundPositionChanged = new SoundPlayer(Resources.sound_position_changed);
             }
 
             // Create a new Logfile
-            if (isToLog)
+            if (ToLog)
             {
-                swLogFile = new StreamWriter(logFileName, false);
+                _swLogFile = new StreamWriter(_logFileName, false);
             }
-
-            return;
         }
 
         // The names of the strategy indicators
-        static string[] asStrategyIndicators;
 
         /// <summary>
         /// Sets the indicator names
         /// </summary>
         public static void SetStrategyIndicators()
         {
-            asStrategyIndicators = new string[Strategy.Slots];
+            _asStrategyIndicators = new string[Strategy.Slots];
             for (int i = 0; i < Strategy.Slots; i++)
-                asStrategyIndicators[i] = Strategy.Slot[i].IndicatorName;
+                _asStrategyIndicators[i] = Strategy.Slot[i].IndicatorName;
         }
 
         /// <summary>
@@ -355,19 +356,16 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public static bool IsStrDescriptionRelevant()
         {
-            bool bStrategyIndicatorsChanged = false; // If the strategy indicators have been changed
+            bool strategyIndicatorsChanged = Strategy.Slots != _asStrategyIndicators.Length;
 
-            if (Strategy.Slots != asStrategyIndicators.Length)
-                bStrategyIndicatorsChanged = true;
-
-            if (bStrategyIndicatorsChanged == false)
+            if (strategyIndicatorsChanged == false)
             {
                 for (int i = 0; i < Strategy.Slots; i++)
-                    if (asStrategyIndicators[i] != Strategy.Slot[i].IndicatorName)
-                        bStrategyIndicatorsChanged = true;
+                    if (_asStrategyIndicators[i] != Strategy.Slot[i].IndicatorName)
+                        strategyIndicatorsChanged = true;
             }
 
-            return !bStrategyIndicatorsChanged;
+            return !strategyIndicatorsChanged;
         }
 
         /// <summary>
@@ -387,9 +385,9 @@ namespace Forex_Strategy_Trader
         public static void SetStopTradingTime()
         {
             if (IsDemoAccount && DemoTradeStartTime > DateTime.MinValue)
-                SecondsDemoTrading += (int)(DateTime.Now - DemoTradeStartTime).TotalSeconds;
+                SecondsDemoTrading += (int) (DateTime.Now - DemoTradeStartTime).TotalSeconds;
             else if (LiveTradeStartTime > DateTime.MinValue)
-                SecondsLiveTrading += (int)(DateTime.Now - LiveTradeStartTime).TotalSeconds;
+                SecondsLiveTrading += (int) (DateTime.Now - LiveTradeStartTime).TotalSeconds;
 
             DemoTradeStartTime = DateTime.MinValue;
             LiveTradeStartTime = DateTime.MinValue;
@@ -400,7 +398,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public static void SendStats()
         {
-            string fileURL = "http://forexsb.com/ustats/set-fst.php";
+            const string fileURL = "http://forexsb.com/ustats/set-fst.php";
 
             string mac = "";
             foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
@@ -417,37 +415,34 @@ namespace Forex_Strategy_Trader
             if (Configs.SendUsageStats)
             {
                 parameters =
-                   "?mac="  + mac +
-                   "&reg="  + RegionInfo.CurrentRegion.EnglishName +
-                   "&time=" + (int)(DateTime.Now - fstStartTime).TotalSeconds +
-                   "&dtt="  + secondsDemoTrading +
-                   "&ltt="  + secondsLiveTrading +
-                   "&str="  + savedStrategies;
+                    string.Format("?mac={0}&reg={1}&time={2}&dtt={3}&ltt={4}&str={5}",
+                                  mac, RegionInfo.CurrentRegion.EnglishName,
+                                  (int) (DateTime.Now - FstStartTime).TotalSeconds,
+                                  SecondsDemoTrading, SecondsLiveTrading, SavedStrategies);
             }
 
             try
             {
-                WebClient webClient = new WebClient();
+                var webClient = new WebClient();
                 Stream data = webClient.OpenRead(fileURL + parameters);
-                data.Close();
+                if (data != null) data.Close();
             }
-            catch { }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
 
         /// <summary>
         /// Saves a text line in log file.
         /// </summary>
-        /// <param name="sLogLine">The text line.</param>
-        public static void Log(string sLogLine)
+        /// <param name="logLine">The text line.</param>
+        public static void Log(string logLine)
         {
-            if (isToLog == true)
-            {
-                swLogFile.WriteLine(DateTime.Now.ToString() + "   " + sLogLine);
-                swLogFile.Flush();
-            }
-
-            return;
+            if (!ToLog) return;
+            _swLogFile.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + "   " + logLine);
+            _swLogFile.Flush();
         }
 
         /// <summary>
@@ -456,12 +451,10 @@ namespace Forex_Strategy_Trader
         public static void CloseLogFile()
         {
             // Closes the logfile
-            if (isToLog == true)
-            {
-                swLogFile.Flush();
-                swLogFile.Close();
-                isToLog = false;
-            }
+            if (!ToLog) return;
+            _swLogFile.Flush();
+            _swLogFile.Close();
+            ToLog = false;
         }
 
         /// <summary>
@@ -471,15 +464,24 @@ namespace Forex_Strategy_Trader
         {
             switch (dataPeriod)
             {
-                case DataPeriods.min1:  return "1 "  + Language.T("Minute");
-                case DataPeriods.min5:  return "5 "  + Language.T("Minutes");
-                case DataPeriods.min15: return "15 " + Language.T("Minutes");
-                case DataPeriods.min30: return "30 " + Language.T("Minutes");
-                case DataPeriods.hour1: return "1 "  + Language.T("Hour");
-                case DataPeriods.hour4: return "4 "  + Language.T("Hours");
-                case DataPeriods.day:   return "1 "  + Language.T("Day");
-                case DataPeriods.week:  return "1 "  + Language.T("Week");
-                default: return String.Empty;
+                case DataPeriods.min1:
+                    return "1 " + Language.T("Minute");
+                case DataPeriods.min5:
+                    return "5 " + Language.T("Minutes");
+                case DataPeriods.min15:
+                    return "15 " + Language.T("Minutes");
+                case DataPeriods.min30:
+                    return "30 " + Language.T("Minutes");
+                case DataPeriods.hour1:
+                    return "1 " + Language.T("Hour");
+                case DataPeriods.hour4:
+                    return "4 " + Language.T("Hours");
+                case DataPeriods.day:
+                    return "1 " + Language.T("Day");
+                case DataPeriods.week:
+                    return "1 " + Language.T("Week");
+                default:
+                    return String.Empty;
             }
         }
 
@@ -513,16 +515,14 @@ namespace Forex_Strategy_Trader
             {
                 Color color1 = ColorChanage(color, +depth);
                 Color color2 = ColorChanage(color, -depth);
-                RectangleF rect1 = new RectangleF(rect.X, rect.Y - 1, rect.Width, rect.Height + 2);
-                LinearGradientBrush lgrdBrush = new LinearGradientBrush(rect1, color1, color2, 90);
+                var rect1 = new RectangleF(rect.X, rect.Y - 1, rect.Width, rect.Height + 2);
+                var lgrdBrush = new LinearGradientBrush(rect1, color1, color2, 90);
                 g.FillRectangle(lgrdBrush, rect);
             }
             else
             {
                 g.FillRectangle(new SolidBrush(color), rect);
             }
-
-            return;
         }
     }
 }

@@ -20,13 +20,13 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public void Initialize_PageAccount()
         {
-            tabPageAccount.Name = "tabPageAccount";
-            tabPageAccount.Text = Language.T("Account");
-            tabPageAccount.ImageIndex = 3;
-            tabPageAccount.BackColor  = LayoutColors.ColorFormBack;
+            TabPageAccount.Name = "tabPageAccount";
+            TabPageAccount.Text = Language.T("Account");
+            TabPageAccount.ImageIndex = 3;
+            TabPageAccount.BackColor  = LayoutColors.ColorFormBack;
 
             balanceChart = new Balance_Chart();
-            balanceChart.Parent = tabPageAccount;
+            balanceChart.Parent = TabPageAccount;
             balanceChart.Dock   = DockStyle.Fill;
             balanceChart.UpdateChartData(Data.BalanceData, Data.BalanceDataPoints);
             balanceChart.Invalidate();

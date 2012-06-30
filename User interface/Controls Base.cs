@@ -7,6 +7,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Forex_Strategy_Trader.Properties;
 
 namespace Forex_Strategy_Trader
 {
@@ -15,143 +16,138 @@ namespace Forex_Strategy_Trader
     /// </summary>
     public partial class Controls : Menu_and_StatusBar
     {
-        TabControl tabControlBase;
-
-        TabPage tabPageStatus;
-        TabPage tabPageStrategy;
-        TabPage tabPageChart;
-        TabPage tabPageAccount;
-        TabPage tabPageJournal;
-        TabPage tabPageOperation;
-
         /// <summary>
         /// The default constructor.
         /// </summary>
-        public Controls()
+        protected Controls()
         {
-            ImageList imageList = new ImageList();
-            imageList.ImageSize = new Size(20, 22);
-            imageList.Images.Add(Properties.Resources.tab_status);
-            imageList.Images.Add(Properties.Resources.tab_strategy);
-            imageList.Images.Add(Properties.Resources.tab_chart);
-            imageList.Images.Add(Properties.Resources.tab_account);
-            imageList.Images.Add(Properties.Resources.tab_journal);
-            imageList.Images.Add(Properties.Resources.tab_operation);
+            var imageList = new ImageList {ImageSize = new Size(20, 22)};
+            imageList.Images.Add(Resources.tab_status);
+            imageList.Images.Add(Resources.tab_strategy);
+            imageList.Images.Add(Resources.tab_chart);
+            imageList.Images.Add(Resources.tab_account);
+            imageList.Images.Add(Resources.tab_journal);
+            imageList.Images.Add(Resources.tab_operation);
 
-            tabControlBase  = new TabControl();
-            tabControlBase.Name      = "tabControlBase";
-            tabControlBase.Parent    = pnlWorkspace;
-            tabControlBase.Dock      = DockStyle.Fill;
-            tabControlBase.ImageList = imageList;
-            tabControlBase.HotTrack  = true;
-            tabControlBase.SelectedIndexChanged += new EventHandler(TabControlBase_SelectedIndexChanged);
+            TabControlBase = new TabControl
+                                 {
+                                     Name = "tabControlBase",
+                                     Parent = pnlWorkspace,
+                                     Dock = DockStyle.Fill,
+                                     ImageList = imageList,
+                                     HotTrack = true
+                                 };
+            TabControlBase.SelectedIndexChanged += TabControlBaseSelectedIndexChanged;
 
-            tabPageStatus    = new TabPage();
-            tabPageStrategy  = new TabPage();
-            tabPageChart     = new TabPage();
-            tabPageAccount   = new TabPage();
-            tabPageJournal   = new TabPage();
-            tabPageOperation = new TabPage();
+            TabPageStatus = new TabPage();
+            TabPageStrategy = new TabPage();
+            TabPageChart = new TabPage();
+            TabPageAccount = new TabPage();
+            TabPageJournal = new TabPage();
+            TabPageOperation = new TabPage();
 
-            tabControlBase.Controls.Add(tabPageStatus);
-            tabControlBase.Controls.Add(tabPageStrategy);
-            tabControlBase.Controls.Add(tabPageChart);
-            tabControlBase.Controls.Add(tabPageAccount);
-            tabControlBase.Controls.Add(tabPageJournal);
-            tabControlBase.Controls.Add(tabPageOperation);
+            TabControlBase.Controls.Add(TabPageStatus);
+            TabControlBase.Controls.Add(TabPageStrategy);
+            TabControlBase.Controls.Add(TabPageChart);
+            TabControlBase.Controls.Add(TabPageAccount);
+            TabControlBase.Controls.Add(TabPageJournal);
+            TabControlBase.Controls.Add(TabPageOperation);
 
             Initialize_StripTrade();
             Initialize_PageStatus();
-            Initialize_PageStrategy();
+            InitializePageStrategy();
             Initialize_PageChart();
             Initialize_PageAccount();
             Initialize_PageJournal();
             Initialize_PageOperation();
-
-            return;
         }
+
+        private TabControl TabControlBase { get; set; }
+
+        private TabPage TabPageStatus { get; set; }
+        private TabPage TabPageStrategy { get; set; }
+        private TabPage TabPageChart { get; set; }
+        private TabPage TabPageAccount { get; set; }
+        private TabPage TabPageJournal { get; set; }
+        private TabPage TabPageOperation { get; set; }
 
         /// <summary>
         /// Changes the active tab page.
         /// </summary>
         protected void ChangeTabPage(int index)
         {
-            tabControlBase.SelectedIndex = index;
-            TabControlBase_SelectedIndexChanged(new Object(), new EventArgs());
-
-            return;
+            TabControlBase.SelectedIndex = index;
+            TabControlBaseSelectedIndexChanged(new Object(), new EventArgs());
         }
 
         /// <summary>
         /// Sets tab pages and menu items.
         /// </summary>
-        void TabControlBase_SelectedIndexChanged(object sender, EventArgs e)
+        private void TabControlBaseSelectedIndexChanged(object sender, EventArgs e)
         {
-            if (tabControlBase.SelectedTab == tabPageStatus)
+            if (TabControlBase.SelectedTab == TabPageStatus)
             {
                 DisposeChart();
-                miTabStatus.Checked    = true;
-                miTabStrategy.Checked  = false;
-                miTabChart.Checked     = false;
-                miTabAccount.Checked   = false;
-                miTabJournal.Checked   = false;
+                miTabStatus.Checked = true;
+                miTabStrategy.Checked = false;
+                miTabChart.Checked = false;
+                miTabAccount.Checked = false;
+                miTabJournal.Checked = false;
                 miTabOperation.Checked = false;
             }
-            else if (tabControlBase.SelectedTab == tabPageStrategy)
+            else if (TabControlBase.SelectedTab == TabPageStrategy)
             {
                 DisposeChart();
-                miTabStatus.Checked    = false;
-                miTabStrategy.Checked  = true;
-                miTabChart.Checked     = false;
-                miTabAccount.Checked   = false;
-                miTabJournal.Checked   = false;
+                miTabStatus.Checked = false;
+                miTabStrategy.Checked = true;
+                miTabChart.Checked = false;
+                miTabAccount.Checked = false;
+                miTabJournal.Checked = false;
                 miTabOperation.Checked = false;
             }
-            else if (tabControlBase.SelectedTab == tabPageChart)
+            else if (TabControlBase.SelectedTab == TabPageChart)
             {
                 CreateChart();
-                miTabStatus.Checked    = false;
-                miTabStrategy.Checked  = false;
-                miTabChart.Checked     = true;
-                miTabAccount.Checked   = false;
-                miTabJournal.Checked   = false;
+                miTabStatus.Checked = false;
+                miTabStrategy.Checked = false;
+                miTabChart.Checked = true;
+                miTabAccount.Checked = false;
+                miTabJournal.Checked = false;
                 miTabOperation.Checked = false;
             }
-            else if (tabControlBase.SelectedTab == tabPageAccount)
+            else if (TabControlBase.SelectedTab == TabPageAccount)
             {
                 DisposeChart();
-                miTabStatus.Checked    = false;
-                miTabStrategy.Checked  = false;
-                miTabChart.Checked     = false;
-                miTabAccount.Checked   = true;
-                miTabJournal.Checked   = false;
+                miTabStatus.Checked = false;
+                miTabStrategy.Checked = false;
+                miTabChart.Checked = false;
+                miTabAccount.Checked = true;
+                miTabJournal.Checked = false;
                 miTabOperation.Checked = false;
             }
-            else if (tabControlBase.SelectedTab == tabPageJournal)
+            else if (TabControlBase.SelectedTab == TabPageJournal)
             {
                 DisposeChart();
                 PageJournalSelected();
-                miTabStatus.Checked    = false;
-                miTabStrategy.Checked  = false;
-                miTabChart.Checked     = false;
-                miTabAccount.Checked   = false;
-                miTabJournal.Checked   = true;
+                miTabStatus.Checked = false;
+                miTabStrategy.Checked = false;
+                miTabChart.Checked = false;
+                miTabAccount.Checked = false;
+                miTabJournal.Checked = true;
                 miTabOperation.Checked = false;
             }
-            else if (tabControlBase.SelectedTab == tabPageOperation)
+            else if (TabControlBase.SelectedTab == TabPageOperation)
             {
                 DisposeChart();
-                miTabStatus.Checked    = false;
-                miTabStrategy.Checked  = false;
-                miTabChart.Checked     = false;
-                miTabAccount.Checked   = false;
-                miTabJournal.Checked   = false;
+                miTabStatus.Checked = false;
+                miTabStrategy.Checked = false;
+                miTabChart.Checked = false;
+                miTabAccount.Checked = false;
+                miTabJournal.Checked = false;
                 miTabOperation.Checked = true;
             }
 
-            Configs.LastTab = tabControlBase.SelectedIndex;
-
-            return;
+            Configs.LastTab = TabControlBase.SelectedIndex;
         }
 
         /// <summary>
@@ -165,8 +161,6 @@ namespace Forex_Strategy_Trader
             SetAccountColors();
             SetJournalColors();
             SetOperationColors();
-
-            return;
         }
     }
 }

@@ -45,16 +45,16 @@ namespace Forex_Strategy_Trader
         public void Initialize_PageJournal()
         {
             // tabPageJournal
-            tabPageJournal.Name = "tabPageJournal";
-            tabPageJournal.Text = Language.T("Journal");
-            tabPageJournal.ImageIndex = 4;
+            TabPageJournal.Name = "tabPageJournal";
+            TabPageJournal.Text = Language.T("Journal");
+            TabPageJournal.ImageIndex = 4;
 
             journal = new Journal();
-            journal.Parent = tabPageJournal;
+            journal.Parent = TabPageJournal;
             journal.Dock   = DockStyle.Fill;
 
             tsJournal = new ToolStrip();
-            tsJournal.Parent = tabPageJournal;
+            tsJournal.Parent = TabPageJournal;
             tsJournal.Dock   = DockStyle.Top;
 
             Font fontMessage = new Font(Font.FontFamily, 9);
@@ -142,7 +142,7 @@ namespace Forex_Strategy_Trader
             if (messages.Count > Configs.JournalLength)
                 messages.RemoveRange(0, messages.Count - Configs.JournalLength);
 
-            tabPageJournal.Select();
+            TabPageJournal.Select();
             UpdateJournal(messages);
         }
 
@@ -245,7 +245,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void SetJournalColors()
         {
-            tabPageJournal.BackColor = LayoutColors.ColorFormBack;
+            TabPageJournal.BackColor = LayoutColors.ColorFormBack;
             journal.SetColors();
 
             return;

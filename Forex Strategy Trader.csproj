@@ -74,6 +74,8 @@
     <Compile Include="Common\Actions.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Common\DataPeriods.cs" />
+    <Compile Include="Common\SlotSizeMinMidMax.cs" />
     <Compile Include="Dialogs\Command Console.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,6 +96,8 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MT4Bridge\MT4 Errors.cs" />
+    <Compile Include="Strategy\PermanentProtectionType.cs" />
+    <Compile Include="Strategy\StrategySlotStatus.cs" />
     <Compile Include="User interface\Chart Data.cs" />
     <Compile Include="User interface\Chart.cs">
       <SubType>Component</SubType>
@@ -107,7 +111,7 @@
     <Compile Include="Dialogs\Strategy Description.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\Strategy Properties.cs">
+    <Compile Include="Dialogs\StrategyProperties.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dialogs\Strategy Publish.cs">
@@ -233,7 +237,7 @@
     <Compile Include="Instruments\Instrument Properties.cs" />
     <Compile Include="Instruments\Instrument.cs" />
     <Compile Include="Tools\Language.cs" />
-    <Compile Include="Tools\Live Content.cs" />
+    <Compile Include="Tools\LiveContent.cs" />
     <Compile Include="Tools\Sortable Dictionary.cs" />
     <Compile Include="MT4Bridge\BarsManager.cs" />
     <Compile Include="MT4Bridge\Bridge.cs" />
@@ -251,7 +255,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Strategy\Strategy Reports.cs" />
-    <Compile Include="Strategy\Strategy XML.cs" />
+    <Compile Include="Strategy\StrategyXML.cs" />
     <Compile Include="Strategy\Strategy.cs" />
     <Compile Include="Dialogs\Edit Translation.cs">
       <SubType>Form</SubType>

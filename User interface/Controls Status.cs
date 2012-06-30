@@ -37,14 +37,14 @@ namespace Forex_Strategy_Trader
         void Initialize_PageStatus()
         {
             // tabPageStatus
-            tabPageStatus.Name = "tabPageStatus";
-            tabPageStatus.Text = Language.T("Status");
-            tabPageStatus.ImageIndex = 0;
-            tabPageStatus.Resize += new EventHandler(TabPageStatus_Resize);
+            TabPageStatus.Name = "tabPageStatus";
+            TabPageStatus.Text = Language.T("Status");
+            TabPageStatus.ImageIndex = 0;
+            TabPageStatus.Resize += new EventHandler(TabPageStatus_Resize);
 
             // Panel Connection
             pnlConnection = new Fancy_Panel(Language.T("Connection Status"));
-            pnlConnection.Parent = tabPageStatus;
+            pnlConnection.Parent = TabPageStatus;
 
             // lblConnection
             lblConnection = new Label();
@@ -55,7 +55,7 @@ namespace Forex_Strategy_Trader
 
             // Panel Data Info
             pnlDataInfoBase = new Fancy_Panel(Language.T("Data Info"));
-            pnlDataInfoBase.Parent  = tabPageStatus;
+            pnlDataInfoBase.Parent  = TabPageStatus;
             pnlDataInfoBase.Padding = new Padding(2, (int)pnlDataInfoBase.CaptionHeight, 2, 2);
 
             tbxDataInfo = new TextBox();
@@ -95,15 +95,15 @@ namespace Forex_Strategy_Trader
 
             // Panel Market Info
             pnlMarketInfo = new Info_Panel(Language.T("Market Information"));
-            pnlMarketInfo.Parent = tabPageStatus;
+            pnlMarketInfo.Parent = TabPageStatus;
 
             // Panel Useful Links
             pnlUsefulLinks = new LinkPanel(Language.T("Useful Links"));
-            pnlUsefulLinks.Parent = tabPageStatus;
+            pnlUsefulLinks.Parent = TabPageStatus;
 
             // Panel Forex Brokers
             pnlForexBrokers = new LinkPanel(Language.T("Forex Brokers"));
-            pnlForexBrokers.Parent = tabPageStatus;
+            pnlForexBrokers.Parent = TabPageStatus;
 
             SetStatusColors();
 
@@ -126,12 +126,12 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void TabPageStatus_Resize(object sender, EventArgs e)
         {
-            tabPageStatus.SuspendLayout();
+            TabPageStatus.SuspendLayout();
 
             int iBorder = 2;
 
-            int iWidth = tabPageStatus.ClientSize.Width;
-            int iHeight = tabPageStatus.ClientSize.Height;
+            int iWidth = TabPageStatus.ClientSize.Width;
+            int iHeight = TabPageStatus.ClientSize.Height;
             pnlMarketInfo.Size     = new Size(220, 150);
             pnlMarketInfo.Location = new Point(iWidth - pnlMarketInfo.Width, 0);
 
@@ -161,7 +161,7 @@ namespace Forex_Strategy_Trader
             btnShowAccountInfo.Location = new Point(btnShowMarketInfo.Right  + space, space);
             btnShowBars.Location        = new Point(btnShowAccountInfo.Right + space, space);
 
-            tabPageStatus.ResumeLayout();
+            TabPageStatus.ResumeLayout();
 
             return;
         }
@@ -171,7 +171,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void SetStatusColors()
         {
-            tabPageStatus.BackColor = LayoutColors.ColorFormBack;
+            TabPageStatus.BackColor = LayoutColors.ColorFormBack;
 
             lblConnection.BackColor = Color.Transparent;
             lblConnection.ForeColor = LayoutColors.ColorControlText;

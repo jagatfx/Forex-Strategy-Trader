@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using MT4Bridge;
 
 namespace Forex_Strategy_Trader
 {
@@ -14,41 +15,38 @@ namespace Forex_Strategy_Trader
     /// </summary>
     public partial class Actions
     {
-        StrategyPriceType _openStrPriceType;
-        StrategyPriceType _closeStrPriceType;
-        ExecutionTime _openTimeExec;
-        ExecutionTime _closeTimeExec;
-        double _maximumLots;
-        double _micron;
-
-        DateTime _timeLastEntryBar; // The time of last executed entry;
-        bool _isEnteredLong;  // Whether we have already entered long during this bar.
-        bool _isEnteredShort; // Whether we have already entered short during this bar.
+        private static int _nBarsExit;
+        private StrategyPriceType _closeStrPriceType;
+        private ExecutionTime _closeTimeExec;
+        private List<string> _closingLogicGroups;
 
         // Logical Groups
-        Dictionary<string, bool> _groupsAllowLong;
-        Dictionary<string, bool> _groupsAllowShort;
-        List<string> _openingLogicGroups;
-        List<string> _closingLogicGroups;
-
-        // N Bars Exit indicator - Krog
-        static int _nBarsExit;
+        private Dictionary<string, bool> _groupsAllowLong;
+        private Dictionary<string, bool> _groupsAllowShort;
+        private bool _isEnteredLong; // Whether we have already entered long during this bar.
+        private bool _isEnteredShort; // Whether we have already entered short during this bar.
+        private double _maximumLots;
+        private double _micron;
+        private StrategyPriceType _openStrPriceType;
+        private ExecutionTime _openTimeExec;
+        private List<string> _openingLogicGroups;
+        private DateTime _timeLastEntryBar; // The time of last executed entry;
 
         /// <summary>
         /// Initializes the global variables.
         /// </summary>
-        void InitTrade()
+        private void InitTrade()
         {
-            _micron = Data.InstrProperties.Point / 2d;
+            _micron = Data.InstrProperties.Point/2d;
 
             // Sets the maximum lots
             _maximumLots = 100;
             foreach (IndicatorSlot slot in Data.Strategy.Slot)
                 if (slot.IndicatorName == "Lot Limiter")
-                    _maximumLots = (int)slot.IndParam.NumParam[0].Value;
+                    _maximumLots = (int) slot.IndParam.NumParam[0].Value;
             _maximumLots = Math.Min(_maximumLots, Data.Strategy.MaxOpenLots);
 
-            _openTimeExec  = Data.Strategy.Slot[Data.Strategy.OpenSlot].IndParam.ExecutionTime;
+            _openTimeExec = Data.Strategy.Slot[Data.Strategy.OpenSlot].IndParam.ExecutionTime;
             _openStrPriceType = StrategyPriceType.Unknown;
             if (_openTimeExec == ExecutionTime.AtBarOpening)
                 _openStrPriceType = StrategyPriceType.Open;
@@ -70,10 +68,12 @@ namespace Forex_Strategy_Trader
 
             if (Configs.UseLogicalGroups)
             {
-                Data.Strategy.Slot[Data.Strategy.OpenSlot].LogicalGroup  = "All"; // Allows calculation of open slot for each group.
-                Data.Strategy.Slot[Data.Strategy.CloseSlot].LogicalGroup = "All"; // Allows calculation of close slot for each group.
+                Data.Strategy.Slot[Data.Strategy.OpenSlot].LogicalGroup = "All";
+                    // Allows calculation of open slot for each group.
+                Data.Strategy.Slot[Data.Strategy.CloseSlot].LogicalGroup = "All";
+                    // Allows calculation of close slot for each group.
 
-                _groupsAllowLong  = new Dictionary<string, bool>();
+                _groupsAllowLong = new Dictionary<string, bool>();
                 _groupsAllowShort = new Dictionary<string, bool>();
                 for (int slot = Data.Strategy.OpenSlot; slot < Data.Strategy.CloseSlot; slot++)
                 {
@@ -85,7 +85,7 @@ namespace Forex_Strategy_Trader
 
                 // List of logical groups
                 _openingLogicGroups = new List<string>();
-                foreach (KeyValuePair<string, bool> kvp in _groupsAllowLong)
+                foreach (var kvp in _groupsAllowLong)
                     _openingLogicGroups.Add(kvp.Key);
 
 
@@ -108,7 +108,7 @@ namespace Forex_Strategy_Trader
             {
                 if (Data.Strategy.Slot[slot].IndicatorName == "N Bars Exit")
                 {
-                    _nBarsExit = (int)Data.Strategy.Slot[slot].IndParam.NumParam[0].Value;
+                    _nBarsExit = (int) Data.Strategy.Slot[slot].IndParam.NumParam[0].Value;
                     break;
                 }
             }
@@ -117,11 +117,11 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Reinitializes global variables.
         /// </summary>
-        void DeinitTrade()
+        private void DeinitTrade()
         {
             if (Configs.UseLogicalGroups)
             {
-                Data.Strategy.Slot[Data.Strategy.OpenSlot].LogicalGroup  = ""; // Delete the group of open slot.
+                Data.Strategy.Slot[Data.Strategy.OpenSlot].LogicalGroup = ""; // Delete the group of open slot.
                 Data.Strategy.Slot[Data.Strategy.CloseSlot].LogicalGroup = ""; // Delete the group of close slot.
             }
 
@@ -131,11 +131,11 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Checks whether entry price was reached.
         /// </summary>
-        TradeDirection AnalyseEntryPrice()
+        private TradeDirection AnalyseEntryPrice()
         {
             int bar = Data.Bars - 1;
 
-            double buyPrice  = 0;
+            double buyPrice = 0;
             double sellPrice = 0;
             foreach (IndicatorComp component in Data.Strategy.Slot[Data.Strategy.OpenSlot].Component)
             {
@@ -163,11 +163,11 @@ namespace Forex_Strategy_Trader
                     break;
             }
 
-            bool canOpenLong = (buyPrice > oldPrice  + _micron && buyPrice < basePrice + _micron) ||
-                               (buyPrice > basePrice - _micron && buyPrice < oldPrice  - _micron);
+            bool canOpenLong = (buyPrice > oldPrice + _micron && buyPrice < basePrice + _micron) ||
+                               (buyPrice > basePrice - _micron && buyPrice < oldPrice - _micron);
 
-            bool canOpenShort = (sellPrice > Data.OldBid + _micron && sellPrice < Data.Bid    + _micron) ||
-                                (sellPrice > Data.Bid    - _micron && sellPrice < Data.OldBid - _micron);
+            bool canOpenShort = (sellPrice > Data.OldBid + _micron && sellPrice < Data.Bid + _micron) ||
+                                (sellPrice > Data.Bid - _micron && sellPrice < Data.OldBid - _micron);
 
             TradeDirection direction = TradeDirection.None;
 
@@ -184,12 +184,13 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Determines the direction of market entry.
         /// </summary>
-        TradeDirection AnalyseEntryDirection()
+        private TradeDirection AnalyseEntryDirection()
         {
             int bar = Data.Bars - 1;
 
             // Do not send entry order when we are not on time
-            if (_openTimeExec == ExecutionTime.AtBarOpening && Math.Abs(Data.Strategy.Slot[Data.Strategy.OpenSlot].Component[0].Value[bar] - 0) < 0.001)
+            if (_openTimeExec == ExecutionTime.AtBarOpening &&
+                Math.Abs(Data.Strategy.Slot[Data.Strategy.OpenSlot].Component[0].Value[bar] - 0) < 0.001)
                 return TradeDirection.None;
 
             foreach (IndicatorSlot slot in Data.Strategy.Slot)
@@ -206,7 +207,8 @@ namespace Forex_Strategy_Trader
                                 return TradeDirection.None;
                             break;
                         case "Enter no more than once a week":
-                            if (Data.Time[bar].DayOfWeek >= _timeLastEntryBar.DayOfWeek && Data.Time[bar] < _timeLastEntryBar.AddDays(7))
+                            if (Data.Time[bar].DayOfWeek >= _timeLastEntryBar.DayOfWeek &&
+                                Data.Time[bar] < _timeLastEntryBar.AddDays(7))
                                 return TradeDirection.None;
                             break;
                         case "Enter no more than once a month":
@@ -217,7 +219,7 @@ namespace Forex_Strategy_Trader
                 }
 
             // Determining of the buy/sell entry prices.
-            double buyPrice  = 0;
+            double buyPrice = 0;
             double sellPrice = 0;
             foreach (IndicatorComp component in Data.Strategy.Slot[Data.Strategy.OpenSlot].Component)
             {
@@ -231,33 +233,33 @@ namespace Forex_Strategy_Trader
             }
 
             // Decide whether to open 
-            bool canOpenLong  = buyPrice  > Data.InstrProperties.Point;
+            bool canOpenLong = buyPrice > Data.InstrProperties.Point;
             bool canOpenShort = sellPrice > Data.InstrProperties.Point;
 
             if (Configs.UseLogicalGroups)
             {
                 foreach (string group in _openingLogicGroups)
                 {
-                    bool groupOpenLong  = canOpenLong;
+                    bool groupOpenLong = canOpenLong;
                     bool groupOpenShort = canOpenShort;
 
                     AnalyseEntryLogicConditions(bar, group, buyPrice, sellPrice, ref groupOpenLong, ref groupOpenShort);
 
-                    _groupsAllowLong[group]  = groupOpenLong;
+                    _groupsAllowLong[group] = groupOpenLong;
                     _groupsAllowShort[group] = groupOpenShort;
                 }
 
                 bool groupLongEntry = false;
-                foreach (KeyValuePair<string, bool> groupLong in _groupsAllowLong)
+                foreach (var groupLong in _groupsAllowLong)
                     if ((_groupsAllowLong.Count > 1 && groupLong.Key != "All") || _groupsAllowLong.Count == 1)
                         groupLongEntry = groupLongEntry || groupLong.Value;
 
                 bool groupShortEntry = false;
-                foreach (KeyValuePair<string, bool> groupShort in _groupsAllowShort)
+                foreach (var groupShort in _groupsAllowShort)
                     if ((_groupsAllowShort.Count > 1 && groupShort.Key != "All") || _groupsAllowShort.Count == 1)
                         groupShortEntry = groupShortEntry || groupShort.Value;
 
-                canOpenLong  = canOpenLong  && groupLongEntry  && _groupsAllowLong["All"];
+                canOpenLong = canOpenLong && groupLongEntry && _groupsAllowLong["All"];
                 canOpenShort = canOpenShort && groupShortEntry && _groupsAllowShort["All"];
             }
             else
@@ -279,12 +281,13 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// checks if the opening logic conditions allow long or short entry.
         /// </summary>
-        void AnalyseEntryLogicConditions(int bar, string group, double buyPrice, double sellPrice, ref bool canOpenLong, ref bool canOpenShort)
+        private void AnalyseEntryLogicConditions(int bar, string group, double buyPrice, double sellPrice,
+                                                 ref bool canOpenLong, ref bool canOpenShort)
         {
             for (int slot = Data.Strategy.OpenSlot; slot <= Data.Strategy.CloseSlot; slot++)
             {
                 if (Configs.UseLogicalGroups &&
-                    Data.Strategy.Slot[slot].LogicalGroup != group && 
+                    Data.Strategy.Slot[slot].LogicalGroup != group &&
                     Data.Strategy.Slot[slot].LogicalGroup != "All")
                     continue;
 
@@ -314,11 +317,11 @@ namespace Forex_Strategy_Trader
                                 canOpenShort = canOpenShort && sellPrice < indicatorValue - _micron;
                                 break;
                             case PositionPriceDependence.BuyHigherSellLower:
-                                canOpenLong  = canOpenLong && buyPrice  > indicatorValue + _micron;
+                                canOpenLong = canOpenLong && buyPrice > indicatorValue + _micron;
                                 canOpenShort = canOpenShort && sellPrice < indicatorValue - _micron;
                                 break;
                             case PositionPriceDependence.BuyLowerSelHigher:
-                                canOpenLong  = canOpenLong && buyPrice  < indicatorValue - _micron;
+                                canOpenLong = canOpenLong && buyPrice < indicatorValue - _micron;
                                 canOpenShort = canOpenShort && sellPrice > indicatorValue + _micron;
                                 break;
                         }
@@ -330,7 +333,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Calculates the size of an entry order.
         /// </summary>
-        double AnalyseEntrySize(OrderDirection ordDir, ref PosDirection newPosDir)
+        private double AnalyseEntrySize(OrderDirection ordDir, ref PosDirection newPosDir)
         {
             double size = 0;
             PosDirection posDir = Data.PositionDirection;
@@ -338,32 +341,41 @@ namespace Forex_Strategy_Trader
             // Orders modification on a fly
             // Checks whether we are on the market 
             if (posDir == PosDirection.Long || posDir == PosDirection.Short)
-            {   // We are on the market
-                if (ordDir == OrderDirection.Buy  && posDir == PosDirection.Long ||
+            {
+                // We are on the market
+                if (ordDir == OrderDirection.Buy && posDir == PosDirection.Long ||
                     ordDir == OrderDirection.Sell && posDir == PosDirection.Short)
-                {   // In case of a Same Dir Signal 
+                {
+                    // In case of a Same Dir Signal 
                     switch (Data.Strategy.SameSignalAction)
                     {
                         case SameDirSignalAction.Add:
-                            if (Data.PositionLots + TradingSize(Data.Strategy.AddingLots) < _maximumLots + Data.InstrProperties.LotStep / 2)
-                            {   // Adding
+                            if (Data.PositionLots + TradingSize(Data.Strategy.AddingLots) <
+                                _maximumLots + Data.InstrProperties.LotStep/2)
+                            {
+                                // Adding
                                 size = TradingSize(Data.Strategy.AddingLots);
                                 newPosDir = posDir;
                             }
                             else
-                            {   // Cancel the Adding
+                            {
+                                // Cancel the Adding
                                 size = 0;
                                 newPosDir = posDir;
                             }
                             break;
                         case SameDirSignalAction.Winner:
-                            if (Data.PositionProfit > _micron && Data.PositionLots + TradingSize(Data.Strategy.AddingLots) < _maximumLots + Data.InstrProperties.LotStep / 2)
-                            {   // Adding
+                            if (Data.PositionProfit > _micron &&
+                                Data.PositionLots + TradingSize(Data.Strategy.AddingLots) <
+                                _maximumLots + Data.InstrProperties.LotStep/2)
+                            {
+                                // Adding
                                 size = TradingSize(Data.Strategy.AddingLots);
                                 newPosDir = posDir;
                             }
                             else
-                            {   // Cancel the Adding
+                            {
+                                // Cancel the Adding
                                 size = 0;
                                 newPosDir = posDir;
                             }
@@ -374,19 +386,22 @@ namespace Forex_Strategy_Trader
                             break;
                     }
                 }
-                else if (ordDir == OrderDirection.Buy  && posDir == PosDirection.Short ||
+                else if (ordDir == OrderDirection.Buy && posDir == PosDirection.Short ||
                          ordDir == OrderDirection.Sell && posDir == PosDirection.Long)
-                {   // In case of an Opposite Dir Signal 
+                {
+                    // In case of an Opposite Dir Signal 
                     switch (Data.Strategy.OppSignalAction)
                     {
                         case OppositeDirSignalAction.Reduce:
                             if (Data.PositionLots > TradingSize(Data.Strategy.ReducingLots))
-                            {   // Reducing
+                            {
+                                // Reducing
                                 size = TradingSize(Data.Strategy.ReducingLots);
                                 newPosDir = posDir;
                             }
                             else
-                            {   // Closing
+                            {
+                                // Closing
                                 size = Data.PositionLots;
                                 newPosDir = PosDirection.Closed;
                             }
@@ -407,7 +422,8 @@ namespace Forex_Strategy_Trader
                 }
             }
             else
-            {   // We are square on the market
+            {
+                // We are square on the market
                 size = Math.Min(TradingSize(Data.Strategy.EntryLots), _maximumLots);
                 newPosDir = ordDir == OrderDirection.Buy ? PosDirection.Long : PosDirection.Short;
             }
@@ -418,13 +434,13 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Checks if exit price was reached.
         /// </summary>
-        TradeDirection AnalyseExitPrice()
+        private TradeDirection AnalyseExitPrice()
         {
-            IndicatorSlot  slot = Data.Strategy.Slot[Data.Strategy.CloseSlot];
+            IndicatorSlot slot = Data.Strategy.Slot[Data.Strategy.CloseSlot];
             int bar = Data.Bars - 1;
 
             // Searching the exit price in the exit indicator slot.
-            double buyPrice  = 0;
+            double buyPrice = 0;
             double sellPrice = 0;
             for (int comp = 0; comp < slot.Component.Length; comp++)
             {
@@ -439,19 +455,19 @@ namespace Forex_Strategy_Trader
             }
 
             // We can close if the closing price is higher than zero.
-            bool canCloseLong  = sellPrice > Data.InstrProperties.Point;
-            bool canCloseShort = buyPrice  > Data.InstrProperties.Point;
+            bool canCloseLong = sellPrice > Data.InstrProperties.Point;
+            bool canCloseShort = buyPrice > Data.InstrProperties.Point;
 
             // Check if the closing price was reached.
             if (canCloseLong)
             {
-                canCloseLong = (sellPrice > Data.OldBid + _micron && sellPrice < Data.Bid    + _micron) ||
-                               (sellPrice > Data.Bid    - _micron && sellPrice < Data.OldBid - _micron);
+                canCloseLong = (sellPrice > Data.OldBid + _micron && sellPrice < Data.Bid + _micron) ||
+                               (sellPrice > Data.Bid - _micron && sellPrice < Data.OldBid - _micron);
             }
             if (canCloseShort)
             {
-                canCloseShort = (buyPrice > Data.OldBid + _micron && buyPrice < Data.Bid    + _micron) ||
-                                (buyPrice > Data.Bid    - _micron && buyPrice < Data.OldBid - _micron);
+                canCloseShort = (buyPrice > Data.OldBid + _micron && buyPrice < Data.Bid + _micron) ||
+                                (buyPrice > Data.Bid - _micron && buyPrice < Data.OldBid - _micron);
             }
 
             // Determine the trading direction.
@@ -470,7 +486,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Gets the direction of closing of the current position.
         /// </summary>
-        TradeDirection AnalyseExitDirection()
+        private TradeDirection AnalyseExitDirection()
         {
             int bar = Data.Bars - 1;
 
@@ -482,9 +498,10 @@ namespace Forex_Strategy_Trader
                 return TradeDirection.Both;
 
             if (_nBarsExit > 0)
-                if (Data.PositionOpenTime.AddMinutes(_nBarsExit * (int)Data.Period) < Data.Time[Data.Bars - 1].AddMinutes((int)Data.Period))
+                if (Data.PositionOpenTime.AddMinutes(_nBarsExit*(int) Data.Period) <
+                    Data.Time[Data.Bars - 1].AddMinutes((int) Data.Period))
                     return TradeDirection.Both;
-         
+
             TradeDirection direction = TradeDirection.None;
 
             if (Configs.UseLogicalGroups)
@@ -497,7 +514,8 @@ namespace Forex_Strategy_Trader
                     for (int slot = Data.Strategy.CloseSlot + 1; slot < Data.Strategy.Slots; slot++)
                     {
                         TradeDirection slotDirection = TradeDirection.None;
-                        if (Data.Strategy.Slot[slot].LogicalGroup == group || Data.Strategy.Slot[slot].LogicalGroup == "all")
+                        if (Data.Strategy.Slot[slot].LogicalGroup == group ||
+                            Data.Strategy.Slot[slot].LogicalGroup == "all")
                         {
                             foreach (IndicatorComp component in Data.Strategy.Slot[slot].Component)
                                 if (component.Value[bar] > 0)
@@ -511,12 +529,12 @@ namespace Forex_Strategy_Trader
                 }
             }
             else
-            {   // Search close filters for a closing signal.
+            {
+                // Search close filters for a closing signal.
                 for (int slot = Data.Strategy.CloseSlot + 1; slot < Data.Strategy.Slots; slot++)
                     foreach (IndicatorComp component in Data.Strategy.Slot[slot].Component)
                         if (component.Value[bar] > 0)
                             direction = GetClosingDirection(direction, component.DataType);
-                
             }
 
             return direction;
@@ -525,7 +543,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Reduces the status of baseDirection to direction.
         /// </summary>
-        TradeDirection ReduceDirectionStatus(TradeDirection baseDirection, TradeDirection direction)
+        private TradeDirection ReduceDirectionStatus(TradeDirection baseDirection, TradeDirection direction)
         {
             if (baseDirection == direction || direction == TradeDirection.Both)
                 return baseDirection;
@@ -539,7 +557,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Increases the status of baseDirection to direction.
         /// </summary>
-        TradeDirection IncreaseDirectionStatus(TradeDirection baseDirection, TradeDirection direction)
+        private TradeDirection IncreaseDirectionStatus(TradeDirection baseDirection, TradeDirection direction)
         {
             if (baseDirection == direction || direction == TradeDirection.None)
                 return baseDirection;
@@ -553,7 +571,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Adjusts the closing direction.
         /// </summary>
-        TradeDirection GetClosingDirection(TradeDirection baseDirection, IndComponentType compDataType)
+        private TradeDirection GetClosingDirection(TradeDirection baseDirection, IndComponentType compDataType)
         {
             TradeDirection newDirection = baseDirection;
 
@@ -582,7 +600,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Calculates the Stop Loss distance.
         /// </summary>
-        double GetStopLossPips(double lots)
+        private double GetStopLossPips(double lots)
         {
             double indStop = double.MaxValue;
             bool isIndStop = true;
@@ -590,7 +608,9 @@ namespace Forex_Strategy_Trader
             switch (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndicatorName)
             {
                 case "Account Percent Stop":
-                    indStop = AccountPercentStopPips(Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[0].Value, lots);
+                    indStop =
+                        AccountPercentStopPips(Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[0].Value,
+                                               lots);
                     break;
                 case "ATR Stop":
                     indStop = Data.Strategy.Slot[Data.Strategy.CloseSlot].Component[0].Value[Data.Bars - 1];
@@ -625,12 +645,12 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Calculates the Take Profit distance.
         /// </summary>
-        double GetTakeProfitPips()
+        private double GetTakeProfitPips()
         {
             double takeprofit = 0;
-            double permLimit  = Data.Strategy.UsePermanentTP ? Data.Strategy.PermanentTP : double.MaxValue;
-            double indLimit   = double.MaxValue;
-            bool   isIndLimit = true;
+            double permLimit = Data.Strategy.UsePermanentTP ? Data.Strategy.PermanentTP : double.MaxValue;
+            double indLimit = double.MaxValue;
+            bool isIndLimit = true;
 
             switch (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndicatorName)
             {
@@ -660,88 +680,98 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Sets and sends an entry order.
         /// </summary>
-        void DoEntryTrade(TradeDirection tradeDir)
+        private void DoEntryTrade(TradeDirection tradeDir)
         {
-            double              price;
-            OrderDirection      ordDir;
-            OperationType       opType;
-            MT4Bridge.OrderType type;
-            JournalIcons        icon;
+            double price;
+            OrderDirection ordDir;
+            OperationType opType;
+            OrderType type;
+            JournalIcons icon;
 
             if (_timeLastEntryBar != Data.Time[Data.Bars - 1])
                 _isEnteredLong = _isEnteredShort = false;
 
             if (tradeDir == TradeDirection.Long)
-            {   // Buy
+            {
+                // Buy
                 if (_isEnteredLong)
                     return;
 
-                price  = Data.Ask;
+                price = Data.Ask;
                 ordDir = OrderDirection.Buy;
                 opType = OperationType.Buy;
-                type   = MT4Bridge.OrderType.Buy;
-                icon   = JournalIcons.OrderBuy;
+                type = OrderType.Buy;
+                icon = JournalIcons.OrderBuy;
             }
             else if (tradeDir == TradeDirection.Short)
-            {   // Sell
+            {
+                // Sell
                 if (_isEnteredShort)
                     return;
 
-                price  = Data.Bid;
+                price = Data.Bid;
                 ordDir = OrderDirection.Sell;
                 opType = OperationType.Sell;
-                type   = MT4Bridge.OrderType.Sell;
-                icon   = JournalIcons.OrderSell;
+                type = OrderType.Sell;
+                icon = JournalIcons.OrderSell;
             }
             else
-            {   // Wrong direction of trade.
+            {
+                // Wrong direction of trade.
                 return;
             }
 
             PosDirection newPosDir = PosDirection.None;
             double size = AnalyseEntrySize(ordDir, ref newPosDir);
-            if (size < Data.InstrProperties.MinLot / 2)
-            {   // The entry trade is cancelled.  
+            if (size < Data.InstrProperties.MinLot/2)
+            {
+                // The entry trade is cancelled.  
                 return;
             }
 
-            string symbol     = Data.Symbol;
-            double lots       = size;
-            int    slippage   = Configs.AutoSlippage ? (int)Data.InstrProperties.Spread * 3 : Configs.SlippageEntry;
-            double stoploss   = GetStopLossPips(size);
+            string symbol = Data.Symbol;
+            double lots = size;
+            int slippage = Configs.AutoSlippage ? (int) Data.InstrProperties.Spread*3 : Configs.SlippageEntry;
+            double stoploss = GetStopLossPips(size);
             double takeprofit = GetTakeProfitPips();
-            double point      = Data.InstrProperties.Point;
+            double point = Data.InstrProperties.Point;
 
-            string sStopLoss = "0";
+            string stopLoss = "0";
             if (stoploss > 0)
             {
                 double stopLossPrice = 0;
                 if (newPosDir == PosDirection.Long)
-                    stopLossPrice = Data.Bid - stoploss * point;
+                    stopLossPrice = Data.Bid - stoploss*point;
                 else if (newPosDir == PosDirection.Short)
-                    stopLossPrice = Data.Ask + stoploss * point;
-                sStopLoss = stopLossPrice.ToString(Data.FF);
+                    stopLossPrice = Data.Ask + stoploss*point;
+                stopLoss = stopLossPrice.ToString(Data.FF);
             }
 
-            string sTakeProfit  = "0";
+            string takeProfit = "0";
             if (takeprofit > 0)
             {
                 double takeProfitPrice = 0;
                 if (newPosDir == PosDirection.Long)
-                    takeProfitPrice = Data.Bid + takeprofit * point;
+                    takeProfitPrice = Data.Bid + takeprofit*point;
                 else if (newPosDir == PosDirection.Short)
-                    takeProfitPrice = Data.Ask - takeprofit * point;
-                sTakeProfit = takeProfitPrice.ToString(Data.FF);
+                    takeProfitPrice = Data.Ask - takeprofit*point;
+                takeProfit = takeProfitPrice.ToString(Data.FF);
             }
 
             if (Configs.PlaySounds)
                 Data.SoundOrderSent.Play();
 
             var jmsg = new JournalMessage(icon, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
-                Language.T("An entry order sent") + ": " + Language.T(ordDir.ToString()) + " {0} " +
-                (Math.Abs(lots - 1) < 0.0001 ? Language.T("lot") : Language.T("lots")) + " " + Language.T("at") + " {1}, " +
-                Language.T("Stop Loss") + " {2}, " + Language.T("Take Profit") + " {3}",
-                lots, price.ToString(Data.FF), sStopLoss, sTakeProfit));
+                                                                            Language.T("An entry order sent") + ": " +
+                                                                            Language.T(ordDir.ToString()) + " {0} " +
+                                                                            (Math.Abs(lots - 1) < 0.0001
+                                                                                 ? Language.T("lot")
+                                                                                 : Language.T("lots")) + " " +
+                                                                            Language.T("at") + " {1}, " +
+                                                                            Language.T("Stop Loss") + " {2}, " +
+                                                                            Language.T("Take Profit") + " {3}",
+                                                                            lots, price.ToString(Data.FF), stopLoss,
+                                                                            takeProfit));
             AppendJournalMessage(jmsg);
 
             string parameters = OrderParameters();
@@ -749,12 +779,13 @@ namespace Forex_Strategy_Trader
             int response = _bridge.OrderSend(symbol, type, lots, price, slippage, stoploss, takeprofit, parameters);
 
             if (response >= 0)
-            {   // The order was executed successfully.
+            {
+                // The order was executed successfully.
 
                 Data.AddBarStats(opType, lots, price);
 
                 _timeLastEntryBar = Data.Time[Data.Bars - 1];
-                if (type == MT4Bridge.OrderType.Buy)
+                if (type == OrderType.Buy)
                     _isEnteredLong = true;
                 else
                     _isEnteredShort = true;
@@ -764,42 +795,44 @@ namespace Forex_Strategy_Trader
                 Data.WrongStopsRetry = 0;
             }
             else
-            {   // Error in operation execution.
+            {
+                // Error in operation execution.
                 if (Configs.PlaySounds)
                     Data.SoundError.Play();
 
                 if (_bridge.LastError == 0)
                     jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                        Language.T("Operation execution") + ": " + Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
+                                              Language.T("Operation execution") + ": " +
+                                              Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
                 else
                     jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                        Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
-                        MT4Bridge.MT4_Errors.ErrorDescription(_bridge.LastError));
+                                              Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
+                                              MT4_Errors.ErrorDescription(_bridge.LastError));
                 AppendJournalMessage(jmsg);
 
-                Data.WrongStopLoss = (int)stoploss;
-                Data.WrongTakeProf = (int)takeprofit;
+                Data.WrongStopLoss = (int) stoploss;
+                Data.WrongTakeProf = (int) takeprofit;
             }
         }
 
         /// <summary>
         /// Sets and sends an exit order.
         /// </summary>
-        bool DoExitTrade()
+        private bool DoExitTrade()
         {
-            string symbol   = Data.Symbol;
-            double lots     = Data.PositionLots;
-            double price    = Data.PositionType == (int)MT4Bridge.OrderType.Buy ? Data.Bid : Data.Ask;
-            int    slippage = Configs.AutoSlippage ? (int)Data.InstrProperties.Spread * 6 : Configs.SlippageExit;
-            int    ticket   = Data.PositionTicket;
+            string symbol = Data.Symbol;
+            double lots = Data.PositionLots;
+            double price = Data.PositionType == (int) OrderType.Buy ? Data.Bid : Data.Ask;
+            int slippage = Configs.AutoSlippage ? (int) Data.InstrProperties.Spread*6 : Configs.SlippageExit;
+            int ticket = Data.PositionTicket;
 
             if (Configs.PlaySounds)
                 Data.SoundOrderSent.Play();
 
             var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now,
-                string.Format(symbol + " " + Data.PeriodMTStr + " " + Language.T("An exit order sent") + ": " + Language.T("Close") + 
-                " {0} " + (Math.Abs(lots - 1) < 0.00001 ? Language.T("lot") : Language.T("lots")) + " " + Language.T("at") + " {1}",
-                lots, price.ToString(Data.FF)));
+                                          string.Format(symbol + " " + Data.PeriodMTStr + " " + Language.T("An exit order sent") +
+                                              ": " + Language.T("Close") + " {0} " + (Math.Abs(lots - 1) < 0.00001 ? Language.T("lot") : Language.T("lots")) +
+                                              " " + Language.T("at") + " {1}", lots, price.ToString(Data.FF)));
             AppendJournalMessage(jmsg);
 
             bool responseOK = _bridge.OrderClose(ticket, lots, price, slippage);
@@ -813,11 +846,14 @@ namespace Forex_Strategy_Trader
 
                 if (_bridge.LastError == 0)
                     jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                        Language.T("Operation execution") + ": " + Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
+                                              Language.T("Operation execution") + ": " +
+                                              Language.T("MetaTrader is not responding!").Replace("MetaTrader",
+                                                                                                  Data.TerminalName));
                 else
                     jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                        Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
-                        MT4Bridge.MT4_Errors.ErrorDescription(_bridge.LastError));
+                                              Language.T("MetaTrader failed to execute order! Returned").Replace(
+                                                  "MetaTrader", Data.TerminalName) + ": " +
+                                              MT4_Errors.ErrorDescription(_bridge.LastError));
                 AppendJournalMessage(jmsg);
             }
 
@@ -831,23 +867,27 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Calculates a trade.
         /// </summary>
-        void CalculateTrade(TickType ticktype)
+        private void CalculateTrade(TickType ticktype)
         {
             // Exit
             bool closeOK = false;
             if (_closeStrPriceType != StrategyPriceType.CloseAndReverse && Data.PositionTicket != 0)
             {
-                if (_closeStrPriceType == StrategyPriceType.Open  && (ticktype == TickType.Open  || ticktype == TickType.OpenClose) ||
-                    _closeStrPriceType == StrategyPriceType.Close && (ticktype == TickType.Close || ticktype == TickType.OpenClose))
-                {   // Exit at Bar Open or Bar Close.
+                if (_closeStrPriceType == StrategyPriceType.Open &&
+                    (ticktype == TickType.Open || ticktype == TickType.OpenClose) ||
+                    _closeStrPriceType == StrategyPriceType.Close &&
+                    (ticktype == TickType.Close || ticktype == TickType.OpenClose))
+                {
+                    // Exit at Bar Open or Bar Close.
                     TradeDirection direction = AnalyseExitDirection();
                     if (direction == TradeDirection.Both ||
-                       (direction == TradeDirection.Long  && Data.PositionDirection == PosDirection.Short) ||
-                       (direction == TradeDirection.Short && Data.PositionDirection == PosDirection.Long ) )
+                        (direction == TradeDirection.Long && Data.PositionDirection == PosDirection.Short) ||
+                        (direction == TradeDirection.Short && Data.PositionDirection == PosDirection.Long))
                         closeOK = DoExitTrade(); // Close the current position.
                 }
                 else if (_closeStrPriceType == StrategyPriceType.Indicator)
-                {   // Exit at an indicator value.
+                {
+                    // Exit at an indicator value.
                     TradeDirection priceReached = AnalyseExitPrice();
                     if (priceReached == TradeDirection.Long)
                     {
@@ -866,8 +906,9 @@ namespace Forex_Strategy_Trader
                     else if (priceReached == TradeDirection.Both)
                     {
                         TradeDirection direction = AnalyseExitDirection();
-                        if (direction == TradeDirection.Long || direction == TradeDirection.Short || direction == TradeDirection.Both)
-                           closeOK = DoExitTrade(); // Close the current position.
+                        if (direction == TradeDirection.Long || direction == TradeDirection.Short ||
+                            direction == TradeDirection.Both)
+                            closeOK = DoExitTrade(); // Close the current position.
                     }
                 }
             }
@@ -881,15 +922,18 @@ namespace Forex_Strategy_Trader
                 return;
 
             // Entry at Bar Open or Bar Close.
-            if (_openStrPriceType == StrategyPriceType.Open  && (ticktype == TickType.Open  || ticktype == TickType.OpenClose) ||
-                _openStrPriceType == StrategyPriceType.Close && (ticktype == TickType.Close || ticktype == TickType.OpenClose))
+            if (_openStrPriceType == StrategyPriceType.Open &&
+                (ticktype == TickType.Open || ticktype == TickType.OpenClose) ||
+                _openStrPriceType == StrategyPriceType.Close &&
+                (ticktype == TickType.Close || ticktype == TickType.OpenClose))
             {
                 TradeDirection direction = AnalyseEntryDirection();
                 if (direction == TradeDirection.Long || direction == TradeDirection.Short)
                     DoEntryTrade(direction);
             }
             else if (_openStrPriceType == StrategyPriceType.Indicator)
-            {   // Entry at an indicator value.
+            {
+                // Entry at an indicator value.
                 TradeDirection priceReached = AnalyseEntryPrice();
                 if (priceReached == TradeDirection.Long)
                 {
@@ -915,21 +959,19 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Checks for failed set of SL and TP.
         /// </summary>
-        /// <returns></returns>
-        bool IsWrongStopsExecution()
+        private bool IsWrongStopsExecution()
         {
             if (Data.PositionDirection == PosDirection.Closed ||
                 Math.Abs(Data.PositionLots - 0) < 0.00001 ||
-                Data.WrongStopsRetry   >= 4)
+                Data.WrongStopsRetry >= 4)
             {
-                Data.WrongStopLoss   = 0;
-                Data.WrongTakeProf   = 0;
+                Data.WrongStopLoss = 0;
+                Data.WrongTakeProf = 0;
                 Data.WrongStopsRetry = 0;
-
                 return false;
             }
             if (Data.WrongStopLoss > 0 && Data.PositionTakeProfit < 0.001 ||
-                Data.WrongTakeProf > 0 && Data.PositionStopLoss   < 0.001)
+                Data.WrongTakeProf > 0 && Data.PositionStopLoss < 0.001)
                 return true;
 
             return false;
@@ -938,44 +980,47 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Sets SL and TP after wrong execution.
         /// </summary>
-        void ResendWrongStops()
+        private void ResendWrongStops()
         {
             string symbol = Data.Symbol;
-            double lots   = NormalizeEntrySize(Data.PositionLots);
-            double price  = Data.PositionDirection == PosDirection.Long ? Data.Bid : Data.Ask;
-            int    ticket = Data.PositionTicket;
+            double lots = NormalizeEntrySize(Data.PositionLots);
+            double price = Data.PositionDirection == PosDirection.Long ? Data.Bid : Data.Ask;
+            int ticket = Data.PositionTicket;
 
             if (Configs.PlaySounds)
                 Data.SoundOrderSent.Play();
 
-            double stoploss   = Data.WrongStopLoss;
+            double stoploss = Data.WrongStopLoss;
             double takeprofit = Data.WrongTakeProf;
 
-            string sStopLoss = "0";
+            string stopLoss = "0";
             if (stoploss > 0)
             {
                 double stopLossPrice = 0;
                 if (Data.PositionDirection == PosDirection.Long)
-                    stopLossPrice = Data.Bid - stoploss * Data.InstrProperties.Point;
+                    stopLossPrice = Data.Bid - stoploss*Data.InstrProperties.Point;
                 else if (Data.PositionDirection == PosDirection.Short)
-                    stopLossPrice = Data.Ask + stoploss * Data.InstrProperties.Point;
-                sStopLoss = stopLossPrice.ToString(Data.FF);
+                    stopLossPrice = Data.Ask + stoploss*Data.InstrProperties.Point;
+                stopLoss = stopLossPrice.ToString(Data.FF);
             }
 
-            string sTakeProfit = "0";
+            string takeProfit = "0";
             if (takeprofit > 0)
             {
                 double takeProfitPrice = 0;
                 if (Data.PositionDirection == PosDirection.Long)
-                    takeProfitPrice = Data.Bid + takeprofit * Data.InstrProperties.Point;
+                    takeProfitPrice = Data.Bid + takeprofit*Data.InstrProperties.Point;
                 else if (Data.PositionDirection == PosDirection.Short)
-                    takeProfitPrice = Data.Ask - takeprofit * Data.InstrProperties.Point;
-                sTakeProfit = takeProfitPrice.ToString(Data.FF);
+                    takeProfitPrice = Data.Ask - takeprofit*Data.InstrProperties.Point;
+                takeProfit = takeProfitPrice.ToString(Data.FF);
             }
 
-            var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now, string.Format(symbol + " " + Data.PeriodMTStr + " " +
-                Language.T("A modify order sent") + ": " + Language.T("Stop Loss") + " {0}, " + Language.T("Take Profit") + " {1}",
-                sStopLoss, sTakeProfit));
+            var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
+                                          string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                                                        Language.T("A modify order sent") + ": " +
+                                                        Language.T("Stop Loss") + " {0}, " + Language.T("Take Profit") +
+                                                        " {1}",
+                                                        stopLoss, takeProfit));
             AppendJournalMessage(jmsg);
 
             string parameters = "TS1=" + 0 + ";BRE=" + 0;
@@ -996,11 +1041,14 @@ namespace Forex_Strategy_Trader
 
                 if (_bridge.LastError == 0)
                     jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                        Language.T("Operation execution") + ": " + Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
+                                              Language.T("Operation execution") + ": " +
+                                              Language.T("MetaTrader is not responding!").Replace("MetaTrader",
+                                                                                                  Data.TerminalName));
                 else
                     jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                        Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
-                        MT4Bridge.MT4_Errors.ErrorDescription(_bridge.LastError));
+                                              Language.T("MetaTrader failed to execute order! Returned").Replace(
+                                                  "MetaTrader", Data.TerminalName) + ": " +
+                                              MT4_Errors.ErrorDescription(_bridge.LastError));
                 AppendJournalMessage(jmsg);
                 Data.WrongStopsRetry++;
             }
@@ -1009,10 +1057,10 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Calculates the trading size in normalized lots
         /// </summary>
-        double TradingSize(double size)
+        private double TradingSize(double size)
         {
             if (Data.Strategy.UseAccountPercentEntry)
-                size = (size / 100) * Data.AccountEquity / Data.InstrProperties.MarginRequired;
+                size = (size/100)*Data.AccountEquity/Data.InstrProperties.MarginRequired;
 
             size = NormalizeEntrySize(size);
 
@@ -1022,17 +1070,17 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Normalizes an entry order's size.
         /// </summary>
-        double NormalizeEntrySize(double size)
+        private double NormalizeEntrySize(double size)
         {
-            double minlot  = Data.InstrProperties.MinLot;
-            double maxlot  = Data.InstrProperties.MaxLot;
+            double minlot = Data.InstrProperties.MinLot;
+            double maxlot = Data.InstrProperties.MaxLot;
             double lotstep = Data.InstrProperties.LotStep;
 
             if (size <= 0)
                 return (0);
 
-            var steps = (int)Math.Round((size - minlot) / lotstep);
-            size = minlot + steps * lotstep;
+            var steps = (int) Math.Round((size - minlot)/lotstep);
+            size = minlot + steps*lotstep;
 
             if (size <= minlot)
                 return (minlot);
@@ -1046,22 +1094,22 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Converts account percentage to Stop Loss in pips.
         /// </summary>
-        double AccountPercentStopPips(double percent, double lots)
+        private double AccountPercentStopPips(double percent, double lots)
         {
-            double balance   = Data.AccountBalance;
-            double moneyrisk = balance * percent / 100;
-            double spread    = Data.InstrProperties.Spread;
+            double balance = Data.AccountBalance;
+            double moneyrisk = balance*percent/100;
+            double spread = Data.InstrProperties.Spread;
             double tickvalue = Data.InstrProperties.TickValue;
 
-            double stoploss  = moneyrisk / (lots * tickvalue) - spread;
+            double stoploss = moneyrisk/(lots*tickvalue) - spread;
 
             return (stoploss);
         }
-        
+
         /// <summary>
         /// Generates order parameters string
         /// </summary>
-        string OrderParameters()
+        private string OrderParameters()
         {
             // Trailing Stop
             int trailTrailingStop = 0;
@@ -1070,8 +1118,9 @@ namespace Forex_Strategy_Trader
             {
                 case "Trailing Stop":
                 case "Trailing Stop Limit":
-                    trailTrailingStop = (int)Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[0].Value;
-                    if (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.ListParam[1].Text == "Trails at a new top/bottom")
+                    trailTrailingStop = (int) Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[0].Value;
+                    if (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.ListParam[1].Text ==
+                        "Trails at a new top/bottom")
                         trailingStopMode = "TS1";
                     break;
             }

@@ -5,25 +5,26 @@
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
+using System.Globalization;
 using MT4Bridge.NamedPipes;
 
 namespace MT4Bridge
 {
     internal class Server : IPipeServer
     {
-        static string _userName = System.Windows.Forms.SystemInformation.UserName;
-        static string _serverPipeName = "MT4-FST_" + _userName + "-";
-        static int    _serverID = 0;
-        static string PipeName { get { return _serverPipeName + _serverID.ToString(); } }
+        static readonly string UserName = System.Windows.Forms.SystemInformation.UserName;
+        static readonly string ServerPipeName = "MT4-FST_" + UserName + "-";
+        static int    _serverID;
+        static string PipeName { get { return ServerPipeName + _serverID.ToString(CultureInfo.InvariantCulture); } }
 
-        ServerPipe pipe;
-        Bridge     bridge;
+        ServerPipe _pipe;
+        private readonly Bridge _bridge;
 
         public Server(Bridge bridge, int id)
         {
             _serverID = id;
-            this.bridge = bridge;
-            pipe = new ServerPipe(PipeName, this);
+            _bridge = bridge;
+            _pipe = new ServerPipe(PipeName, this);
         }
 
         ~Server()
@@ -33,11 +34,11 @@ namespace MT4Bridge
 
         public void Stop()
         {
-            if (pipe != null) {
+            if (_pipe != null) {
                 try {
-                    pipe.Dispose();
+                    _pipe.Dispose();
                 } finally {
-                    pipe = null;
+                    _pipe = null;
                 }
             }
         }
@@ -48,7 +49,7 @@ namespace MT4Bridge
                 return "ER Bad Request";
 
             string   cmd  = request.Substring(0, 2).ToUpper();
-            string[] args = request.Length > 3 ? request.Substring(3).Split(new char[] {' '}) : null;
+            string[] args = request.Length > 3 ? request.Substring(3).Split(new[] {' '}) : null;
 
             switch (cmd) {
                 case "TI":
@@ -67,7 +68,7 @@ namespace MT4Bridge
         /// </summary>
         private DateTime FromTimestamp(int timestamp)
         {
-            DateTime time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             return time.AddSeconds(timestamp);
         }
 
@@ -80,7 +81,7 @@ namespace MT4Bridge
         {
             try 
             {
-                PeriodType period    = (PeriodType)(int.Parse(aperiod));
+                var        period    = (PeriodType)(int.Parse(aperiod));
                 DateTime   time      = FromTimestamp(int.Parse(atime));
                 double     bid       = StringToDouble(abid);
                 double     ask       = StringToDouble(aask);
@@ -111,9 +112,9 @@ namespace MT4Bridge
                 string   positionComment    = apositionComment;
                 string   parameters         = aparameters;
 
-                bridge.barsManager.UpdateBar(symbol, period, bartime, open, high, low, close, volume, bartime10);
+                _bridge.BarsManager.UpdateBar(symbol, period, bartime, open, high, low, close, volume, bartime10);
 
-                bridge.Tick(symbol, period, bartime, time, bid, ask, spread, tickvalue,
+                _bridge.Tick(symbol, period, bartime, time, bid, ask, spread, tickvalue,
                     accountBalance,   accountEquity,      accountProfit,  accountFreeMargin,
                     positionTicket,   positionType,       positionLots,   positionOpenPrice, positionOpenTime,
                     positionStopLoss, positionTakeProfit, positionProfit, positionComment,
@@ -129,7 +130,7 @@ namespace MT4Bridge
 
         double StringToDouble(string input)
         {
-            string sDecimalPoint = System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
+            string sDecimalPoint = NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
 
             if (!input.Contains(sDecimalPoint))
             {

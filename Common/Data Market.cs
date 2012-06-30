@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using MT4Bridge;
 
 namespace Forex_Strategy_Trader
 {
@@ -14,192 +15,123 @@ namespace Forex_Strategy_Trader
     /// </summary>
     public static partial class Data
     {
-        static bool isConnected = false; // Shows if the program is connected to data feed server.
-        public static bool IsConnected { get { return isConnected; } set { isConnected = value; } }
+        private const double Epsilon = 0.000001;
+        private const int BalanceLenght = 2000;
 
-        static int connectionID = 0;
-        public static int ConnectionID { get { return connectionID; } set { connectionID = value; } }
-
-        static string terminalName   = "MetaTrader";
-        static string expertVersion  = "unknown"; // 'MT4-FST Expert.mql' version.
-        static string libraryVersion = "unknown"; // 'MT4-FST Library.dll' version.
-        public static string TerminalName   { get { return terminalName;   } set { terminalName   = value; } }
-        public static string ExpertVersion  { get { return expertVersion;  } set { expertVersion  = value; } }
-        public static string LibraryVersion { get { return libraryVersion; } set { libraryVersion = value; } }
+        private static double _bid;
+        private static double _ask;
+        private static double _close;
+        private static DateTime _serverTime = DateTime.Now;
+        private static List<double> _listTicks = new List<double>();
+        private static Dictionary<DateTime, BarStats> _barStats = new Dictionary<DateTime, BarStats>();
+        private static readonly DateTime FstStartTime = DateTime.Now;
+        public static bool IsConnected { get; set; }
+        public static int ConnectionID { get; set; }
+        public static string TerminalName { get; set; }
+        public static string ExpertVersion { get; set; }
+        public static string LibraryVersion { get; set; }
 
         // The current instrument's properties.
-        static Instrument_Properties instrProperties;
-        static DataPeriods period; // Time frame
+        public static Instrument_Properties InstrProperties { get; set; }
 
-        public static Instrument_Properties InstrProperties { get { return instrProperties; } set { instrProperties = value; } }
-        public static string      Symbol { get { return instrProperties.Symbol; } }
-        public static DataPeriods Period { get { return period; } set { period = value; } }
+        public static string Symbol
+        {
+            get { return InstrProperties.Symbol; }
+        }
+
+        public static DataPeriods Period { get; set; }
 
         // Bar's data.
-        static int        bars;     // Count of bars
-        static DateTime[] adtTime;  // The bar's time of opening
-        static double[]   adOpen;   // Price Open
-        static double[]   adHigh;   // Price High
-        static double[]   adLow;    // Price Low
-        static double[]   adClose;  // Price Close
-        static int[]      aiVolume; // Volume
+        public static int Bars { get; set; }
+        public static DateTime[] Time { get; set; }
+        public static double[] Open { get; set; }
+        public static double[] High { get; set; }
+        public static double[] Low { get; set; }
+        public static double[] Close { get; set; }
+        public static int[] Volume { get; set; }
 
-        public static int        Bars   { get { return bars;     } set { bars     = value; } }
-        public static DateTime[] Time   { get { return adtTime;  } set { adtTime  = value; } }
-        public static double[]   Open   { get { return adOpen;   } set { adOpen   = value; } }
-        public static double[]   High   { get { return adHigh;   } set { adHigh   = value; } }
-        public static double[]   Low    { get { return adLow;    } set { adLow    = value; } }
-        public static double[]   Close  { get { return adClose;  } set { adClose  = value; } }
-        public static int[]      Volume { get { return aiVolume; } set { aiVolume = value; } }
+        public static double Bid
+        {
+            get { return _bid; }
+            set
+            {
+                OldBid = _bid;
+                _bid = value;
+            }
+        }
 
-        // Bid Ask prices.
-        static double _bid;
-        public static double Bid    { get { return _bid; } set { OldBid = _bid; _bid = value; } }
         public static double OldBid { get; private set; }
-        static double _ask;
-        public static double Ask    { get { return _ask; } set { OldAsk = _ask; _ask = value; } }
+
+        public static double Ask
+        {
+            get { return _ask; }
+            set
+            {
+                OldAsk = _ask;
+                _ask = value;
+            }
+        }
+
         public static double OldAsk { get; private set; }
-        static double _close;
-        public static double LastClose { get { return _close; } set { OldClose = _close; _close = value; } }
+
+        public static double LastClose
+        {
+            get { return _close; }
+            set
+            {
+                OldClose = _close;
+                _close = value;
+            }
+        }
+
         public static double OldClose { get; private set; }
 
-        public static void ResetBidAskClose()
+        public static DateTime ServerTime
         {
-            OldBid = OldAsk = OldClose = 0;
-            _bid = _ask = _close = 0;
+            get { return _serverTime; }
+            set { _serverTime = value; }
         }
 
-        // Server time
-        private static DateTime serverTime = DateTime.Now;
-        public static DateTime ServerTime { get { return serverTime; } set { serverTime = value; } }
-  
-        // Ticks
-        static List<double> listTicks = new List<double>();
-        public static List<double> ListTicks { get { return listTicks; } }
-        public static void SetTick(double tick)
+        public static List<double> ListTicks
         {
-            listTicks.Add(tick);
-            if (listTicks.Count > 60)
-                listTicks.RemoveRange(0, 1);
-        }
-        public static void ResetTicks()
-        {
-            listTicks = new List<double>();
+            get { return _listTicks; }
         }
 
         // Account condition.
-        static string accountName;
-        static int    accountNumber;
-        static bool   isDemoAccount;
-        static string accountCurrency;
-        static double accountBalance;
-        static double accountEquity;
-        static double accountProfit;
-        static double accountFreeMargin;
+        public static string AccountName { get; set; }
+        public static int AccountNumber { get; set; }
+        public static bool IsDemoAccount { get; set; }
+        public static string AccountCurrency { get; set; }
+        public static double AccountBalance { get; private set; }
+        public static double AccountEquity { get; private set; }
+        public static double AccountProfit { get; private set; }
+        public static double AccountFreeMargin { get; private set; }
 
-        public static string AccountName        { get { return accountName;       } set { accountName     = value; } }
-        public static int    AccountNumber      { get { return accountNumber;     } set { accountNumber   = value; } }
-        public static bool   IsDemoAccount      { get { return isDemoAccount;     } set { isDemoAccount   = value; } }
-        public static string AccountCurrency    { get { return accountCurrency;   } set { accountCurrency = value; } }
-        public static double AccountBalance     { get { return accountBalance;    } }
-        public static double AccountEquity      { get { return accountEquity;     } }
-        public static double AccountProfit      { get { return accountProfit;     } }
-        public static double AccountFreeMargin  { get { return accountFreeMargin; } }
+        public static Balance_Chart_Unit[] BalanceData { get; private set; }
+        public static int BalanceDataPoints { get; private set; }
+        public static bool IsBalanceDataChganged { get; private set; }
 
-        static int BALANCE_LENGHT = 2000;
-        static Balance_Chart_Unit[] balanceData = new Balance_Chart_Unit[BALANCE_LENGHT];
-        public static Balance_Chart_Unit[] BalanceData { get { return balanceData; } }
-        static int balanceDataPoints = 0;
-        public static int BalanceDataPoints { get { return balanceDataPoints; } }
-        static bool balanceDataChganged = false;
-        public static bool IsBalanceDataChganged { get { return balanceDataChganged; } }
+        public static int PositionTicket { get; private set; }
+        public static int PositionType { get; private set; }
+        public static double PositionLots { get; private set; }
+        public static double PositionOpenPrice { get; private set; }
+        public static DateTime PositionOpenTime { get; private set; }
+        public static double PositionStopLoss { get; private set; }
+        public static double PositionTakeProfit { get; private set; }
+        public static double PositionProfit { get; private set; }
+        public static string PositionComment { get; private set; }
 
-        public static bool SetCurrentAccount(DateTime time, double balance, double equity, double profit, double freeMargin)
-        {
-            bool balanceChanged = false;
-            bool equityChanged  = false;
-            balanceDataChganged = false;
-            if (Math.Abs(accountBalance - balance) > 0.01) balanceChanged = true;
-            if (Math.Abs(accountEquity  - equity)  > 0.01) equityChanged  = true;
-
-            accountBalance    = balance;
-            accountEquity     = equity;
-            accountProfit     = profit;
-            accountFreeMargin = freeMargin;
-
-            if (balance > 0.01 && (equityChanged || balanceChanged))
-            {
-                Balance_Chart_Unit chartUnit = new Balance_Chart_Unit();
-                chartUnit.Time    = time;
-                chartUnit.Balance = balance;
-                chartUnit.Equity  = equity;
-
-                if (balanceDataPoints == 0)
-                {
-                    balanceData[balanceDataPoints] = chartUnit;
-                    balanceDataPoints++;
-                }
-
-                if (balanceDataPoints == BALANCE_LENGHT)
-                {
-                    for (int i = 0; i < BALANCE_LENGHT - 1; i++)
-                        balanceData[i] = balanceData[i + 1];
-                    balanceDataPoints = BALANCE_LENGHT - 1;
-                }
-
-                if (balanceDataPoints < BALANCE_LENGHT)
-                {
-                    balanceData[balanceDataPoints] = chartUnit;
-                    balanceDataPoints++;
-                }
-
-                balanceDataChganged = true;
-            }
-
-            return balanceChanged;
-        }
-        public static void ResetAccountStats()
-        {
-            accountBalance    = 0;
-            accountEquity     = 0;
-            accountProfit     = 0;
-            accountFreeMargin = 0;
-
-            balanceDataPoints = 0;
-            balanceData = new Balance_Chart_Unit[BALANCE_LENGHT];
-        }
-
-        // Position parameters.
-        static int      positionTicket     = 0;
-        static int      positionType       = -1;
-        static double   positionLots       = 0;
-        static double   positionOpenPrice  = 0;
-        static DateTime positionOpenTime   = DateTime.MinValue;
-        static double   positionStopLoss   = 0;
-        static double   positionTakeProfit = 0;
-        static double   positionProfit     = 0;
-        static string   positionComment    = "";
-
-        public static int      PositionTicket     { get { return positionTicket;     } }
-        public static int      PositionType       { get { return positionType;       } }
-        public static double   PositionLots       { get { return positionLots;       } }
-        public static double   PositionOpenPrice  { get { return positionOpenPrice;  } }
-        public static DateTime PositionOpenTime   { get { return positionOpenTime;   } }
-        public static double   PositionStopLoss   { get { return positionStopLoss;   } }
-        public static double   PositionTakeProfit { get { return positionTakeProfit; } }
-        public static double   PositionProfit     { get { return positionProfit;     } }
-        public static string   PositionComment    { get { return positionComment;    } }
         public static PosDirection PositionDirection
         {
             get
             {
-                PosDirection dir = PosDirection.Error;
-                switch (positionType)
+                PosDirection dir;
+                switch (PositionType)
                 {
-                    case (int)MT4Bridge.OrderType.Buy:
+                    case (int) OrderType.Buy:
                         dir = PosDirection.Long;
                         break;
-                    case (int)MT4Bridge.OrderType.Sell:
+                    case (int) OrderType.Sell:
                         dir = PosDirection.Short;
                         break;
                     default:
@@ -211,38 +143,124 @@ namespace Forex_Strategy_Trader
             }
         }
 
-        public static bool SetCurrentPosition(int ticket, int type, double lots, double price, DateTime opentime, double stoploss, double takeprofit, double profit, string comment)
+        public static Dictionary<DateTime, BarStats> BarStatistics
         {
-            bool changed = false;
+            get { return _barStats; }
+        }
 
-            if (positionType       != type       ||
-                positionLots       != lots       ||
-                positionOpenPrice  != price      ||
-                positionStopLoss   != stoploss   ||
-                positionTakeProfit != takeprofit ||
-                positionComment    != comment)
-                changed = true;
+        private static DateTime DemoTradeStartTime { get; set; }
+        private static DateTime LiveTradeStartTime { get; set; }
+        private static int SecondsDemoTrading { get; set; }
+        private static int SecondsLiveTrading { get; set; }
+        public static int SavedStrategies { get; set; }
 
-            positionTicket     = ticket;
-            positionType       = type;
-            positionLots       = lots;
-            positionOpenPrice  = price;
-            positionOpenTime   = opentime;
-            positionStopLoss   = stoploss;
-            positionTakeProfit = takeprofit;
-            positionProfit     = profit;
-            positionComment    = comment;
+        // Wrong set SL or TP
+        public static int WrongStopLoss { get; set; }
+        public static int WrongTakeProf { get; set; }
+        public static int WrongStopsRetry { get; set; }
+
+        public static void ResetBidAskClose()
+        {
+            OldBid = OldAsk = OldClose = 0;
+            _bid = _ask = _close = 0;
+        }
+
+        public static void SetTick(double tick)
+        {
+            _listTicks.Add(tick);
+            if (_listTicks.Count > 60)
+                _listTicks.RemoveRange(0, 1);
+        }
+
+        public static void ResetTicks()
+        {
+            _listTicks = new List<double>();
+        }
+
+        public static bool SetCurrentAccount(DateTime time, double balance, double equity, double profit,
+                                             double freeMargin)
+        {
+            bool balanceChanged = false;
+            bool equityChanged = false;
+            IsBalanceDataChganged = false;
+            if (Math.Abs(AccountBalance - balance) > 0.01) balanceChanged = true;
+            if (Math.Abs(AccountEquity - equity) > 0.01) equityChanged = true;
+
+            AccountBalance = balance;
+            AccountEquity = equity;
+            AccountProfit = profit;
+            AccountFreeMargin = freeMargin;
+
+            if (balance > 0.01 && (equityChanged || balanceChanged))
+            {
+                var chartUnit = new Balance_Chart_Unit {Time = time, Balance = balance, Equity = equity};
+
+                if (BalanceDataPoints == 0)
+                {
+                    BalanceData[BalanceDataPoints] = chartUnit;
+                    BalanceDataPoints++;
+                }
+
+                if (BalanceDataPoints == BalanceLenght)
+                {
+                    for (int i = 0; i < BalanceLenght - 1; i++)
+                        BalanceData[i] = BalanceData[i + 1];
+                    BalanceDataPoints = BalanceLenght - 1;
+                }
+
+                if (BalanceDataPoints < BalanceLenght)
+                {
+                    BalanceData[BalanceDataPoints] = chartUnit;
+                    BalanceDataPoints++;
+                }
+
+                IsBalanceDataChganged = true;
+            }
+
+            return balanceChanged;
+        }
+
+        public static void ResetAccountStats()
+        {
+            AccountBalance = 0;
+            AccountEquity = 0;
+            AccountProfit = 0;
+            AccountFreeMargin = 0;
+
+            BalanceDataPoints = 0;
+            BalanceData = new Balance_Chart_Unit[BalanceLenght];
+        }
+
+        public static bool SetCurrentPosition(int ticket, int type, double lots, double price, DateTime opentime,
+                                              double stoploss, double takeprofit, double profit, string comment)
+        {
+            bool changed = PositionType != type ||
+                           Math.Abs(PositionLots - lots) > Epsilon ||
+                           Math.Abs(PositionOpenPrice - price) > Epsilon ||
+                           Math.Abs(PositionStopLoss - stoploss) > Epsilon ||
+                           Math.Abs(PositionTakeProfit - takeprofit) > Epsilon ||
+                           PositionComment != comment;
+
+            PositionTicket = ticket;
+            PositionType = type;
+            PositionLots = lots;
+            PositionOpenPrice = price;
+            PositionOpenTime = opentime;
+            PositionStopLoss = stoploss;
+            PositionTakeProfit = takeprofit;
+            PositionProfit = profit;
+            PositionComment = comment;
 
             DateTime barOpenTime = Time[Bars - 1];
-            if (!barStats.ContainsKey(barOpenTime))
+            if (!_barStats.ContainsKey(barOpenTime))
             {
-                barStats.Add(barOpenTime, new BarStats(barOpenTime, PositionDirection, positionOpenPrice, positionLots));
+                _barStats.Add(barOpenTime, new BarStats(barOpenTime, PositionDirection, PositionOpenPrice, PositionLots));
             }
             else
             {
-                barStats[barOpenTime].PositionDir   = PositionDirection;
-                barStats[barOpenTime].PositionPrice = positionOpenPrice;
-                barStats[barOpenTime].PositionLots  = positionLots;
+                _barStats[barOpenTime].PositionDir = PositionDirection;
+                _barStats[barOpenTime].PositionPrice = PositionOpenPrice;
+                _barStats[barOpenTime].PositionLots = PositionLots;
             }
 
             if (changed && Configs.PlaySounds)
@@ -250,59 +268,37 @@ namespace Forex_Strategy_Trader
 
             return changed;
         }
+
         public static void ResetPositionStats()
         {
-            positionTicket     = 0;
-            positionType       = -1;
-            positionLots       = 0;
-            positionOpenPrice  = 0;
-            positionOpenTime   = DateTime.MinValue;
-            positionStopLoss   = 0;
-            positionTakeProfit = 0;
-            positionProfit     = 0;
-            positionComment    = "";
+            PositionTicket = 0;
+            PositionType = -1;
+            PositionLots = 0;
+            PositionOpenPrice = 0;
+            PositionOpenTime = DateTime.MinValue;
+            PositionStopLoss = 0;
+            PositionTakeProfit = 0;
+            PositionProfit = 0;
+            PositionComment = "";
         }
 
-        // Bar statistics
-        static Dictionary<DateTime, BarStats> barStats = new Dictionary<DateTime, BarStats>();
-        public static Dictionary<DateTime, BarStats> BarStatistics { get { return barStats; } }
         public static void AddBarStats(OperationType operationType, double operationLots, double operationPrice)
         {
             DateTime barOpenTime = Time[Bars - 1];
 
-            if (!barStats.ContainsKey(barOpenTime))
-                barStats.Add(barOpenTime, new BarStats(barOpenTime, PositionDirection, positionOpenPrice, positionLots));
+            if (!_barStats.ContainsKey(barOpenTime))
+                _barStats.Add(barOpenTime, new BarStats(barOpenTime, PositionDirection, PositionOpenPrice, PositionLots));
 
-            barStats[barOpenTime].Operations.Add(new Operation(barOpenTime, operationType, DateTime.Now, operationLots, operationPrice));
+            _barStats[barOpenTime].Operations.Add(new Operation(barOpenTime, operationType, DateTime.Now, operationLots,
+                                                                operationPrice));
 
-            if (barStats.ContainsKey(Time[0]))
-                barStats.Remove(Time[0]);
+            if (_barStats.ContainsKey(Time[0]))
+                _barStats.Remove(Time[0]);
         }
+
         public static void ResetBarStats()
         {
-            barStats = new Dictionary<DateTime, BarStats>();
+            _barStats = new Dictionary<DateTime, BarStats>();
         }
-
-        // Usage statistics.
-        static DateTime fstStartTime = DateTime.Now;
-        static DateTime demoTradeStartTime = DateTime.Now;
-        static DateTime liveTradeStartTime = DateTime.Now;
-        static int secondsDemoTrading = 0;
-        static int secondsLiveTrading = 0;
-        static int savedStrategies = 0;
-        public static DateTime FstStartTime { get { return fstStartTime; } set { fstStartTime = value; } }
-        public static DateTime DemoTradeStartTime { get { return demoTradeStartTime; } set { demoTradeStartTime = value; } }
-        public static DateTime LiveTradeStartTime { get { return liveTradeStartTime; } set { liveTradeStartTime = value; } }
-        public static int SecondsDemoTrading { get { return secondsDemoTrading; } set { secondsDemoTrading = value; } }
-        public static int SecondsLiveTrading { get { return secondsLiveTrading; } set { secondsLiveTrading = value; } }
-        public static int SavedStrategies { get { return savedStrategies; } set { savedStrategies = value; } }
-
-        // Wrong set SL or TP
-        static int wrongStopLoss = 0;
-        static int wrongTakeProf = 0;
-        static int wrongStopsRetry = 0;
-        public static int WrongStopLoss { get { return wrongStopLoss; } set { wrongStopLoss = value; } }
-        public static int WrongTakeProf { get { return wrongTakeProf; } set { wrongTakeProf = value; } }
-        public static int WrongStopsRetry { get { return wrongStopsRetry; } set { wrongStopsRetry = value; } }
     }
 }

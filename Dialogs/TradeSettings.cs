@@ -252,19 +252,19 @@ namespace Forex_Strategy_Trader
             NUDMinChartBars.Size = new Size(nudWidth, buttonHeight);
             NUDMinChartBars.Location = new Point(nudLeft, 165);
 
-            int iButtonWidth = (PnlSettings.Width - 2*btnHrzSpace)/3;
+            int buttonWidth = (PnlSettings.Width - 2*btnHrzSpace)/3;
 
             // Button Cancel
-            BtnCancel.Size = new Size(iButtonWidth, buttonHeight);
-            BtnCancel.Location = new Point(ClientSize.Width - iButtonWidth - btnHrzSpace, ClientSize.Height - buttonHeight - btnVertSpace);
+            BtnCancel.Size = new Size(buttonWidth, buttonHeight);
+            BtnCancel.Location = new Point(ClientSize.Width - buttonWidth - btnHrzSpace, ClientSize.Height - buttonHeight - btnVertSpace);
 
             // Button Default
-            BtnDefault.Size = new Size(iButtonWidth, buttonHeight);
-            BtnDefault.Location = new Point(BtnCancel.Left - iButtonWidth - btnHrzSpace, ClientSize.Height - buttonHeight - btnVertSpace);
+            BtnDefault.Size = new Size(buttonWidth, buttonHeight);
+            BtnDefault.Location = new Point(BtnCancel.Left - buttonWidth - btnHrzSpace, ClientSize.Height - buttonHeight - btnVertSpace);
 
             // Button Accept
-            BtnAccept.Size = new Size(iButtonWidth, buttonHeight); 
-            BtnAccept.Location = new Point(BtnDefault.Left - iButtonWidth - btnHrzSpace, ClientSize.Height - buttonHeight - btnVertSpace);
+            BtnAccept.Size = new Size(buttonWidth, buttonHeight); 
+            BtnAccept.Location = new Point(BtnDefault.Left - buttonWidth - btnHrzSpace, ClientSize.Height - buttonHeight - btnVertSpace);
         }
 
         /// <summary>

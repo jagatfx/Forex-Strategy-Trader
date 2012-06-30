@@ -35,13 +35,13 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public void Initialize_PageOperation()
         {
-            tabPageOperation.Name       = "tabPageOperation";
-            tabPageOperation.Text       = Language.T("Operation");
-            tabPageOperation.ImageIndex = 5;
-            tabPageOperation.BackColor  = LayoutColors.ColorFormBack;
+            TabPageOperation.Name       = "tabPageOperation";
+            TabPageOperation.Text       = Language.T("Operation");
+            TabPageOperation.ImageIndex = 5;
+            TabPageOperation.BackColor  = LayoutColors.ColorFormBack;
 
             pnlManualTrade = new Fancy_Panel(Language.T("Manual Operation Execution"));
-            pnlManualTrade.Parent  = tabPageOperation;
+            pnlManualTrade.Parent  = TabPageOperation;
             pnlManualTrade.Dock    = DockStyle.Fill;
             pnlManualTrade.Resize += new EventHandler(PnlManualTrade_Resize);
 
@@ -320,7 +320,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void SetOperationColors()
         {
-            tabPageOperation.BackColor = LayoutColors.ColorFormBack;
+            TabPageOperation.BackColor = LayoutColors.ColorFormBack;
             pnlManualTrade.SetColors();
             lblBidAsk.ForeColor       = LayoutColors.ColorControlText;
             lblSymbol.ForeColor       = LayoutColors.ColorControlText;
