@@ -19,28 +19,37 @@ OutputDir          = ..\
 DisableProgramGroupPage = true
 DisableReadyPage        = true
 
+[Components]
+Name: "main";      Description: "Main files.";        Types: full compact custom; Flags: fixed;
+Name: "autostart"; Description: "autostart.bat (Disable to prevent overwriting of existing one)."; Types: full; Flags: disablenouninstallwarning;
+Name: "custind";   Description: "Custom indicators."; Types: full; Flags: disablenouninstallwarning;
+Name: "strat";     Description: "Demo strategies.";   Types: full; Flags: disablenouninstallwarning;
+Name: "vcredist";  Description: "VC Redist 2008 (Required. Leave on if not previously installed)."; Types: full; Flags: disablenouninstallwarning;
+
 [InstallDelete]
 Type: files; Name: "{app}\System\fstconfig.xml"
 Type: files; Name: "{app}\System\config.xml"
 Type: files; Name: "{app}\System\fst-update.xml"
+Type: files; Name: "{app}\Redistributable\vcredist_x86.exe"
 
 [Files]
-Source: Forex Strategy Trader.exe;  DestDir: "{app}"; Flags: replacesameversion;
-Source: FST Starter.exe;            DestDir: "{app}";
-Source: SplashConfig.cfg;           DestDir: "{app}";
-Source: ConnectWait.ico;            DestDir: "{app}";
-Source: ReadMe.html;                DestDir: "{app}";
-Source: License.rtf;                DestDir: "{app}";
-Source: Custom Indicators\*;        DestDir: "{app}\Custom Indicators";
-Source: MetaTrader\*;               DestDir: "{app}\MetaTrader";
-Source: Redistributable\*;          DestDir: "{app}\Redistributable";
-Source: Strategies\*;               DestDir: "{app}\Strategies";
-Source: System\Colors\*;            DestDir: "{app}\System\Colors";
-Source: System\Images\*;            DestDir: "{app}\System\Images";
-Source: System\Languages\*;         DestDir: "{app}\System\Languages";
-Source: System\Sounds\*;            DestDir: "{app}\System\Sounds";
-Source: System\SplashScreen\*;      DestDir: "{app}\System\SplashScreen";
-Source: System\StartingTips\*;      DestDir: "{app}\System\StartingTips";
+Source: autostart.bat;              DestDir: "{app}"; Components: autostart;   Permissions: users-modify;
+Source: Forex Strategy Trader.exe;  DestDir: "{app}"; Components: main;        Flags: replacesameversion;
+Source: FST Starter.exe;            DestDir: "{app}"; Components: main;
+Source: SplashConfig.cfg;           DestDir: "{app}"; Components: main;
+Source: ConnectWait.ico;            DestDir: "{app}"; Components: main;
+Source: ReadMe.html;                DestDir: "{app}"; Components: main;
+Source: License.rtf;                DestDir: "{app}"; Components: main;
+Source: Custom Indicators\*;        DestDir: "{app}\Custom Indicators";    Components: custind;
+Source: MetaTrader\*;               DestDir: "{app}\MetaTrader";           Components: main;
+Source: Redistributable\*;          DestDir: "{app}\Redistributable";      Components: vcredist;
+Source: Strategies\*;               DestDir: "{app}\Strategies";           Components: strat;
+Source: System\Colors\*;            DestDir: "{app}\System\Colors";        Components: main;
+Source: System\Images\*;            DestDir: "{app}\System\Images";        Components: main;
+Source: System\Languages\*;         DestDir: "{app}\System\Languages";     Components: main;
+Source: System\Sounds\*;            DestDir: "{app}\System\Sounds";        Components: main;
+Source: System\SplashScreen\*;      DestDir: "{app}\System\SplashScreen";  Components: main;
+Source: System\StartingTips\*;      DestDir: "{app}\System\StartingTips";  Components: main;
 
 [Dirs]
 Name: "{app}\Custom Indicators";    Permissions: users-modify;
@@ -57,7 +66,7 @@ Name: "{group}\MetaTrader";                    Filename: "{app}\MetaTrader";
 Name: "{group}\Uninstall";                     Filename: "{uninstallexe}";
 
 [Run]
-Filename: "{app}\Redistributable\vcredist_x86.exe"; WorkingDir: "{app}\Redistributable"; Parameters: "/q:a"; StatusMsg: "Installing vcredist_x86..."; Flags: waituntilterminated
+Filename: "{app}\Redistributable\vcredist_x86.exe"; WorkingDir: "{app}\Redistributable"; Parameters: "/q:a"; StatusMsg: "Installing vcredist_x86..."; Flags: waituntilterminated skipifdoesntexist
 Filename: "{app}\MetaTrader\Install MT Files.exe"; WorkingDir: "{app}\MetaTrader"; StatusMsg: "Installing the MetaTrader expert and DLL...";    Flags: waituntilterminated
 Filename: "{app}\ReadMe.html";     Description: "View the ReadMe file";   Flags: postinstall skipifsilent shellexec;
 Filename: "{app}\FST Starter.exe"; Description: "Launch the application"; Flags: postinstall skipifsilent nowait;
