@@ -857,10 +857,8 @@ namespace Forex_Strategy_Trader
             }
             catch (Exception e)
             {
-                System.Windows.Forms.MessageBox.Show(e.Message, "Saving Configuration File");
+                Console.WriteLine(e.Message);
             }
-
-            return;
         }
     }
 }
