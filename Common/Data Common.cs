@@ -66,6 +66,8 @@ namespace Forex_Strategy_Trader
             Debug = false;
             IsData = false;
             IsConnected = false;
+            IsAutoStart = false;
+            StartAutotradeWhenConnected = false;
             ConnectionID = 0;
             PositionComment = "";
             PositionProfit = 0;
@@ -274,6 +276,10 @@ namespace Forex_Strategy_Trader
         {
             get { return ((PeriodType) (int) Period).ToString(); }
         }
+
+        public static bool IsAutoStart { get; set; }
+        public static bool StartAutotradeWhenConnected { get; set; }
+
 
         /// <summary>
         /// Initial settings.

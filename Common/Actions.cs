@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 
@@ -18,9 +19,45 @@ namespace Forex_Strategy_Trader
     public partial class Actions : Controls
     {
         /// <summary>
+        /// The starting point of the application
+        /// </summary>
+        [STAThread]
+        public static void Main(params string[] input)
+        {
+            UpdateSplashScreeStatus("Loading...");
+            Data.Start();
+            Configs.LoadConfigs();
+
+            CheckIfStartedFromCmdLine(input);
+            if (Data.IsAutoStart)
+                SetAutostartSettings();
+
+            // Checks if this is the only running copy of FST.
+            if (!Configs.MultipleInstances)
+            {
+                Process[] procs = Process.GetProcessesByName(Data.ProgramName);
+                if (procs.Length > 1)
+                {
+                    RemoveSplashScreen();
+                    MessageBox.Show(
+                        "Forex Strategy Trader is already running! You can allow multiple instances of the program from Tools menu.",
+                        Data.ProgramName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                    return;
+                }
+            }
+
+            Language.InitLanguages();
+            LayoutColors.InitColorSchemes();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Actions());
+        }
+
+        /// <summary>
         /// The default constructor
         /// </summary>
-        public Actions()
+        private Actions()
         {
             StartPosition = FormStartPosition.CenterScreen;
             Size = new Size(785, 560);
@@ -41,7 +78,7 @@ namespace Forex_Strategy_Trader
             // Load a strategy
             UpdateSplashScreeStatus("Loading strategy...");
             string strategyPath = Data.StrategyPath;
-            if (Configs.RememberLastStr && Configs.LastStrategy != "")
+            if (Configs.LastStrategy != "" && (Configs.RememberLastStr || Data.ConnectionID > 0) )
             {
                 string lastStrategy = Path.GetDirectoryName(Configs.LastStrategy);
                 if (lastStrategy != "")
@@ -75,37 +112,26 @@ namespace Forex_Strategy_Trader
             UpdateSplashScreeStatus("Loading user interface...");
         }
 
-        /// <summary>
-        /// The starting point of the application
-        /// </summary>
-        [STAThread]
-        public static void Main()
+        private static void CheckIfStartedFromCmdLine(params string[] input)
         {
-            UpdateSplashScreeStatus("Loading...");
-            Data.Start();
-            Configs.LoadConfigs();
+            if (input.Length != 3) return;
+            Data.IsAutoStart = true;
+            Data.ConnectionID = int.Parse(input[0]);
+            if (input[1] == "yes") Data.StartAutotradeWhenConnected = true;
+            Configs.LastStrategy = input[2] + ".xml";
+        }
 
-            // Checks if this is the only running copy of FST.
-            if (!Configs.MultipleInstances)
-            {
-                Process[] procs = Process.GetProcessesByName(Data.ProgramName);
-                if (procs.Length > 1)
-                {
-                    RemoveSplashScreen();
-                    MessageBox.Show(
-                        "Forex Strategy Trader is already running! You can allow multiple instances of the program from Tools menu.",
-                        Data.ProgramName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-
-                    return;
-                }
-            }
-
-            Language.InitLanguages();
-            LayoutColors.InitColorSchemes();
-
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Actions());
+        private static void SetAutostartSettings()
+        {
+            Configs.LastTab = 4;
+            Configs.MultipleInstances = true;
+            Configs.CheckForNewBeta = false;
+            Configs.CheckForUpdates = false;
+            Configs.JournalShowSystemMessages = false;
+            Configs.RememberLastStr = false;
+            Configs.ShowStartingTip = false;
+            Configs.LoadCustomIndicators = true;
+            Configs.ShowCustomIndicators = false;
         }
 
         /// <summary>
@@ -120,6 +146,16 @@ namespace Forex_Strategy_Trader
 
             if (!Configs.MultipleInstances)
                 InitDataFeed();
+
+            if (Data.IsAutoStart)
+                StartTradeWhenConnectionEstablished();
+        }
+
+        private void StartTradeWhenConnectionEstablished()
+        {
+                InitDataFeed();
+                tstbxConnectionID.Text = Data.ConnectionID.ToString(CultureInfo.InvariantCulture);
+                ConnectionGo();
         }
 
         /// <summary>
@@ -193,9 +229,13 @@ namespace Forex_Strategy_Trader
                 }
 
                 DeinitDataFeed();
-                Configs.SaveConfigs();
-                Hide();
-                Data.SendStats();
+
+                if(!Data.IsAutoStart)
+                {
+                    Configs.SaveConfigs();
+                    Hide();
+                    Data.SendStats();
+                }
             }
         }
 

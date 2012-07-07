@@ -161,8 +161,7 @@ namespace Forex_Strategy_Trader
                         AppendJournalMessage(jmsg);
 
                         // Check for reconnection.
-                        if (_symbolReconnect == Data.Symbol && _periodReconnect == Data.Period &&
-                            _accountReconnect == Data.AccountNumber)
+                        if (IsRestartTrade())
                             StartTrade(); // Restart trade.
                     }
                     else if (_pingAttempt > 0 && JournalShowSystemMessages)
@@ -775,6 +774,23 @@ namespace Forex_Strategy_Trader
             var msg = new JournalMessage(JournalIcons.StopTrading, DateTime.Now, Language.T("Automatic trade stopped."));
             AppendJournalMessage(msg);
             SetTradeStrip();
+        }
+
+        private bool IsRestartTrade()
+        {
+            // Restart trade if we reopen expert on the previous chart.
+            if (_symbolReconnect == Data.Symbol &&
+                _periodReconnect == Data.Period &&
+                _accountReconnect == Data.AccountNumber) return true;
+
+            // Start trade once after starting FSB from the autostart script.
+            if(Data.StartAutotradeWhenConnected)
+            {
+                Data.StartAutotradeWhenConnected = false;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
