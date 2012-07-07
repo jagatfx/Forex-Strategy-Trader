@@ -421,7 +421,14 @@ namespace Forex_Strategy_Trader
             else
             {
                 // We are square on the market
-                size = Math.Min(TradingSize(Data.Strategy.EntryLots), _maximumLots);
+                size = TradingSize(Data.Strategy.EntryLots);
+                if (Data.Strategy.UseMartingale && Data.ConsecutiveLosses > 0)
+                {
+                    size = size * Math.Pow(Data.Strategy.MartingaleMultiplier, Data.ConsecutiveLosses);
+                    size = NormalizeEntrySize(size);
+                }
+                size = Math.Min(size, _maximumLots);
+
                 newPosDir = ordDir == OrderDirection.Buy ? PosDirection.Long : PosDirection.Short;
             }
 
@@ -689,34 +696,28 @@ namespace Forex_Strategy_Trader
             if (_timeLastEntryBar != Data.Time[Data.Bars - 1])
                 _isEnteredLong = _isEnteredShort = false;
 
-            if (tradeDir == TradeDirection.Long)
+            switch (tradeDir)
             {
-                // Buy
-                if (_isEnteredLong)
+                case TradeDirection.Long: // Buy
+                    if (_isEnteredLong)
+                        return;
+                    price = Data.Ask;
+                    ordDir = OrderDirection.Buy;
+                    opType = OperationType.Buy;
+                    type = OrderType.Buy;
+                    icon = JournalIcons.OrderBuy;
+                    break;
+                case TradeDirection.Short: // Sell
+                    if (_isEnteredShort)
+                        return;
+                    price = Data.Bid;
+                    ordDir = OrderDirection.Sell;
+                    opType = OperationType.Sell;
+                    type = OrderType.Sell;
+                    icon = JournalIcons.OrderSell;
+                    break;
+                default: // Wrong direction of trade.
                     return;
-
-                price = Data.Ask;
-                ordDir = OrderDirection.Buy;
-                opType = OperationType.Buy;
-                type = OrderType.Buy;
-                icon = JournalIcons.OrderBuy;
-            }
-            else if (tradeDir == TradeDirection.Short)
-            {
-                // Sell
-                if (_isEnteredShort)
-                    return;
-
-                price = Data.Bid;
-                ordDir = OrderDirection.Sell;
-                opType = OperationType.Sell;
-                type = OrderType.Sell;
-                icon = JournalIcons.OrderSell;
-            }
-            else
-            {
-                // Wrong direction of trade.
-                return;
             }
 
             PosDirection newPosDir = PosDirection.None;
@@ -771,13 +772,11 @@ namespace Forex_Strategy_Trader
             AppendJournalMessage(jmsg);
 
             string parameters = OrderParameters();
-
             int response = _bridge.OrderSend(symbol, type, lots, price, slippage, stoploss, takeprofit, parameters);
 
             if (response >= 0)
             {
                 // The order was executed successfully.
-
                 Data.AddBarStats(opType, lots, price);
 
                 _timeLastEntryBar = Data.Time[Data.Bars - 1];

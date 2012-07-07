@@ -120,7 +120,6 @@ namespace Forex_Strategy_Trader
         public static double PositionTakeProfit { get; private set; }
         public static double PositionProfit { get; private set; }
         public static string PositionComment { get; private set; }
-
         public static PosDirection PositionDirection
         {
             get
@@ -142,6 +141,8 @@ namespace Forex_Strategy_Trader
                 return dir;
             }
         }
+
+        public static int ConsecutiveLosses{ get; set; }
 
         public static Dictionary<DateTime, BarStats> BarStatistics
         {

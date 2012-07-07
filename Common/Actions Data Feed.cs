@@ -712,6 +712,9 @@ namespace Forex_Strategy_Trader
             return Math.Max(2*1440/period + 10, Configs.MinChartBars);
         }
 
+        /// <summary>
+        /// Manipulates additional params coming from MetaTrader. 
+        /// </summary>
         private void ParseAndSetParametrs(string parameters)
         {
             if(string.IsNullOrEmpty(parameters)) return;
@@ -724,18 +727,12 @@ namespace Forex_Strategy_Trader
                 string name = pair[0];
                 string rowValue = pair[1];
 
-                //switch (name)
-                //{
-                //    case "int":
-                //        Console.WriteLine("{0} = {1}", name, int.Parse(rowValue));
-                //        break;
-                //    case "dbl":
-                //        Console.WriteLine("{0} = {1}", name, double.Parse(rowValue));
-                //        break;
-                //    case "str":
-                //        Console.WriteLine("{0} = {1}", name, rowValue);
-                //        break;
-                //}
+                switch (name)
+                {
+                    case "cl":
+                        Data.ConsecutiveLosses = int.Parse(rowValue);
+                        break;
+                }
             }
         }
 
