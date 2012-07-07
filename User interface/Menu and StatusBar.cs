@@ -105,7 +105,6 @@ namespace Forex_Strategy_Trader
             miStrategyCopy.Text         = Language.T("Copy Strategy");
             miStrategyCopy.ToolTipText  = Language.T("Copy the entire strategy to the clipboard.");
             miStrategyCopy.Image        = Properties.Resources.copy;
-            miStrategyCopy.ShortcutKeys = Keys.Control | Keys.C;
             miStrategyCopy.Click       += new EventHandler(MenuStrategyCopy_OnClick);
             miEdit.DropDownItems.Add(miStrategyCopy);
 
