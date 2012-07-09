@@ -1,8 +1,8 @@
 [Setup]
 AppName            = Forex Strategy Trader
-AppVersion         = 1.4.10.0
-VersionInfoVersion = 1.4.10.0
-AppVerName         = Forex Strategy Trader v1.4.10.0
+AppVersion         = 1.5.1.0
+VersionInfoVersion = 1.5.1.0
+AppVerName         = Forex Strategy Trader v1.5.1.0 NB
 
 ArchitecturesInstallIn64BitMode = x64 ia64
 AppPublisher       = Forex Software Ltd.
