@@ -6,154 +6,30 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Forex_Strategy_Trader
 {
-    public class Chart_Data
+    public class ChartData
     {
-        Instrument_Properties instrumentProperties;
-        int bars;
-        DateTime[] time;
-        double[] open;
-        double[] high;
-        double[] low;
-        double[] close;
-        int[] volume;
-        Strategy strategy;
-        int strategyFirstBar;
-        Dictionary<DateTime, BarStats> barStats;
-
-
-        string strategyName;
-
-        public string StrategyName
-        {
-            get { return strategyName; }
-            set { strategyName = value; }
-        }
-        string symbol;
-
-        public string Symbol
-        {
-            get { return symbol; }
-            set { symbol = value; }
-        }
-        string periodStr;
-
-        public string PeriodStr
-        {
-            get { return periodStr; }
-            set { periodStr = value; }
-        }
-        double bid;
-
-        public double Bid
-        {
-            get { return bid; }
-            set { bid = value; }
-        }
-        PosDirection positionDirection;
-
-        public PosDirection PositionDirection
-        {
-            get { return positionDirection; }
-            set { positionDirection = value; }
-        }
-        double positionOpenPrice;
-
-        public double PositionOpenPrice
-        {
-            get { return positionOpenPrice; }
-            set { positionOpenPrice = value; }
-        }
-        double positionProfit;
-
-        public double PositionProfit
-        {
-            get { return positionProfit; }
-            set { positionProfit = value; }
-        }
-        double positionTakeProfit;
-
-        public double PositionTakeProfit
-        {
-            get { return positionTakeProfit; }
-            set { positionTakeProfit = value; }
-        }
-        double positionStopLoss;
-
-        public double PositionStopLoss
-        {
-            get { return positionStopLoss; }
-            set { positionStopLoss = value; }
-        }
-
-        public Instrument_Properties InstrumentProperties
-        {
-            get { return instrumentProperties; }
-            set { instrumentProperties = value; }
-        }
-
-        public int Bars
-        {
-            get { return bars; }
-            set { bars = value; }
-        }
-
-        public DateTime[] Time
-        {
-            get { return time; }
-            set { time = value; }
-        }
-
-        public double[] Open
-        {
-            get { return open; }
-            set { open = value; }
-        }
-
-        public double[] High
-        {
-            get { return high; }
-            set { high = value; }
-        }
-
-        public double[] Low
-        {
-            get { return low; }
-            set { low = value; }
-        }
-
-        public double[] Close
-        {
-            get { return close; }
-            set { close = value; }
-        }
-
-        public int[] Volume
-        {
-            get { return volume; }
-            set { volume = value; }
-        }
-
-        public int FirstBar
-        {
-            get { return strategyFirstBar; }
-            set { strategyFirstBar = value; }
-        }
-
-        public Strategy Strategy
-        {
-            get { return strategy; }
-            set { strategy = value; }
-        }
-
-        public Dictionary<DateTime, BarStats> BarStatistics
-        {
-            get { return barStats; }
-            set { barStats = value; }
-        }
-
+        public string StrategyName { get; set; }
+        public string Symbol { get; set; }
+        public string PeriodStr { get; set; }
+        public double Bid { get; set; }
+        public PosDirection PositionDirection { get; set; }
+        public double PositionOpenPrice { get; set; }
+        public double PositionProfit { get; set; }
+        public double PositionTakeProfit { get; set; }
+        public double PositionStopLoss { get; set; }
+        public Instrument_Properties InstrumentProperties { get; set; }
+        public int Bars { get; set; }
+        public DateTime[] Time { get; set; }
+        public double[] Open { get; set; }
+        public double[] High { get; set; }
+        public double[] Low { get; set; }
+        public double[] Close { get; set; }
+        public int[] Volume { get; set; }
+        public int FirstBar { get; set; }
+        public Strategy Strategy { get; set; }
+        public Dictionary<DateTime, BarStats> BarStatistics { get; set; }
     }
 }

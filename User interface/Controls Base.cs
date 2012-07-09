@@ -56,7 +56,7 @@ namespace Forex_Strategy_Trader
             Initialize_StripTrade();
             Initialize_PageStatus();
             InitializePageStrategy();
-            Initialize_PageChart();
+            InitializePageChart();
             Initialize_PageAccount();
             Initialize_PageJournal();
             Initialize_PageOperation();

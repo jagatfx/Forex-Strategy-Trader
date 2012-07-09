@@ -13,20 +13,18 @@ namespace Forex_Strategy_Trader
     /// <summary>
     /// Class Controls : Menu_and_StatusBar
     /// </summary>
-    public partial class Controls : Menu_and_StatusBar
+    public partial class Controls
     {
-        Chart chart;
+        Chart _chart;
 
         /// <summary>
         /// Initializes page Chart.
         /// </summary>
-        public void Initialize_PageChart()
+        private void InitializePageChart()
         {
             TabPageChart.Name = "tabPageChart";
             TabPageChart.Text = Language.T("Chart");
             TabPageChart.ImageIndex = 2;
-
-            return;
         }
 
         /// <summary>
@@ -36,11 +34,9 @@ namespace Forex_Strategy_Trader
         {
             base.OnShown(e);
 
-            if (chart != null)
-            {
-                Chart_Data chartData = GetChartDataObject();
-                chart.InitChart(chartData);
-            }
+            if (_chart == null) return;
+            ChartData chartData = GetChartDataObject();
+            _chart.InitChart(chartData);
         }
 
         /// <summary>
@@ -48,43 +44,35 @@ namespace Forex_Strategy_Trader
         /// </summary>
         void CreateChart()
         {
-            if (TabControlBase.SelectedTab == TabPageChart)
-            {
-                Chart_Data chartData = GetChartDataObject();
-                chart = new Chart(chartData);
-                chart.Parent = TabPageChart;
-                chart.Dock   = DockStyle.Fill;
-                chart.InitChart(chartData);
-            }
-
-            return;
+            if (TabControlBase.SelectedTab != TabPageChart) return;
+            ChartData chartData = GetChartDataObject();
+            _chart = new Chart(chartData) {Parent = TabPageChart, Dock = DockStyle.Fill};
+            _chart.InitChart(chartData);
         }
 
         /// <summary>
         /// Disposes the chart.
         /// </summary>
-        public void DisposeChart()
+        private void DisposeChart()
         {
-            if (chart != null)
+            if (_chart != null)
             {
                 try
                 {
-                    chart.Dispose();
+                    _chart.Dispose();
                 }
                 finally
                 {
-                    chart = null;
+                    _chart = null;
                 }
             }
-
-            return;
         }
 
-        DateTime    chartTime   = DateTime.Now;
-        DateTime    chartTime10 = DateTime.Now;
-        string      chartSymbol = "";
-        DataPeriods chartPeriod = DataPeriods.day;
-        int         chartBars   = 0;
+        DateTime    _chartTime   = DateTime.Now;
+        DateTime    _chartTime10 = DateTime.Now;
+        string      _chartSymbol = "";
+        DataPeriods _chartPeriod = DataPeriods.day;
+        int         _chartBars;
 
 
         /// <summary>
@@ -92,24 +80,24 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected void UpdateChart()
         {
-            if (chart == null)
+            if (_chart == null)
                 return;
            
             bool repaintChart = (
-                chartSymbol != Data.Symbol ||
-                chartPeriod != Data.Period ||
-                chartBars   != Data.Bars   || 
-                chartTime   != Data.Time[Data.Bars - 1] ||
-                chartTime10 != Data.Time[Data.Bars - 11]);
+                _chartSymbol != Data.Symbol ||
+                _chartPeriod != Data.Period ||
+                _chartBars   != Data.Bars   || 
+                _chartTime   != Data.Time[Data.Bars - 1] ||
+                _chartTime10 != Data.Time[Data.Bars - 11]);
 
-            chartSymbol = Data.Symbol;
-            chartPeriod = Data.Period;
-            chartBars   = Data.Bars;
-            chartTime   = Data.Time[Data.Bars - 1];
-            chartTime10 = Data.Time[Data.Bars - 11];
+            _chartSymbol = Data.Symbol;
+            _chartPeriod = Data.Period;
+            _chartBars   = Data.Bars;
+            _chartTime   = Data.Time[Data.Bars - 1];
+            _chartTime10 = Data.Time[Data.Bars - 11];
 
             // Prepares chart data.
-            Chart_Data chartData = GetChartDataObject();
+            ChartData chartData = GetChartDataObject();
 
             try
             {
@@ -117,7 +105,6 @@ namespace Forex_Strategy_Trader
             }
             catch (ObjectDisposedException)
             {
-                return;
             }
             catch (Exception exc)
             {
@@ -125,36 +112,34 @@ namespace Forex_Strategy_Trader
                 DisposeChart();
                 CreateChart();
             }
-            
-            return;
         }
 
-        delegate void UpdateChartDelegate(bool repaintChart, Chart_Data chartData);
-        void UpdateChartThreadSafely(bool repaintChart, Chart_Data chartData)
+        delegate void UpdateChartDelegate(bool repaintChart, ChartData chartData);
+        void UpdateChartThreadSafely(bool repaintChart, ChartData chartData)
         {
-            if (chart.InvokeRequired)
+            if (_chart.InvokeRequired)
             {
-                chart.BeginInvoke(new UpdateChartDelegate(UpdateChartThreadSafely), new object[] { repaintChart, chartData });
+                _chart.BeginInvoke(new UpdateChartDelegate(UpdateChartThreadSafely), new object[] { repaintChart, chartData });
             }
             else
             {
-                chart.UpdateChartOnTick(repaintChart, chartData);
+                _chart.UpdateChartOnTick(repaintChart, chartData);
             }
-
         }
 
-
-        Chart_Data GetChartDataObject()
+        ChartData GetChartDataObject()
         {
-            Chart_Data chartData = new Chart_Data();
-            chartData.InstrumentProperties = Data.InstrProperties.Clone();
-            chartData.Bars   = Data.Bars;
-            chartData.Time   = new DateTime[Data.Bars];
-            chartData.Open   = new double[Data.Bars];
-            chartData.High   = new double[Data.Bars];
-            chartData.Low    = new double[Data.Bars];
-            chartData.Close  = new double[Data.Bars];
-            chartData.Volume = new int[Data.Bars];
+            var chartData = new ChartData
+                                {
+                                    InstrumentProperties = Data.InstrProperties.Clone(),
+                                    Bars = Data.Bars,
+                                    Time = new DateTime[Data.Bars],
+                                    Open = new double[Data.Bars],
+                                    High = new double[Data.Bars],
+                                    Low = new double[Data.Bars],
+                                    Close = new double[Data.Bars],
+                                    Volume = new int[Data.Bars]
+                                };
             Data.Time.CopyTo(chartData.Time, 0);
             Data.Open.CopyTo(chartData.Open, 0);
             Data.High.CopyTo(chartData.High, 0);
@@ -186,8 +171,6 @@ namespace Forex_Strategy_Trader
         {
             DisposeChart();
             CreateChart();
-
-            return;
         }
     }
 }
