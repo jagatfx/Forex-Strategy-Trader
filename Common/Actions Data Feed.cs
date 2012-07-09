@@ -198,6 +198,7 @@ namespace Forex_Strategy_Trader
                                                                 ping.PositionProfit, ping.PositionComment);
 
                     ParseAndSetParametrs(ping.Parameters);
+                    LogActivatedSLTP();
 
                     SetDataAndCalculate(ping.Symbol, ping.Period, dtPingServerTime, isNewPrice, bUpdateData);
 
@@ -286,6 +287,7 @@ namespace Forex_Strategy_Trader
                                                             tea.PositionProfit, tea.PositionComment);
 
                 ParseAndSetParametrs(tea.Parameters);
+                LogActivatedSLTP();
 
                 const bool updateData = true;
                 SetDataAndCalculate(tea.Symbol, tea.Period, tea.Time, bNewPrice, updateData);
@@ -517,7 +519,7 @@ namespace Forex_Strategy_Trader
                     _isSetRootDataError = true;
                     Data.SoundError.Play();
                     var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                                                  symbol + " " + period.ToString() + " " +
+                                                  symbol + " " + period + " " +
                                                   Language.T("Cannot receive bars!"));
                     AppendJournalMessage(jmsg);
                     return;
@@ -527,7 +529,7 @@ namespace Forex_Strategy_Trader
                     _isSetRootDataError = true;
                     Data.SoundError.Play();
                     var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                                                  symbol + " " + period.ToString() + " " +
+                                                  symbol + " " + period + " " +
                                                   Language.T("Cannot receive enough bars!"));
                     AppendJournalMessage(jmsg);
                     return;
@@ -536,7 +538,7 @@ namespace Forex_Strategy_Trader
                 {
                     _isSetRootDataError = false;
                     var jmsg = new JournalMessage(JournalIcons.Information, DateTime.Now,
-                                                  symbol + " " + period.ToString() + " " +
+                                                  symbol + " " + period + " " +
                                                   Language.T("Enough bars received!"));
                     AppendJournalMessage(jmsg);
                 }
@@ -731,7 +733,44 @@ namespace Forex_Strategy_Trader
                     case "cl":
                         Data.ConsecutiveLosses = int.Parse(rowValue);
                         break;
+                    case "aSL":
+                        Data.ActivatedStopLoss = double.Parse(rowValue);
+                        break;
+                    case "aTP":
+                        Data.ActivatedTakeProfit = double.Parse(rowValue);
+                        break;
+                    case "al":
+                        Data.ClosedSLTPLots = double.Parse(rowValue);
+                        break;
                 }
+            }
+        }
+
+        private double _activationReportedAt;
+
+        private void LogActivatedSLTP()
+        {
+            if (Data.ActivatedStopLoss > Epsilon && Math.Abs(Data.ActivatedStopLoss - _activationReportedAt) > Epsilon)
+            {
+                // Activated Stop Loss
+                Data.AddBarStats(OperationType.Close, Data.ClosedSLTPLots, Data.ActivatedStopLoss);
+                string message = "Activated Stop Loss at " + Data.ActivatedStopLoss.ToString("F5") + ", Closed Lots " + Data.ClosedSLTPLots.ToString("F2");
+                var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
+                AppendJournalMessage(msg);
+                _activationReportedAt = Data.ActivatedStopLoss;
+            }
+            else if (Data.ActivatedTakeProfit > Epsilon && Math.Abs(Data.ActivatedTakeProfit - _activationReportedAt) > Epsilon)
+            {
+                // Activated Take Profit
+                Data.AddBarStats(OperationType.Close, Data.ClosedSLTPLots, Data.ActivatedTakeProfit);
+                string message = "Activated Take Profit at " + Data.ActivatedTakeProfit.ToString("F5") + ", Closed Lots " + Data.ClosedSLTPLots.ToString("F2");
+                var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
+                AppendJournalMessage(msg);
+                _activationReportedAt = Data.ActivatedTakeProfit;
+            }
+            else
+            {
+                _activationReportedAt = 0;
             }
         }
 
@@ -784,7 +823,7 @@ namespace Forex_Strategy_Trader
                 _accountReconnect == Data.AccountNumber) return true;
 
             // Start trade once after starting FSB from the autostart script.
-            if(Data.StartAutotradeWhenConnected)
+            if (Data.StartAutotradeWhenConnected)
             {
                 Data.StartAutotradeWhenConnected = false;
                 return true;

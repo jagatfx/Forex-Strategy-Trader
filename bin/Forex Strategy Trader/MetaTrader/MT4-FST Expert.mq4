@@ -1,6 +1,6 @@
 //+--------------------------------------------------------------------+
 //| File name:  MT4-FST Expert.mq4                                     |
-//| Version:    1.14 2012-06-29                                        |
+//| Version:    1.16 2012-07-09                                        |
 //| Copyright:  © 2012, Miroslav Popov - All rights reserved!          |
 //| Website:    http://forexsb.com/                                    |
 //| Support:    http://forexsb.com/forum/                              |
@@ -27,7 +27,7 @@
 #property copyright "Copyright © 2012, Miroslav Popov"
 #property link      "http://forexsb.com/"
 
-#define EXPERT_VERSION           "1.14"
+#define EXPERT_VERSION           "1.16"
 #define SERVER_SEMA_NAME         "MT4-FST Expert ID - "
 #define TRADE_SEMA_NAME          "TradeIsBusy"
 #define TRADE_SEMA_WAIT          100
@@ -132,28 +132,32 @@ int      PipsPoint        = 0;
 int      StopLevel        = 0;
 
 // Aggregate position.
-int      PositionTicket     = 0;
-int      PositionType       = OP_SQUARE;
-datetime PositionTime       = D'2020.01.01 00:00';
-double   PositionLots       = 0;
-double   PositionOpenPrice  = 0;
-double   PositionStopLoss   = 0;
-double   PositionTakeProfit = 0;
-double   PositionProfit     = 0;
-double   PositionCommission = 0;
-string   PositionComment    = "";
+int      PositionTicket      = 0;
+int      PositionType        = OP_SQUARE;
+datetime PositionTime        = D'2020.01.01 00:00';
+double   PositionLots        = 0;
+double   PositionOpenPrice   = 0;
+double   PositionStopLoss    = 0;
+double   PositionTakeProfit  = 0;
+double   PositionProfit      = 0;
+double   PositionCommission  = 0;
+string   PositionComment     = "";
+int      ConsecutiveLosses   = 0;
+double   ActivatedStopLoss   = 0;
+double   ActivatedTakeProfit = 0;
+double   ClosedSLTPLots      = 0;
 
 // Set by Forex Strategy Trader
-string FST_Request = "";
+string FST_Request  = "";
 int    TrailingStop = 0;
 string TrailingMode = "";
 int    BreakEven    = 0;
 
-datetime barHighTime  = 0;
-datetime barLowTime   = 0;
-double currentBarHigh = 0;
-double currentBarLow  = 1000000;
-int logLines = 0;
+datetime barHighTime    = 0;
+datetime barLowTime     = 0;
+double   currentBarHigh = 0;
+double   currentBarLow  = 1000000;
+int      logLines       = 0;
 
 ///
 /// Expert's initialization function.
@@ -404,6 +408,8 @@ int Server()
                 Comment(message);
                 Print(message);
 
+                if (Write_Log_File) WriteLogLine(message);
+
                 Sleep(20 * 1000);
                 CloseExpert();
 
@@ -414,7 +420,7 @@ int Server()
             if (Protection_Max_StopLoss > 0)
                 SetMaxStopLoss(symbol[0]);
 
-            SetAggregatePosition(symbol[0]);
+            DetectSLTPActivation(symbol[0]);
 
             bool isNewBar = (barTime != Time[0]);
             barTime = Time[0];
@@ -424,6 +430,9 @@ int Server()
 
             if (TrailingStop > 0)
                 SetTrailingStop(symbol[0], isNewBar);
+
+            if (isNewBar && Write_Log_File)
+                WriteNewLogLine(AggregatePositionToString());
 
             int tickResponce = SendTick(symbol[0]);
 
@@ -868,6 +877,7 @@ int ReduceCurrentPosition(string symbol, double lots, double price, int slippage
     int orderResponse = SetStopLossAndTakeProfit(symbol, stopLossPrice, takeProfitPrice);
 
     SetAggregatePosition(symbol);
+    ConsecutiveLosses = 0;
 
     return (orderResponse);
 }
@@ -916,7 +926,9 @@ int CloseCurrentPosition(string symbol, int slippage)
         orderResponse = ClosePositionByTicket(symbol, OrderTicket(), OrderLots(), slippage);
     }
 
+    ConsecutiveLosses = IF_I(PositionProfit < 0, ConsecutiveLosses + 1, 0);
     SetAggregatePosition(symbol);
+    Print("ConsecutiveLosses = ", ConsecutiveLosses);
 
     return (orderResponse);
 }
@@ -932,6 +944,7 @@ int ReverseCurrentPosition(string symbol, int type, double lots, double price, i
     int orderResponse = OpenNewPosition(symbol, type, lots, price, slippage, stoploss, takeprofit, magic);
 
     SetAggregatePosition(symbol);
+    ConsecutiveLosses = 0;
 
     return (orderResponse);
 }
@@ -1548,6 +1561,64 @@ void SetTrailingStopTickMode(string symbol)
     }
 }
 
+///
+/// Detects if position was closed from SL or TP.
+/// Must be called at every new tick.
+///
+void DetectSLTPActivation(string symbol)
+{
+
+    // Save position values from previous tick.
+    double oldStopLoss   = PositionStopLoss;
+    double oldTakeProfit = PositionTakeProfit;
+    double oldProfit     = PositionProfit;
+    int    oldType       = PositionType;
+    double oldLots       = PositionLots;
+
+    ActivatedStopLoss   = 0;
+    ActivatedTakeProfit = 0;
+    ClosedSLTPLots      = 0;
+
+    // Update position values.
+    SetAggregatePosition(symbol);
+
+    // Compare updated values with previous tick values.
+    if (oldType != OP_SQUARE && PositionType == OP_SQUARE)
+    {   // Position was closed this tick must be due to SL or TP.
+        double closePrice;
+        if (oldType == OP_BUY)
+            closePrice = MarketInfo(symbol, MODE_BID);
+        else if (oldType == OP_SELL)
+            closePrice = MarketInfo(symbol, MODE_ASK);
+
+        string stopMessage = "No SL or TP activation";
+        if (MathAbs(oldStopLoss - closePrice) < 2 * PipsValue)
+        {   // Activated Stop Loss
+            ActivatedStopLoss = closePrice;
+            stopMessage = "Activated StopLoss=" + DoubleToStr(ActivatedStopLoss, 5);
+        }
+        else if (MathAbs(oldTakeProfit - closePrice) < 2 * PipsValue)
+        {   // Activated Take Profit
+            ActivatedTakeProfit = closePrice;
+            stopMessage = "Activated TakeProfit=" + DoubleToStr(ActivatedTakeProfit, 5);
+        }
+
+        ClosedSLTPLots = oldLots;
+
+		  // For Martingale (if used)
+        ConsecutiveLosses = IF_I(oldProfit < 0, ConsecutiveLosses + 1, 0);
+
+        string message = stopMessage +
+            ", ClosePrice=" + DoubleToStr(closePrice, 5) +
+            ", ClosedLots= " + DoubleToStr(ClosedSLTPLots, 2) +
+            ", Profit=" + DoubleToStr(oldProfit, 2) +
+            ", ConsecutiveLosses=" + ConsecutiveLosses;
+
+        if (Write_Log_File) WriteNewLogLine(message);
+        Print(message);
+    }
+}
+
 //
 // Parses the parameters and sets global variables.
 //
@@ -1570,13 +1641,13 @@ void ParseOrderParameters(string parameters)
         if (TrailingStop > 0 && TrailingStop < StopLevel)
             TrailingStop = StopLevel;
 
-       TrailingMode = "tick";
+        TrailingMode = "tick";
     }
     if (StringSubstr(param[1], 0, 3) == "BRE")
         BreakEven = StrToInteger(StringSubstr(param[1], 4));
 
-	if (BreakEven > 0 && BreakEven < StopLevel)
-		BreakEven = StopLevel;
+	 if (BreakEven > 0 && BreakEven < StopLevel)
+		  BreakEven = StopLevel;
 
     Print("Trailing Stop = ", TrailingStop, ", Mode - ", TrailingMode, ", Break Even = ", BreakEven);
 
@@ -1588,11 +1659,12 @@ void ParseOrderParameters(string parameters)
 ///
 string GenerateParameters(string symbol)
 {
-   string parametrs = 
-      "int=" + 123456 + ";" +
-      "dbl=" + MarketInfo(symbol, MODE_BID) + ";" +
-      "str=" + AccountServer();
-   
+   string parametrs =
+      "cl="  + ConsecutiveLosses   + ";" +
+      "aSL=" + ActivatedStopLoss   + ";" +
+      "aTP=" + ActivatedTakeProfit + ";" +
+      "al="  + ClosedSLTPLots;
+
    return (parametrs);
 }
 

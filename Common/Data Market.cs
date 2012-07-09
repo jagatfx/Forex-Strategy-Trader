@@ -143,6 +143,9 @@ namespace Forex_Strategy_Trader
         }
 
         public static int ConsecutiveLosses{ get; set; }
+        public static double ActivatedStopLoss { get; set; }
+        public static double ActivatedTakeProfit { get; set; }
+        public static double ClosedSLTPLots { get; set; }
 
         public static Dictionary<DateTime, BarStats> BarStatistics
         {
