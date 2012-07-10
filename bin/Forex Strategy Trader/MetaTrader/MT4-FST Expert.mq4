@@ -1,6 +1,6 @@
 //+--------------------------------------------------------------------+
 //| File name:  MT4-FST Expert.mq4                                     |
-//| Version:    1.16 2012-07-09                                        |
+//| Version:    1.17 2012-07-10                                        |
 //| Copyright:  © 2012, Miroslav Popov - All rights reserved!          |
 //| Website:    http://forexsb.com/                                    |
 //| Support:    http://forexsb.com/forum/                              |
@@ -27,7 +27,7 @@
 #property copyright "Copyright © 2012, Miroslav Popov"
 #property link      "http://forexsb.com/"
 
-#define EXPERT_VERSION           "1.16"
+#define EXPERT_VERSION           "1.17"
 #define SERVER_SEMA_NAME         "MT4-FST Expert ID - "
 #define TRADE_SEMA_NAME          "TradeIsBusy"
 #define TRADE_SEMA_WAIT          100
@@ -400,33 +400,20 @@ int Server()
 
             // Checks if minimum account was reached.
             if (Protection_Min_Account > 0 && AccountEquity() < Protection_Min_Account)
-            {
-                CloseCurrentPosition(Symbol(), 100);
-
-                string account = DoubleToStr(AccountEquity(), 2);
-                message = "\n" + "The account equity (" + account + ") dropped below the minimum allowed (" + Protection_Min_Account + ").";
-                Comment(message);
-                Print(message);
-
-                if (Write_Log_File) WriteLogLine(message);
-
-                Sleep(20 * 1000);
-                CloseExpert();
-
-                return (-1);
-            }
+                ClosePositionStopExpert(symbol[0]);
 
             // Checks and sets Max SL protection.
             if (Protection_Max_StopLoss > 0)
                 SetMaxStopLoss(symbol[0]);
 
+            // Checks if position was closed. Refreshes AggregatePosition
             DetectSLTPActivation(symbol[0]);
-
-            bool isNewBar = (barTime != Time[0]);
-            barTime = Time[0];
 
             if (BreakEven > 0)
                 SetBreakEvenStop(symbol[0]);
+
+            bool isNewBar = (barTime != Time[0]);
+            barTime = Time[0];
 
             if (TrailingStop > 0)
                 SetTrailingStop(symbol[0], isNewBar);
@@ -435,23 +422,7 @@ int Server()
                 WriteNewLogLine(AggregatePositionToString());
 
             int tickResponce = SendTick(symbol[0]);
-
-            if (tickResponce == 1)
-            {
-                FST_Connected = true;
-                TimeLastPing  = TimeLocal();
-                message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Forex Strategy Trader is connected.";
-            }
-            else if (tickResponce == 0)
-            {
-                FST_Connected = false;
-                message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Forex Strategy Trader is disconnected.";
-            }
-            else if (tickResponce == -1)
-            {
-                message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Error with sending a tick";
-            }
-            Comment(message);
+            CommentTickResponce(symbol[0], expertID, tickResponce);
 
             TimeLastPing = TimeLocal();
         }
@@ -669,15 +640,15 @@ string AggregatePositionToString()
     string type = "Long"; if (PositionType == OP_SELL) type = "Short";
 
     string text = "AggregatePosition " +
-            "Ticket=" + PositionTicket +
-            ", Time=" + TimeToStr(PositionTime, TIME_SECONDS) +
-            ", Type=" + type +
-            ", Lots=" + DoubleToStr(PositionLots, 2) +
-            ", Price=" + DoubleToStr(PositionOpenPrice, 5) +
-            ", StopLoss=" + DoubleToStr(PositionStopLoss, 5) +
+            "Ticket="       + PositionTicket +
+            ", Time="       + TimeToStr(PositionTime, TIME_SECONDS) +
+            ", Type="       + type +
+            ", Lots="       + DoubleToStr(PositionLots, 2) +
+            ", Price="      + DoubleToStr(PositionOpenPrice, 5) +
+            ", StopLoss="   + DoubleToStr(PositionStopLoss, 5) +
             ", TakeProfit=" + DoubleToStr(PositionTakeProfit, 5) +
             ", Commission=" + DoubleToStr(PositionCommission, 2) +
-            ", Profit=" + DoubleToStr(PositionProfit, 2);
+            ", Profit="     + DoubleToStr(PositionProfit, 2);
 
     if (PositionComment != "")
         text = text + ", \"" + PositionComment + "\"";
@@ -989,16 +960,15 @@ int SendOrder(string symbol, int type, double lots, double price, int slippage, 
         ReleaseTradeContext();
 
         if (Write_Log_File)
-            WriteLogLine("SendOrder OrderSend(" + symbol +
-                         ", " + type +
-                         ", Lots=" + DoubleToStr(orderLots, 2) +
-                         ", Price=" + DoubleToStr(orderPrice, 5) +
-                         ", Slippage=" + slippage +
-                         ", StopLoss=" + DoubleToStr(stopLossPrice, 5) +
-                         ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) +
-                         ", \"" + comment + "\"" + ")" +
-                         ", Response=" + orderResponse +
-                         ", LastError=" + LastError);
+            WriteLogLine("SendOrder OrderSend(" + symbol + ", " + type +
+                         ", Lots="        + DoubleToStr(orderLots, 2) +
+                         ", Price="       + DoubleToStr(orderPrice, 5) +
+                         ", Slippage="    + slippage +
+                         ", StopLoss="    + DoubleToStr(stopLossPrice, 5) +
+                         ", TakeProfit="  + DoubleToStr(takeProfitPrice, 5) +
+                         ", \""           + comment + "\"" + ")" +
+                         ", Response="    + orderResponse +
+                         ", LastError="   + LastError);
 
         if (orderResponse > 0)
             break;
@@ -1042,9 +1012,9 @@ int ClosePositionByTicket(string symbol, int orderTicket, double orderLots, int 
 
         if (Write_Log_File)
             WriteLogLine("ClosePositionByTicket OrderClose(" +
-                         "Ticket=" + orderTicket +
-                         ", Lots=" + DoubleToStr(orderLots, 2) +
-                         ", Price=" + DoubleToStr(orderPrice, 5) +
+                         "Ticket="     + orderTicket +
+                         ", Lots="     + DoubleToStr(orderLots, 2) +
+                         ", Price="    + DoubleToStr(orderPrice, 5) +
                          ", Slippage=" + slippage + ")" +
                          ", Response=" + responce + ", LastError=" + LastError);
 
@@ -1126,11 +1096,11 @@ int ModifyPositionByTicket(string symbol, int orderTicket, double stopLossPrice,
         string log = "";
         if (Write_Log_File)
             log = "ModifyPositionByTicket OrderModify(" + symbol +
-                  ", Ticket=" + orderTicket +
-                  ", Price=" + DoubleToStr(orderOpenPrice, 5) +
-                  ", StopLoss=" + DoubleToStr(stopLossPrice, 5) +
+                  ", Ticket="     + orderTicket +
+                  ", Price="      + DoubleToStr(orderOpenPrice, 5) +
+                  ", StopLoss="   + DoubleToStr(stopLossPrice, 5) +
                   ", TakeProfit=" + DoubleToStr(takeProfitPrice, 5) + ")" +
-                  " Response=" + rc + " LastError=" + LastError;
+                  " Response="    + rc + " LastError=" + LastError;
 
         if (rc)
         {   // Modification was successful.
@@ -1433,10 +1403,10 @@ void SetTrailingStop(string symbol, bool isNewBar)
 
     if (isNewBar)
     {
-       if (PositionType == OP_BUY && PositionTime > barHighTime)
+        if (PositionType == OP_BUY && PositionTime > barHighTime)
             isCheckTS = false;
 
-       if (PositionType == OP_SELL && PositionTime > barLowTime)
+        if (PositionType == OP_SELL && PositionTime > barLowTime)
             isCheckTS = false;
 
         barHighTime    = Time[0];
@@ -1466,7 +1436,7 @@ void SetTrailingStop(string symbol, bool isNewBar)
     else if (TrailingMode == "bar" && isNewBar && isCheckTS)
         SetTrailingStopBarMode(symbol);
 
-	return;
+    return;
 }
 
 ///
@@ -1562,6 +1532,26 @@ void SetTrailingStopTickMode(string symbol)
 }
 
 ///
+/// If account drops below Protection_Min_Account, sloses position and stops expert.
+///
+void ClosePositionStopExpert(string symbol)
+{
+    CloseCurrentPosition(symbol, 100);
+
+    string account = DoubleToStr(AccountEquity(), 2);
+    string message = "\n" + "The account equity (" + account + ") dropped below the minimum allowed (" + Protection_Min_Account + ").";
+    Comment(message);
+    Print(message);
+
+    if (Write_Log_File) WriteLogLine(message);
+
+    Sleep(20 * 1000);
+    CloseExpert();
+
+    return (-1);
+}
+
+///
 /// Detects if position was closed from SL or TP.
 /// Must be called at every new tick.
 ///
@@ -1584,34 +1574,35 @@ void DetectSLTPActivation(string symbol)
 
     // Compare updated values with previous tick values.
     if (oldType != OP_SQUARE && PositionType == OP_SQUARE)
-    {   // Position was closed this tick must be due to SL or TP.
-        double closePrice;
-        if (oldType == OP_BUY)
-            closePrice = MarketInfo(symbol, MODE_BID);
-        else if (oldType == OP_SELL)
+    {   // Position was closed this tick. It must be due to SL or TP.
+        double closePrice = MarketInfo(symbol, MODE_BID);
+        if (oldType == OP_SELL)
             closePrice = MarketInfo(symbol, MODE_ASK);
 
-        string stopMessage = "No SL or TP activation";
+        string stopMessage  = "Position was closed";
+        ActivatedStopLoss   = closePrice; // At Stop Loss
+        ActivatedTakeProfit = closePrice; // or at Take Profit ?
+
         if (MathAbs(oldStopLoss - closePrice) < 2 * PipsValue)
         {   // Activated Stop Loss
-            ActivatedStopLoss = closePrice;
+            ActivatedTakeProfit = 0;
             stopMessage = "Activated StopLoss=" + DoubleToStr(ActivatedStopLoss, 5);
         }
         else if (MathAbs(oldTakeProfit - closePrice) < 2 * PipsValue)
         {   // Activated Take Profit
-            ActivatedTakeProfit = closePrice;
+            ActivatedStopLoss = 0;
             stopMessage = "Activated TakeProfit=" + DoubleToStr(ActivatedTakeProfit, 5);
         }
 
         ClosedSLTPLots = oldLots;
 
-		  // For Martingale (if used)
+        // For Martingale (if used)
         ConsecutiveLosses = IF_I(oldProfit < 0, ConsecutiveLosses + 1, 0);
 
         string message = stopMessage +
-            ", ClosePrice=" + DoubleToStr(closePrice, 5) +
-            ", ClosedLots= " + DoubleToStr(ClosedSLTPLots, 2) +
-            ", Profit=" + DoubleToStr(oldProfit, 2) +
+            ", ClosePrice="        + DoubleToStr(closePrice, 5) +
+            ", ClosedLots= "       + DoubleToStr(ClosedSLTPLots, 2) +
+            ", Profit="            + DoubleToStr(oldProfit, 2) +
             ", ConsecutiveLosses=" + ConsecutiveLosses;
 
         if (Write_Log_File) WriteNewLogLine(message);
@@ -1646,8 +1637,8 @@ void ParseOrderParameters(string parameters)
     if (StringSubstr(param[1], 0, 3) == "BRE")
         BreakEven = StrToInteger(StringSubstr(param[1], 4));
 
-	 if (BreakEven > 0 && BreakEven < StopLevel)
-		  BreakEven = StopLevel;
+     if (BreakEven > 0 && BreakEven < StopLevel)
+          BreakEven = StopLevel;
 
     Print("Trailing Stop = ", TrailingStop, ", Mode - ", TrailingMode, ", Break Even = ", BreakEven);
 
@@ -1667,6 +1658,31 @@ string GenerateParameters(string symbol)
 
    return (parametrs);
 }
+
+///
+/// Updates tick response on chart.
+///
+void CommentTickResponce(string symbol, string expertID, int tickResponce)
+{
+    string message;
+    if (tickResponce == 1)
+    {
+        FST_Connected = true;
+        TimeLastPing  = TimeLocal();
+        message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Forex Strategy Trader is connected.";
+    }
+    else if (tickResponce == 0)
+    {
+        FST_Connected = false;
+        message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Forex Strategy Trader is disconnected.";
+    }
+    else if (tickResponce == -1)
+    {
+        message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Error with sending a tick";
+    }
+    Comment(message);
+}
+
 
 // ===========================================================================
 
