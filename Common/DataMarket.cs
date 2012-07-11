@@ -32,7 +32,7 @@ namespace Forex_Strategy_Trader
         public static string LibraryVersion { get; set; }
 
         // The current instrument's properties.
-        public static Instrument_Properties InstrProperties { get; set; }
+        public static InstrumentProperties InstrProperties { get; set; }
 
         public static string Symbol
         {

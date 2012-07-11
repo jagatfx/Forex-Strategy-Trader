@@ -274,7 +274,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuStrategyBBcode_OnClick(object sender, EventArgs e)
         {
-            var publisher = new Strategy_Publish();
+            var publisher = new StrategyPublish();
             publisher.Show();
         }
 
@@ -327,7 +327,7 @@ namespace Forex_Strategy_Trader
                     Cursor = Cursors.Default;
                     break;
                 case "miCheckInd":
-                    Custom_Indicators.TestCustomIndicators();
+                    CustomIndicators.TestCustomIndicators();
                     break;
                 case "CommandConsole":
                     ShowCommandConsole();
@@ -699,7 +699,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         private void ShowCommandConsole()
         {
-            var commandConsole = new Command_Console();
+            var commandConsole = new CommandConsole();
             commandConsole.Show();
         }
 
@@ -708,7 +708,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         private void MakeNewTranslation()
         {
-            var nt = new New_Translation();
+            var nt = new NewTranslation();
             nt.Show();
         }
 
@@ -717,7 +717,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         private void EditTranslation()
         {
-            var et = new Edit_Translation();
+            var et = new EditTranslation();
             et.Show();
         }
     }

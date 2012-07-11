@@ -6,7 +6,9 @@
 
 using System;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
+using Forex_Strategy_Trader.Properties;
 
 namespace Forex_Strategy_Trader
 {
@@ -15,253 +17,220 @@ namespace Forex_Strategy_Trader
     /// </summary>
     public class StrategyLayout : Panel
     {
-        VScrollBar      VScrollBarStrategy; // Vertical scrollbar
-        FlowLayoutPanel flowLayoutStrategy; // Contains the strategy slots
-        public Panel[]  apnlSlot;           // Indicator's parameters
-        public Panel    pnlProperties;      // Strategy properties panel
-        public Button[] abtnRemoveSlot;     // Removes the indicator slot
-        public Button   btnAddOpenFilter;   // Add an Open Filter indicator slot
-        public Button   btnAddCloseFilter;  // Add an Close Filter indicator slot
-        Button btnClosingFilterHelp;
+        private const int Border = 2;
+        private const int Space = 4;
+        public readonly Button BtnAddCloseFilter; // Add an Close Filter indicator slot
+        public readonly Button BtnAddOpenFilter; // Add an Open Filter indicator slot
+        private readonly Button _btnClosingFilterHelp;
+        private readonly FlowLayoutPanel _flowLayoutStrategy; // Contains the strategy slots
+        private readonly string _slotPropertiesTipText = Language.T("Averaging, Trading size, Protection.");
+        private readonly string _slotToolTipText = Language.T("Long position logic.");
 
-        ToolTip  toolTip;
-        Strategy strategy;
-        int space  = 4;
-        int border = 2;
-        int slots;
-        SlotSizeMinMidMax slotMinMidMax;
-        bool   bShowAddSlotButtons    = true;
-        bool   bShowRemoveSlotButtons = true;
-        string slotToolTipText       = Language.T("Long position logic.");
-        string slotPropertiesTipText = Language.T("Averaging, Trading size, Protection.");
-
-        /// <summary>
-        /// Sets the size of the strategy's slots
-        /// </summary>
-        public SlotSizeMinMidMax SlotMinMidMax { get { return slotMinMidMax; } set { slotMinMidMax = value; } }
-
-        /// <summary>
-        /// Show Add Slot Buttons
-        /// </summary>
-        public bool ShowAddSlotButtons { set { bShowAddSlotButtons = value; } }
-
-        /// <summary>
-        /// Show Remove Slot Buttons
-        /// </summary>
-        public bool ShowRemoveSlotButtons { set { bShowRemoveSlotButtons = value; } }
-
-        /// <summary>
-        /// Sets the tool tip text
-        /// </summary>
-        public string SlotToolTipText { set { slotToolTipText = value; } }
-
-        /// <summary>
-        /// Sets the tool tip text
-        /// </summary>
-        public string SlotPropertiesTipText { set { slotPropertiesTipText = value; } }
+        private readonly ToolTip _toolTip;
+        private readonly VScrollBar _vScrollBarStrategy; // Vertical scrollbar
+        public Button[] AbtnRemoveSlot; // Removes the indicator slot
+        public Panel[] ApnlSlot; // Indicator's parameters
+        public Panel PnlProperties; // Strategy properties panel
+        private SlotSizeMinMidMax _slotMinMidMax;
+        private int _slots;
+        private Strategy _strategy;
 
         /// <summary>
         /// Initializes the strategy field
         /// </summary>
         public StrategyLayout(Strategy strategy)
         {
-            this.strategy      = strategy;
-            slots              = strategy.Slots;
-            slotMinMidMax      = SlotSizeMinMidMax.mid;
-            toolTip            = new ToolTip();
-            flowLayoutStrategy = new FlowLayoutPanel();
-            VScrollBarStrategy = new VScrollBar();
-            apnlSlot           = new Panel[slots];
-            pnlProperties      = new Panel();
+            _strategy = strategy;
+            _slots = strategy.Slots;
+            _slotMinMidMax = SlotSizeMinMidMax.Mid;
+            _toolTip = new ToolTip();
+            _flowLayoutStrategy = new FlowLayoutPanel();
+            _vScrollBarStrategy = new VScrollBar();
+            ApnlSlot = new Panel[_slots];
+            PnlProperties = new Panel();
 
-            for (int iSlot = 0; iSlot < slots; iSlot++)
-                apnlSlot[iSlot] = new Panel();
+            for (int iSlot = 0; iSlot < _slots; iSlot++)
+                ApnlSlot[iSlot] = new Panel();
 
-            if (bShowRemoveSlotButtons)
-            {
-                abtnRemoveSlot = new Button[slots];
-                for (int iSlot = 0; iSlot < slots; iSlot++)
-                    abtnRemoveSlot[iSlot] = new Button();
-            }
+            AbtnRemoveSlot = new Button[_slots];
+            for (int iSlot = 0; iSlot < _slots; iSlot++)
+                AbtnRemoveSlot[iSlot] = new Button();
 
             // FlowLayoutStrategy
-            flowLayoutStrategy.Parent     = this;
-            flowLayoutStrategy.AutoScroll = false;
+            _flowLayoutStrategy.Parent = this;
+            _flowLayoutStrategy.AutoScroll = false;
 
             //VScrollBarStrategy
-            VScrollBarStrategy.Parent  = this;
-            VScrollBarStrategy.TabStop = true;
-            VScrollBarStrategy.Scroll += new ScrollEventHandler(VScrollBarStrategy_Scroll);
+            _vScrollBarStrategy.Parent = this;
+            _vScrollBarStrategy.TabStop = true;
+            _vScrollBarStrategy.Scroll += VScrollBarStrategyScroll;
 
-            if (bShowAddSlotButtons)
-            {
-                // btnAddOpenFilter
-                btnAddOpenFilter = new Button();
-                btnAddOpenFilter.Tag       = strategy.OpenSlot;
-                btnAddOpenFilter.Text      = Language.T("Add an Opening Logic Condition");
-                btnAddOpenFilter.Margin    = new Padding(30, 0, 0, space);
-                btnAddOpenFilter.UseVisualStyleBackColor = true;
-                toolTip.SetToolTip(btnAddOpenFilter, Language.T("Add a new entry logic slot to the strategy."));
+            // btnAddOpenFilter
+            BtnAddOpenFilter = new Button
+                                   {
+                                       Tag = strategy.OpenSlot,
+                                       Text = Language.T("Add an Opening Logic Condition"),
+                                       Margin = new Padding(30, 0, 0, Space),
+                                       UseVisualStyleBackColor = true
+                                   };
+            _toolTip.SetToolTip(BtnAddOpenFilter, Language.T("Add a new entry logic slot to the strategy."));
 
-                // btnAddCloseFilter
-                btnAddCloseFilter = new Button();
-                btnAddCloseFilter.Tag       = strategy.CloseSlot;
-                btnAddCloseFilter.Text      = Language.T("Add a Closing Logic Condition");
-                btnAddCloseFilter.Margin    = new Padding(30, 0, 0, space);
-                btnAddCloseFilter.UseVisualStyleBackColor = true;
-                toolTip.SetToolTip(btnAddCloseFilter, Language.T("Add a new exit logic slot to the strategy."));
+            // btnAddCloseFilter
+            BtnAddCloseFilter = new Button
+                                    {
+                                        Tag = strategy.CloseSlot,
+                                        Text = Language.T("Add a Closing Logic Condition"),
+                                        Margin = new Padding(30, 0, 0, Space),
+                                        UseVisualStyleBackColor = true
+                                    };
+            _toolTip.SetToolTip(BtnAddCloseFilter, Language.T("Add a new exit logic slot to the strategy."));
 
-                // btnClosingFilterHelp
-                btnClosingFilterHelp = new Button();
-                btnClosingFilterHelp.Image   = Properties.Resources.info;
-                btnClosingFilterHelp.Margin  = new Padding(2, 2, 0, space);
-                btnClosingFilterHelp.TabStop = false;
-                btnClosingFilterHelp.Click  += new EventHandler(BtnClosingFilterHelp_Click);
-                btnClosingFilterHelp.UseVisualStyleBackColor = true;
-            }
+            // btnClosingFilterHelp
+            _btnClosingFilterHelp = new Button
+                                        {
+                                            Image = Resources.info,
+                                            Margin = new Padding(2, 2, 0, Space),
+                                            TabStop = false
+                                        };
+            _btnClosingFilterHelp.Click += BtnClosingFilterHelp_Click;
+            _btnClosingFilterHelp.UseVisualStyleBackColor = true;
+        }
 
-            return;
+        /// <summary>
+        /// Sets the size of the strategy's slots
+        /// </summary>
+        public SlotSizeMinMidMax SlotMinMidMax
+        {
+            get { return _slotMinMidMax; }
+            set { _slotMinMidMax = value; }
         }
 
         /// <summary>
         /// Initializes the strategy slots
         /// </summary>
-        public void InitializeStrategySlots()
+        private void InitializeStrategySlots()
         {
-            apnlSlot       = new Panel[slots];
-            abtnRemoveSlot = new Button[slots];
+            ApnlSlot = new Panel[_slots];
+            AbtnRemoveSlot = new Button[_slots];
 
             // Strategy properties panel
-            pnlProperties = new Panel();
-            pnlProperties.Cursor  = Cursors.Hand;
-            pnlProperties.Tag     = 100;
-            pnlProperties.Margin  = new Padding(0, 0, 0, space);
-            pnlProperties.Paint  += new PaintEventHandler(PnlProperties_Paint);
-            pnlProperties.Resize += new EventHandler(PnlSlot_Resize);
-            toolTip.SetToolTip(pnlProperties, slotPropertiesTipText);
-   
-            // Slot panels settings
-            for (int iSlot = 0; iSlot < slots; iSlot++)
-            {
-                apnlSlot[iSlot] = new Panel();
-                apnlSlot[iSlot].Cursor  = Cursors.Hand;
-                apnlSlot[iSlot].Tag     = iSlot;
-                apnlSlot[iSlot].Margin  = new Padding(0, 0, 0, space);
-                apnlSlot[iSlot].Paint  += new PaintEventHandler(PnlSlot_Paint);
-                apnlSlot[iSlot].Resize += new EventHandler(PnlSlot_Resize);
-                toolTip.SetToolTip(apnlSlot[iSlot], slotToolTipText);
+            PnlProperties = new Panel {Cursor = Cursors.Hand, Tag = 100, Margin = new Padding(0, 0, 0, Space)};
+            PnlProperties.Paint += PnlPropertiesPaint;
+            PnlProperties.Resize += PnlSlot_Resize;
+            _toolTip.SetToolTip(PnlProperties, _slotPropertiesTipText);
 
-                if (bShowRemoveSlotButtons && iSlot != strategy.OpenSlot && iSlot != strategy.CloseSlot)
-                {   // RemoveSlot buttons
-                    abtnRemoveSlot[iSlot] = new Button();
-                    abtnRemoveSlot[iSlot].Parent = apnlSlot[iSlot];
-                    abtnRemoveSlot[iSlot].Tag    = iSlot;
-                    abtnRemoveSlot[iSlot].Cursor = Cursors.Arrow;
-                    abtnRemoveSlot[iSlot].BackgroundImage = Properties.Resources.close_button;
-                    abtnRemoveSlot[iSlot].UseVisualStyleBackColor = true;
-                    toolTip.SetToolTip(abtnRemoveSlot[iSlot], Language.T("Discard the logic condition."));
+            // Slot panels settings
+            for (int iSlot = 0; iSlot < _slots; iSlot++)
+            {
+                ApnlSlot[iSlot] = new Panel {Cursor = Cursors.Hand, Tag = iSlot, Margin = new Padding(0, 0, 0, Space)};
+                ApnlSlot[iSlot].Paint += PnlSlotPaint;
+                ApnlSlot[iSlot].Resize += PnlSlot_Resize;
+                _toolTip.SetToolTip(ApnlSlot[iSlot], _slotToolTipText);
+
+                if (iSlot != _strategy.OpenSlot && iSlot != _strategy.CloseSlot)
+                {
+                    // RemoveSlot buttons
+                    AbtnRemoveSlot[iSlot] = new Button
+                                                {
+                                                    Parent = ApnlSlot[iSlot],
+                                                    Tag = iSlot,
+                                                    Cursor = Cursors.Arrow,
+                                                    BackgroundImage = Resources.close_button,
+                                                    UseVisualStyleBackColor = true
+                                                };
+                    _toolTip.SetToolTip(AbtnRemoveSlot[iSlot], Language.T("Discard the logic condition."));
                 }
             }
 
             // Adds the controls to the flow layout
-            flowLayoutStrategy.Controls.Add(pnlProperties);
-            for (int iSlot = 0; iSlot < slots; iSlot++)
+            _flowLayoutStrategy.Controls.Add(PnlProperties);
+            for (int iSlot = 0; iSlot < _slots; iSlot++)
             {
-                if (bShowAddSlotButtons && iSlot == strategy.CloseSlot)
-                    flowLayoutStrategy.Controls.Add(btnAddOpenFilter);
-                flowLayoutStrategy.Controls.Add(apnlSlot[iSlot]);
+                if (iSlot == _strategy.CloseSlot)
+                    _flowLayoutStrategy.Controls.Add(BtnAddOpenFilter);
+                _flowLayoutStrategy.Controls.Add(ApnlSlot[iSlot]);
             }
-            if (bShowAddSlotButtons)
-            {
-                flowLayoutStrategy.Controls.Add(btnAddCloseFilter);
-                flowLayoutStrategy.Controls.Add(btnClosingFilterHelp);
-            }
-
-            return;
+            _flowLayoutStrategy.Controls.Add(BtnAddCloseFilter);
+            _flowLayoutStrategy.Controls.Add(_btnClosingFilterHelp);
         }
 
         /// <summary>
         /// Calculates the position of the controls
         /// </summary>
-        public void ArrangeStrategyControls()
+        private void ArrangeStrategyControls()
         {
-            int iWidth  = ClientSize.Width;
+            int iWidth = ClientSize.Width;
             int iHeight = ClientSize.Height;
             int iTotalHeight = PnlSlotCalculateTotalHeight(iWidth);
             if (iTotalHeight < iHeight)
             {
-                VScrollBarStrategy.Enabled = false;
-                VScrollBarStrategy.Visible = false;
+                _vScrollBarStrategy.Enabled = false;
+                _vScrollBarStrategy.Visible = false;
             }
             else
             {
-                iWidth       = ClientSize.Width - VScrollBarStrategy.Width;
+                iWidth = ClientSize.Width - _vScrollBarStrategy.Width;
                 iTotalHeight = PnlSlotCalculateTotalHeight(iWidth);
-                VScrollBarStrategy.Enabled     = true;
-                VScrollBarStrategy.Visible     = true;
-                VScrollBarStrategy.Value       = 0;
-                VScrollBarStrategy.SmallChange = 100;
-                VScrollBarStrategy.LargeChange = 200;
-                VScrollBarStrategy.Maximum     = Math.Max(iTotalHeight - iHeight + 220, 0);
-                VScrollBarStrategy.Location    = new Point(iWidth, 0);
-                VScrollBarStrategy.Height      = iHeight;
+                _vScrollBarStrategy.Enabled = true;
+                _vScrollBarStrategy.Visible = true;
+                _vScrollBarStrategy.Value = 0;
+                _vScrollBarStrategy.SmallChange = 100;
+                _vScrollBarStrategy.LargeChange = 200;
+                _vScrollBarStrategy.Maximum = Math.Max(iTotalHeight - iHeight + 220, 0);
+                _vScrollBarStrategy.Location = new Point(iWidth, 0);
+                _vScrollBarStrategy.Height = iHeight;
             }
 
-            flowLayoutStrategy.Location = Point.Empty;
-            flowLayoutStrategy.Width    = iWidth;
-            flowLayoutStrategy.Height   = iTotalHeight;
+            _flowLayoutStrategy.Location = Point.Empty;
+            _flowLayoutStrategy.Width = iWidth;
+            _flowLayoutStrategy.Height = iTotalHeight;
 
             // Strategy properties panel size
-            int iPnlPropertiesWidth  = flowLayoutStrategy.ClientSize.Width;
-            int iPnlPropertiesHeight = PnlPropertiesCalculateHeight(iPnlPropertiesWidth);
-            pnlProperties.Size = new Size(iPnlPropertiesWidth, iPnlPropertiesHeight);
+            int iPnlPropertiesWidth = _flowLayoutStrategy.ClientSize.Width;
+            int iPnlPropertiesHeight = PnlPropertiesCalculateHeight();
+            PnlProperties.Size = new Size(iPnlPropertiesWidth, iPnlPropertiesHeight);
 
             // Sets the strategy slots size
-            for (int iSlot = 0; iSlot < slots; iSlot++)
+            for (int iSlot = 0; iSlot < _slots; iSlot++)
             {
-                int iStrWidth  = flowLayoutStrategy.ClientSize.Width;
+                int iStrWidth = _flowLayoutStrategy.ClientSize.Width;
                 int iStrHeight = PnlSlotCalculateHeight(iSlot, iStrWidth);
-                apnlSlot[iSlot].Size = new Size(iStrWidth, iStrHeight);
+                ApnlSlot[iSlot].Size = new Size(iStrWidth, iStrHeight);
             }
 
-            if (bShowAddSlotButtons)
-            {
-                int iButtonWidth  = flowLayoutStrategy.ClientSize.Width - 60;
-                int iButtonHeight = (int)(Font.Height * 1.7);
-                btnAddOpenFilter.Size     = new Size(iButtonWidth, iButtonHeight);
-                btnAddCloseFilter.Size    = new Size(iButtonWidth, iButtonHeight);
-                btnClosingFilterHelp.Size = new Size(iButtonHeight - 4, iButtonHeight - 4);
-            }
-
-            return;
+            int iButtonWidth = _flowLayoutStrategy.ClientSize.Width - 60;
+            var iButtonHeight = (int) (Font.Height*1.7);
+            BtnAddOpenFilter.Size = new Size(iButtonWidth, iButtonHeight);
+            BtnAddCloseFilter.Size = new Size(iButtonWidth, iButtonHeight);
+            _btnClosingFilterHelp.Size = new Size(iButtonHeight - 4, iButtonHeight - 4);
         }
 
         /// <summary>
         /// Sets add new slot buttons
         /// </summary>
-        protected void SetAddSlotButtons()
+        private void SetAddSlotButtons()
         {
             // Shows or not btnAddOpenFilter
-            btnAddOpenFilter.Enabled = strategy.OpenFilters < Strategy.MaxOpenFilters;
+            BtnAddOpenFilter.Enabled = _strategy.OpenFilters < Strategy.MaxOpenFilters;
 
-            bool isClosingFiltersAllowed = Indicator_Store.ClosingIndicatorsWithClosingFilters.Contains(strategy.Slot[strategy.CloseSlot].IndicatorName);
+            bool isClosingFiltersAllowed =
+                IndicatorStore.ClosingIndicatorsWithClosingFilters.Contains(
+                    _strategy.Slot[_strategy.CloseSlot].IndicatorName);
 
             // Shows or not btnAddCloseFilter
-            btnAddCloseFilter.Enabled = (strategy.CloseFilters < Strategy.MaxCloseFilters && isClosingFiltersAllowed);
+            BtnAddCloseFilter.Enabled = (_strategy.CloseFilters < Strategy.MaxCloseFilters && isClosingFiltersAllowed);
 
             // Shows or not btnClosingFilterHelp
-            btnClosingFilterHelp.Visible = !isClosingFiltersAllowed;
-
-            return;
+            _btnClosingFilterHelp.Visible = !isClosingFiltersAllowed;
         }
 
         /// <summary>
         /// The Scrolling moves the flowLayout
-        /// <summary>
-        void VScrollBarStrategy_Scroll(object sender, ScrollEventArgs e)
+        /// </summary>
+        private void VScrollBarStrategyScroll(object sender, ScrollEventArgs e)
         {
-            VScrollBar vscroll = (VScrollBar)sender;
-            flowLayoutStrategy.Location = new Point(0, -vscroll.Value);
+            var vscroll = (VScrollBar) sender;
+            _flowLayoutStrategy.Location = new Point(0, -vscroll.Value);
         }
 
         /// <summary>
@@ -269,14 +238,14 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public void RebuildStrategyControls(Strategy strategy)
         {
-            this.strategy = strategy;
-            slots = strategy.Slots;
-            flowLayoutStrategy.SuspendLayout();
-            flowLayoutStrategy.Controls.Clear();
+            _strategy = strategy;
+            _slots = strategy.Slots;
+            _flowLayoutStrategy.SuspendLayout();
+            _flowLayoutStrategy.Controls.Clear();
             InitializeStrategySlots();
             ArrangeStrategyControls();
-            if (bShowAddSlotButtons) SetAddSlotButtons();
-            flowLayoutStrategy.ResumeLayout();
+            SetAddSlotButtons();
+            _flowLayoutStrategy.ResumeLayout();
         }
 
         /// <summary>
@@ -284,9 +253,9 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public void RearangeStrategyControls()
         {
-            flowLayoutStrategy.SuspendLayout();
+            _flowLayoutStrategy.SuspendLayout();
             ArrangeStrategyControls();
-            flowLayoutStrategy.ResumeLayout();
+            _flowLayoutStrategy.ResumeLayout();
         }
 
         /// <summary>
@@ -295,70 +264,72 @@ namespace Forex_Strategy_Trader
         /// <param name="strategy">The strategy</param>
         public void RepaintStrategyControls(Strategy strategy)
         {
-            this.strategy = strategy;
-            slots = strategy.Slots;
-            foreach (Panel pnl in apnlSlot)
+            _strategy = strategy;
+            _slots = strategy.Slots;
+            foreach (Panel pnl in ApnlSlot)
                 pnl.Invalidate();
-            pnlProperties.Invalidate();
+            PnlProperties.Invalidate();
         }
 
         /// <summary>
         /// Panel Strategy Resize
         /// </summary>
-        void PnlSlot_Resize(object sender, EventArgs e)
+        private void PnlSlot_Resize(object sender, EventArgs e)
         {
-            Panel pnl = (Panel)sender;
+            var pnl = (Panel) sender;
             pnl.Invalidate();
         }
 
         /// <summary>
         /// Calculates the height of the Panel Slot
         /// </summary>
-        int PnlSlotCalculateHeight(int slot, int width)
+        private int PnlSlotCalculateHeight(int slot, int width)
         {
-            Font fontCaption = new Font(Font.FontFamily, 9f);
-            int  iVPosition  = (int)Math.Max(fontCaption.Height, 18) + 3;
+            var fontCaption = new Font(Font.FontFamily, 9f);
+            int iVPosition = Math.Max(fontCaption.Height, 18) + 3;
 
-            Font fontIndicator = new Font(Font.FontFamily, 11f);
+            var fontIndicator = new Font(Font.FontFamily, 11f);
             iVPosition += fontIndicator.Height;
 
-            if (slotMinMidMax == SlotSizeMinMidMax.min)
+            if (_slotMinMidMax == SlotSizeMinMidMax.Min)
                 return iVPosition + 5;
 
             // Calculate the height of Logic string
-            if (strategy.Slot[slot].IndParam.ListParam[0].Enabled)
+            if (_strategy.Slot[slot].IndParam.ListParam[0].Enabled)
             {
                 Graphics g = CreateGraphics();
-                float fPadding = space;
+                const float fPadding = Space;
 
-                StringFormat stringFormatLogic  = new StringFormat();
-                stringFormatLogic.Alignment     = StringAlignment.Center;
-                stringFormatLogic.LineAlignment = StringAlignment.Center;
-                stringFormatLogic.Trimming      = StringTrimming.EllipsisCharacter;
-                stringFormatLogic.FormatFlags   = StringFormatFlags.NoClip;
+                var stringFormatLogic = new StringFormat
+                                            {
+                                                Alignment = StringAlignment.Center,
+                                                LineAlignment = StringAlignment.Center,
+                                                Trimming = StringTrimming.EllipsisCharacter,
+                                                FormatFlags = StringFormatFlags.NoClip
+                                            };
 
-                string sValue = strategy.Slot[slot].IndParam.ListParam[0].Text;
-                Font  fontLogic = new Font(Font.FontFamily, 10.5f, FontStyle.Regular);
-                SizeF sizeValue = g.MeasureString(sValue, fontLogic, (int)(width - 2 * fPadding), stringFormatLogic);
-                iVPosition += (int)sizeValue.Height;
+                string sValue = _strategy.Slot[slot].IndParam.ListParam[0].Text;
+                var fontLogic = new Font(Font.FontFamily, 10.5f, FontStyle.Regular);
+                SizeF sizeValue = g.MeasureString(sValue, fontLogic, (int) (width - 2*fPadding), stringFormatLogic);
+                iVPosition += (int) sizeValue.Height;
                 g.Dispose();
             }
 
-            if (slotMinMidMax == SlotSizeMinMidMax.mid)
+            if (_slotMinMidMax == SlotSizeMinMidMax.Mid)
                 return iVPosition + 6;
 
-            Font fontParam = new Font(Font.FontFamily, 9f, FontStyle.Regular);
+            var fontParam = new Font(Font.FontFamily, 9f, FontStyle.Regular);
 
             // List Params
             for (int i = 1; i < 5; i++)
-                iVPosition += strategy.Slot[slot].IndParam.ListParam[i].Enabled ? fontParam.Height : 0;
+                iVPosition += _strategy.Slot[slot].IndParam.ListParam[i].Enabled ? fontParam.Height : 0;
 
             // NumericParam
-            foreach (NumericParam nump in strategy.Slot[slot].IndParam.NumParam)
+            foreach (NumericParam nump in _strategy.Slot[slot].IndParam.NumParam)
                 iVPosition += nump.Enabled ? fontParam.Height : 0;
 
             // CheckParam
-            foreach (CheckParam checkp in strategy.Slot[slot].IndParam.CheckParam)
+            foreach (CheckParam checkp in _strategy.Slot[slot].IndParam.CheckParam)
                 iVPosition += checkp.Enabled ? fontParam.Height : 0;
 
             iVPosition += 10;
@@ -369,19 +340,17 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Calculates the height of the Averaging Panel
         /// </summary>
-        int PnlPropertiesCalculateHeight(int width)
+        private int PnlPropertiesCalculateHeight()
         {
-            width -= 2; // the width of the border
+            var fontCaption = new Font(Font.FontFamily, 9f);
+            int iVPosition = Math.Max(fontCaption.Height, 18) + 3;
 
-            Font fontCaption = new Font(Font.FontFamily, 9f);
-            int  iVPosition  = (int)Math.Max(fontCaption.Height, 18) + 3;
+            var fontAveraging = new Font(Font.FontFamily, 9f);
 
-            Font fontAveraging = new Font(Font.FontFamily, 9f);
-
-            if (slotMinMidMax == SlotSizeMinMidMax.min)
+            if (_slotMinMidMax == SlotSizeMinMidMax.Min)
                 iVPosition += fontAveraging.Height;
             else
-                iVPosition += 5 * fontAveraging.Height + 5;
+                iVPosition += 5*fontAveraging.Height + 5;
 
             return iVPosition + 8;
         }
@@ -389,17 +358,16 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Calculates the total height of the Panel Slot
         /// </summary>
-        int PnlSlotCalculateTotalHeight(int width)
+        private int PnlSlotCalculateTotalHeight(int width)
         {
             int iTotalHeight = 0;
 
-            for (int iSlot = 0; iSlot < slots; iSlot++)
-                iTotalHeight += space + PnlSlotCalculateHeight(iSlot, width);
+            for (int iSlot = 0; iSlot < _slots; iSlot++)
+                iTotalHeight += Space + PnlSlotCalculateHeight(iSlot, width);
 
-            if (bShowAddSlotButtons)
-                iTotalHeight += 2 * btnAddCloseFilter.Height + space;
+            iTotalHeight += 2*BtnAddCloseFilter.Height + Space;
 
-            iTotalHeight += space + PnlPropertiesCalculateHeight(width);
+            iTotalHeight += Space + PnlPropertiesCalculateHeight();
 
             return iTotalHeight;
         }
@@ -407,29 +375,29 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Panel Slot Paint
         /// </summary>
-        void PnlSlot_Paint(object sender, PaintEventArgs e)
+        private void PnlSlotPaint(object sender, PaintEventArgs e)
         {
-            Panel     pnl      = (Panel)sender;
-            Graphics  g        = e.Graphics;
-            int       iSlot    = (int)pnl.Tag;
-            int       iWidth   = pnl.ClientSize.Width;
-            SlotTypes slotType = strategy.GetSlotType(iSlot);
+            var pnl = (Panel) sender;
+            Graphics g = e.Graphics;
+            var iSlot = (int) pnl.Tag;
+            int iWidth = pnl.ClientSize.Width;
+            SlotTypes slotType = _strategy.GetSlotType(iSlot);
 
-            Color colorBackground             = LayoutColors.ColorSlotBackground;
-            Color colorCaptionText            = LayoutColors.ColorSlotCaptionText;
-            Color colorCaptionBackOpen        = LayoutColors.ColorSlotCaptionBackOpen;
-            Color colorCaptionBackOpenFilter  = LayoutColors.ColorSlotCaptionBackOpenFilter;
-            Color colorCaptionBackClose       = LayoutColors.ColorSlotCaptionBackClose;
+            Color colorBackground = LayoutColors.ColorSlotBackground;
+            Color colorCaptionText = LayoutColors.ColorSlotCaptionText;
+            Color colorCaptionBackOpen = LayoutColors.ColorSlotCaptionBackOpen;
+            Color colorCaptionBackOpenFilter = LayoutColors.ColorSlotCaptionBackOpenFilter;
+            Color colorCaptionBackClose = LayoutColors.ColorSlotCaptionBackClose;
             Color colorCaptionBackCloseFilter = LayoutColors.ColorSlotCaptionBackCloseFilter;
-            Color colorIndicatorNameText      = LayoutColors.ColorSlotIndicatorText;
-            Color colorLogicText              = LayoutColors.ColorSlotLogicText;
-            Color colorParamText              = LayoutColors.ColorSlotParamText;
-            Color colorValueText              = LayoutColors.ColorSlotValueText;
-            Color colorDash                   = LayoutColors.ColorSlotDash;
+            Color colorIndicatorNameText = LayoutColors.ColorSlotIndicatorText;
+            Color colorLogicText = LayoutColors.ColorSlotLogicText;
+            Color colorParamText = LayoutColors.ColorSlotParamText;
+            Color colorValueText = LayoutColors.ColorSlotValueText;
+            Color colorDash = LayoutColors.ColorSlotDash;
 
             // Caption
             string stringCaptionText = string.Empty;
-            Color  colorCaptionBack  = LayoutColors.ColorSignalRed;
+            Color colorCaptionBack = LayoutColors.ColorSignalRed;
 
             switch (slotType)
             {
@@ -449,36 +417,36 @@ namespace Forex_Strategy_Trader
                     stringCaptionText = Language.T("Closing Logic Condition");
                     colorCaptionBack = colorCaptionBackCloseFilter;
                     break;
-                default:
-                    break;
             }
 
-            Pen penBorder = new Pen(Data.ColorChanage(colorCaptionBack, -LayoutColors.DepthCaption), border);
+            var penBorder = new Pen(Data.ColorChanage(colorCaptionBack, -LayoutColors.DepthCaption), Border);
 
-            Font  fontCaptionText  = new Font(Font.FontFamily, 9);
-            float fCaptionHeight   = (float)Math.Max(fontCaptionText.Height, 18);
-            float fCaptionWidth    = iWidth;
+            var fontCaptionText = new Font(Font.FontFamily, 9);
+            float fCaptionHeight = Math.Max(fontCaptionText.Height, 18);
+            float fCaptionWidth = iWidth;
             Brush brushCaptionText = new SolidBrush(colorCaptionText);
-            StringFormat stringFormatCaption  = new StringFormat();
-            stringFormatCaption.LineAlignment = StringAlignment.Center;
-            stringFormatCaption.Trimming      = StringTrimming.EllipsisCharacter;
-            stringFormatCaption.FormatFlags   = StringFormatFlags.NoWrap;
-            stringFormatCaption.Alignment     = StringAlignment.Center;
+            var stringFormatCaption = new StringFormat
+                                          {
+                                              LineAlignment = StringAlignment.Center,
+                                              Trimming = StringTrimming.EllipsisCharacter,
+                                              FormatFlags = StringFormatFlags.NoWrap,
+                                              Alignment = StringAlignment.Center
+                                          };
 
-            RectangleF rectfCaption = new RectangleF(0, 0, fCaptionWidth, fCaptionHeight);
+            var rectfCaption = new RectangleF(0, 0, fCaptionWidth, fCaptionHeight);
             Data.GradientPaint(g, rectfCaption, colorCaptionBack, LayoutColors.DepthCaption);
 
-            if (bShowRemoveSlotButtons && iSlot != strategy.OpenSlot && iSlot != strategy.CloseSlot)
+            if (iSlot != _strategy.OpenSlot && iSlot != _strategy.CloseSlot)
             {
-                int iButtonDimentions = (int)fCaptionHeight - 2;
+                int iButtonDimentions = (int) fCaptionHeight - 2;
                 int iButtonX = iWidth - iButtonDimentions - 1;
-                abtnRemoveSlot[iSlot].Size     = new Size(iButtonDimentions, iButtonDimentions);
-                abtnRemoveSlot[iSlot].Location = new Point(iButtonX, 1);
+                AbtnRemoveSlot[iSlot].Size = new Size(iButtonDimentions, iButtonDimentions);
+                AbtnRemoveSlot[iSlot].Location = new Point(iButtonX, 1);
 
-                float  fCaptionTextWidth = g.MeasureString(stringCaptionText, fontCaptionText).Width;
-                float  fCaptionTextX     = (float)Math.Max((fCaptionWidth - fCaptionTextWidth) / 2f, 0);
-                PointF pfCaptionText     = new PointF(fCaptionTextX, 0);
-                SizeF  sfCaptionText     = new SizeF(iButtonX - fCaptionTextX, fCaptionHeight);
+                float fCaptionTextWidth = g.MeasureString(stringCaptionText, fontCaptionText).Width;
+                float fCaptionTextX = Math.Max((fCaptionWidth - fCaptionTextWidth)/2f, 0);
+                var pfCaptionText = new PointF(fCaptionTextX, 0);
+                var sfCaptionText = new SizeF(iButtonX - fCaptionTextX, fCaptionHeight);
                 rectfCaption = new RectangleF(pfCaptionText, sfCaptionText);
                 stringFormatCaption.Alignment = StringAlignment.Near;
             }
@@ -486,82 +454,84 @@ namespace Forex_Strategy_Trader
 
             // Border
             g.DrawLine(penBorder, 1, fCaptionHeight, 1, pnl.Height);
-            g.DrawLine(penBorder, pnl.Width - border + 1, fCaptionHeight, pnl.Width - border + 1, pnl.Height);
-            g.DrawLine(penBorder, 0, pnl.Height - border + 1, pnl.Width, pnl.Height - border + 1);
+            g.DrawLine(penBorder, pnl.Width - Border + 1, fCaptionHeight, pnl.Width - Border + 1, pnl.Height);
+            g.DrawLine(penBorder, 0, pnl.Height - Border + 1, pnl.Width, pnl.Height - Border + 1);
 
             // Paints the panel
-            RectangleF rectfPanel = new RectangleF(border, fCaptionHeight, pnl.Width - 2 * border, pnl.Height - fCaptionHeight - border);
+            var rectfPanel = new RectangleF(Border, fCaptionHeight, pnl.Width - 2*Border,
+                                            pnl.Height - fCaptionHeight - Border);
             Data.GradientPaint(g, rectfPanel, colorBackground, LayoutColors.DepthControl);
 
-            int iVPosition = (int)fCaptionHeight + 3;
+            int iVPosition = (int) fCaptionHeight + 3;
 
             // Indicator name
-            StringFormat stringFormatIndicatorName  = new StringFormat();
-            stringFormatIndicatorName.Alignment     = StringAlignment.Center;
-            stringFormatIndicatorName.LineAlignment = StringAlignment.Center;
-            stringFormatIndicatorName.Trimming      = StringTrimming.EllipsisCharacter;
-            stringFormatIndicatorName.FormatFlags   = StringFormatFlags.NoWrap;
-            string     sIndicatorName = strategy.Slot[iSlot].IndicatorName;
-            Font       fontIndicator  = new Font(Font.FontFamily, 11f, FontStyle.Regular);
-            Brush      brushIndName   = new SolidBrush(colorIndicatorNameText);
-            float      fIndNameHeight = fontIndicator.Height;
-            float  fGroupWidth    = 0;
+            var stringFormatIndicatorName = new StringFormat
+                                                {
+                                                    Alignment = StringAlignment.Center,
+                                                    LineAlignment = StringAlignment.Center,
+                                                    Trimming = StringTrimming.EllipsisCharacter,
+                                                    FormatFlags = StringFormatFlags.NoWrap
+                                                };
+            string sIndicatorName = _strategy.Slot[iSlot].IndicatorName;
+            var fontIndicator = new Font(Font.FontFamily, 11f, FontStyle.Regular);
+            Brush brushIndName = new SolidBrush(colorIndicatorNameText);
+            float fIndNameHeight = fontIndicator.Height;
+            float fGroupWidth = 0;
             if (Configs.UseLogicalGroups && (slotType == SlotTypes.OpenFilter || slotType == SlotTypes.CloseFilter))
             {
-                string sLogicalGroup = "[" + strategy.Slot[iSlot].LogicalGroup + "]";
+                string sLogicalGroup = "[" + _strategy.Slot[iSlot].LogicalGroup + "]";
                 fGroupWidth = g.MeasureString(sLogicalGroup, fontIndicator).Width;
-                RectangleF rectGroup = new RectangleF(0, iVPosition, fGroupWidth, fIndNameHeight);
+                var rectGroup = new RectangleF(0, iVPosition, fGroupWidth, fIndNameHeight);
                 g.DrawString(sLogicalGroup, fontIndicator, brushIndName, rectGroup, stringFormatIndicatorName);
             }
             stringFormatIndicatorName.Trimming = StringTrimming.EllipsisCharacter;
-            float  fIndicatorWidth = g.MeasureString(sIndicatorName, fontIndicator).Width;
+            float fIndicatorWidth = g.MeasureString(sIndicatorName, fontIndicator).Width;
 
-            RectangleF rectIndName;
-            if (iWidth >= 2 * fGroupWidth + fIndicatorWidth)
-                rectIndName = new RectangleF(0, iVPosition, iWidth, fIndNameHeight);
-            else
-                rectIndName = new RectangleF(fGroupWidth, iVPosition, iWidth - fGroupWidth, fIndNameHeight);
+            RectangleF rectIndName = iWidth >= 2*fGroupWidth + fIndicatorWidth
+                                         ? new RectangleF(0, iVPosition, iWidth, fIndNameHeight)
+                                         : new RectangleF(fGroupWidth, iVPosition, iWidth - fGroupWidth, fIndNameHeight);
 
             g.DrawString(sIndicatorName, fontIndicator, brushIndName, rectIndName, stringFormatIndicatorName);
-            iVPosition += (int)fIndNameHeight;
+            iVPosition += (int) fIndNameHeight;
 
-            if (slotMinMidMax == SlotSizeMinMidMax.min)
+            if (_slotMinMidMax == SlotSizeMinMidMax.Min)
                 return;
 
             // Logic
-            StringFormat stringFormatLogic  = new StringFormat();
-            stringFormatLogic.Alignment     = StringAlignment.Center;
-            stringFormatLogic.LineAlignment = StringAlignment.Center;
-            stringFormatLogic.Trimming      = StringTrimming.EllipsisCharacter;
-            stringFormatLogic.FormatFlags   = StringFormatFlags.NoClip;
+            var stringFormatLogic = new StringFormat
+                                        {
+                                            Alignment = StringAlignment.Center,
+                                            LineAlignment = StringAlignment.Center,
+                                            Trimming = StringTrimming.EllipsisCharacter,
+                                            FormatFlags = StringFormatFlags.NoClip
+                                        };
 
-            float fPadding = space;
+            float fPadding = Space;
 
-            if (strategy.Slot[iSlot].IndParam.ListParam[0].Enabled)
+            if (_strategy.Slot[iSlot].IndParam.ListParam[0].Enabled)
             {
-                string     sValue     = strategy.Slot[iSlot].IndParam.ListParam[0].Text;
-                Font       fontLogic  = new Font(Font.FontFamily, 10.5f, FontStyle.Regular);
-                SizeF      sizeValue  = g.MeasureString(sValue, fontLogic, (int)(iWidth - 2 * fPadding), stringFormatLogic);
-                RectangleF rectValue  = new RectangleF(fPadding, iVPosition, iWidth - 2 * fPadding, sizeValue.Height);
-                Brush      brushLogic = new SolidBrush(colorLogicText);
+                string sValue = _strategy.Slot[iSlot].IndParam.ListParam[0].Text;
+                var fontLogic = new Font(Font.FontFamily, 10.5f, FontStyle.Regular);
+                SizeF sizeValue = g.MeasureString(sValue, fontLogic, (int) (iWidth - 2*fPadding), stringFormatLogic);
+                var rectValue = new RectangleF(fPadding, iVPosition, iWidth - 2*fPadding, sizeValue.Height);
+                Brush brushLogic = new SolidBrush(colorLogicText);
 
                 g.DrawString(sValue, fontLogic, brushLogic, rectValue, stringFormatLogic);
-                iVPosition += (int)sizeValue.Height;
+                iVPosition += (int) sizeValue.Height;
             }
 
-            if (slotMinMidMax == SlotSizeMinMidMax.mid)
+            if (_slotMinMidMax == SlotSizeMinMidMax.Mid)
                 return;
 
             // Parameters
-            StringFormat stringFormat = new StringFormat();
-            stringFormat.Trimming     = StringTrimming.EllipsisCharacter;
-            stringFormat.FormatFlags  = StringFormatFlags.NoWrap;
+            var stringFormat = new StringFormat
+                                   {Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap};
 
-            Font  fontParam  = new Font(Font.FontFamily, 9f, FontStyle.Regular);
-            Font  fontValue  = new Font(Font.FontFamily, 9f, FontStyle.Regular);
+            var fontParam = new Font(Font.FontFamily, 9f, FontStyle.Regular);
+            var fontValue = new Font(Font.FontFamily, 9f, FontStyle.Regular);
             Brush brushParam = new SolidBrush(colorParamText);
             Brush brushValue = new SolidBrush(colorValueText);
-            Pen   penDash    = new Pen(colorDash);
+            var penDash = new Pen(colorDash);
 
             // Find Maximum width of the strings
             float fMaxParamWidth = 0;
@@ -569,11 +539,11 @@ namespace Forex_Strategy_Trader
 
             for (int i = 1; i < 5; i++)
             {
-                if (!strategy.Slot[iSlot].IndParam.ListParam[i].Enabled)
+                if (!_strategy.Slot[iSlot].IndParam.ListParam[i].Enabled)
                     continue;
 
-                string sParam = strategy.Slot[iSlot].IndParam.ListParam[i].Caption;
-                string sValue = strategy.Slot[iSlot].IndParam.ListParam[i].Text;
+                string sParam = _strategy.Slot[iSlot].IndParam.ListParam[i].Caption;
+                string sValue = _strategy.Slot[iSlot].IndParam.ListParam[i].Text;
                 SizeF sizeParam = g.MeasureString(sParam, fontParam);
                 SizeF sizeValue = g.MeasureString(sValue, fontValue);
 
@@ -584,7 +554,7 @@ namespace Forex_Strategy_Trader
                     fMaxValueWidth = sizeValue.Width;
             }
 
-            foreach (NumericParam numericParam in strategy.Slot[iSlot].IndParam.NumParam)
+            foreach (NumericParam numericParam in _strategy.Slot[iSlot].IndParam.NumParam)
             {
                 if (!numericParam.Enabled) continue;
 
@@ -600,7 +570,7 @@ namespace Forex_Strategy_Trader
                     fMaxValueWidth = sizeValue.Width;
             }
 
-            foreach (CheckParam checkParam in strategy.Slot[iSlot].IndParam.CheckParam)
+            foreach (CheckParam checkParam in _strategy.Slot[iSlot].IndParam.CheckParam)
             {
                 if (!checkParam.Enabled) continue;
 
@@ -617,36 +587,31 @@ namespace Forex_Strategy_Trader
             }
 
             // Padding Param Padding Dash Padding Value Padding 
-            float fDashWidth = 5;
-            float fNecessaryWidth = 4 * fPadding + fMaxParamWidth + fMaxValueWidth + fDashWidth;
+            const float fDashWidth = 5;
+            float fNecessaryWidth = 4*fPadding + fMaxParamWidth + fMaxValueWidth + fDashWidth;
 
-            if (iWidth > fNecessaryWidth)
-            {   // 2*Padding Param Padding Dash Padding Value 2*Padding 
-                fPadding = (float)Math.Max((pnl.ClientSize.Width - fMaxParamWidth - fMaxValueWidth - fDashWidth) / 6, fPadding);
-            }
-            else
-            {
-                fPadding = 2;
-            }
+            fPadding = iWidth > fNecessaryWidth
+                           ? Math.Max((pnl.ClientSize.Width - fMaxParamWidth - fMaxValueWidth - fDashWidth)/6, fPadding)
+                           : 2;
 
-            float fTabParam = 2 * fPadding;
-            float fTabDash  = fTabParam + fMaxParamWidth + fPadding;
+            float fTabParam = 2*fPadding;
+            float fTabDash = fTabParam + fMaxParamWidth + fPadding;
             float fTabValue = fTabDash + fDashWidth + fPadding;
 
             // List Params
             for (int i = 1; i < 5; i++)
             {
-                if (!strategy.Slot[iSlot].IndParam.ListParam[i].Enabled)
+                if (!_strategy.Slot[iSlot].IndParam.ListParam[i].Enabled)
                     continue;
 
-                string sParam = strategy.Slot[iSlot].IndParam.ListParam[i].Caption;
-                string sValue = strategy.Slot[iSlot].IndParam.ListParam[i].Text;
-                PointF pointParam = new PointF(fTabParam, iVPosition);
-                PointF pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height / 2 + 2);
-                PointF pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height / 2 + 2);
-                PointF pointValue = new PointF(fTabValue, iVPosition);
-                SizeF  sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
-                RectangleF rectfValue = new RectangleF(pointValue, sizefValue);
+                string sParam = _strategy.Slot[iSlot].IndParam.ListParam[i].Caption;
+                string sValue = _strategy.Slot[iSlot].IndParam.ListParam[i].Text;
+                var pointParam = new PointF(fTabParam, iVPosition);
+                var pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height/2 + 2);
+                var pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height/2 + 2);
+                var pointValue = new PointF(fTabValue, iVPosition);
+                var sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
+                var rectfValue = new RectangleF(pointValue, sizefValue);
 
                 g.DrawString(sParam, fontParam, brushParam, pointParam);
                 g.DrawLine(penDash, pointDash1, pointDash2);
@@ -655,18 +620,18 @@ namespace Forex_Strategy_Trader
             }
 
             // Num Params
-            foreach (NumericParam numericParam in strategy.Slot[iSlot].IndParam.NumParam)
+            foreach (NumericParam numericParam in _strategy.Slot[iSlot].IndParam.NumParam)
             {
                 if (!numericParam.Enabled) continue;
 
                 string sParam = numericParam.Caption;
                 string sValue = numericParam.ValueToString;
-                PointF pointParam = new PointF(fTabParam, iVPosition);
-                PointF pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height / 2 + 2);
-                PointF pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height / 2 + 2);
-                PointF pointValue = new PointF(fTabValue, iVPosition);
-                SizeF  sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
-                RectangleF rectfValue = new RectangleF(pointValue, sizefValue);
+                var pointParam = new PointF(fTabParam, iVPosition);
+                var pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height/2 + 2);
+                var pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height/2 + 2);
+                var pointValue = new PointF(fTabValue, iVPosition);
+                var sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
+                var rectfValue = new RectangleF(pointValue, sizefValue);
 
                 g.DrawString(sParam, fontParam, brushParam, pointParam);
                 g.DrawLine(penDash, pointDash1, pointDash2);
@@ -675,134 +640,135 @@ namespace Forex_Strategy_Trader
             }
 
             // Check Params
-            foreach (CheckParam checkParam in strategy.Slot[iSlot].IndParam.CheckParam)
+            foreach (CheckParam checkParam in _strategy.Slot[iSlot].IndParam.CheckParam)
             {
                 if (!checkParam.Enabled) continue;
 
                 string sParam = checkParam.Caption;
                 string sValue = checkParam.Checked ? "Yes" : "No";
-                PointF pointParam = new PointF(fTabParam, iVPosition);
-                PointF pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height / 2 + 2);
-                PointF pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height / 2 + 2);
-                PointF pointValue = new PointF(fTabValue, iVPosition);
-                SizeF  sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
-                RectangleF rectfValue = new RectangleF(pointValue, sizefValue);
+                var pointParam = new PointF(fTabParam, iVPosition);
+                var pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height/2 + 2);
+                var pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height/2 + 2);
+                var pointValue = new PointF(fTabValue, iVPosition);
+                var sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
+                var rectfValue = new RectangleF(pointValue, sizefValue);
 
                 g.DrawString(sParam, fontParam, brushParam, pointParam);
                 g.DrawLine(penDash, pointDash1, pointDash2);
                 g.DrawString(sValue, fontValue, brushValue, rectfValue, stringFormat);
                 iVPosition += fontValue.Height;
             }
-
-            return;
         }
 
         /// <summary>
         /// Panel properties Paint
         /// </summary>
-        void PnlProperties_Paint(object sender, PaintEventArgs e)
+        private void PnlPropertiesPaint(object sender, PaintEventArgs e)
         {
-            Panel pnl = (Panel)sender;
+            var pnl = (Panel) sender;
             Graphics g = e.Graphics;
             int iWidth = pnl.ClientSize.Width;
 
             Color colorCaptionBack = LayoutColors.ColorSlotCaptionBackAveraging;
             Color colorCaptionText = LayoutColors.ColorSlotCaptionText;
-            Color colorBackground  = LayoutColors.ColorSlotBackground;
-            Color colorLogicText   = LayoutColors.ColorSlotLogicText;
-            Color colorDash        = LayoutColors.ColorSlotDash;
+            Color colorBackground = LayoutColors.ColorSlotBackground;
+            Color colorLogicText = LayoutColors.ColorSlotLogicText;
+            Color colorDash = LayoutColors.ColorSlotDash;
 
             // Caption
             string stringCaptionText = Language.T("Strategy Properties");
-            Font   fontCaptionText   = new Font(Font.FontFamily, 9);
-            float  fCaptionHeight    = (float)Math.Max(fontCaptionText.Height, 18);
-            float  fCaptionWidth     = iWidth;
-            Brush  brushCaptionText  = new SolidBrush(colorCaptionText);
-            StringFormat stringFormatCaption  = new StringFormat();
-            stringFormatCaption.LineAlignment = StringAlignment.Center;
-            stringFormatCaption.Trimming      = StringTrimming.EllipsisCharacter;
-            stringFormatCaption.FormatFlags   = StringFormatFlags.NoWrap;
-            stringFormatCaption.Alignment     = StringAlignment.Center;
+            var fontCaptionText = new Font(Font.FontFamily, 9);
+            float fCaptionHeight = Math.Max(fontCaptionText.Height, 18);
+            float fCaptionWidth = iWidth;
+            Brush brushCaptionText = new SolidBrush(colorCaptionText);
+            var stringFormatCaption = new StringFormat
+                                          {
+                                              LineAlignment = StringAlignment.Center,
+                                              Trimming = StringTrimming.EllipsisCharacter,
+                                              FormatFlags = StringFormatFlags.NoWrap,
+                                              Alignment = StringAlignment.Center
+                                          };
 
-            RectangleF rectfCaption = new RectangleF(0, 0, fCaptionWidth, fCaptionHeight);
+            var rectfCaption = new RectangleF(0, 0, fCaptionWidth, fCaptionHeight);
             Data.GradientPaint(g, rectfCaption, colorCaptionBack, LayoutColors.DepthCaption);
             g.DrawString(stringCaptionText, fontCaptionText, brushCaptionText, rectfCaption, stringFormatCaption);
 
             // Border
-            Pen penBorder = new Pen(Data.ColorChanage(colorCaptionBack, -LayoutColors.DepthCaption), border);
+            var penBorder = new Pen(Data.ColorChanage(colorCaptionBack, -LayoutColors.DepthCaption), Border);
             g.DrawLine(penBorder, 1, fCaptionHeight, 1, pnl.Height);
-            g.DrawLine(penBorder, pnl.Width - border + 1, fCaptionHeight, pnl.Width - border + 1, pnl.Height);
-            g.DrawLine(penBorder, 0, pnl.Height - border + 1, pnl.Width, pnl.Height - border + 1);
+            g.DrawLine(penBorder, pnl.Width - Border + 1, fCaptionHeight, pnl.Width - Border + 1, pnl.Height);
+            g.DrawLine(penBorder, 0, pnl.Height - Border + 1, pnl.Width, pnl.Height - Border + 1);
 
             // Paint the panel's background
-            RectangleF rectfPanel = new RectangleF(border, fCaptionHeight, pnl.Width - 2 * border, pnl.Height - fCaptionHeight - border);
+            var rectfPanel = new RectangleF(Border, fCaptionHeight, pnl.Width - 2*Border,
+                                            pnl.Height - fCaptionHeight - Border);
             Data.GradientPaint(g, rectfPanel, colorBackground, LayoutColors.DepthControl);
-            
-            int iVPosition = (int)fCaptionHeight + 2;
 
-            StringFormat stringFormat = new StringFormat();
-            stringFormat.Trimming     = StringTrimming.EllipsisCharacter;
-            stringFormat.FormatFlags  = StringFormatFlags.NoWrap;
+            int iVPosition = (int) fCaptionHeight + 2;
 
-            Font  fontParam  = new Font(Font.FontFamily, 9f, FontStyle.Regular);
-            Font  fontValue  = new Font(Font.FontFamily, 9f, FontStyle.Regular);
+            var stringFormat = new StringFormat
+                                   {Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap};
+
+            var fontParam = new Font(Font.FontFamily, 9f, FontStyle.Regular);
+            var fontValue = new Font(Font.FontFamily, 9f, FontStyle.Regular);
             Brush brushParam = new SolidBrush(colorLogicText);
             Brush brushValue = new SolidBrush(colorLogicText);
-            Pen   penDash    = new Pen(colorDash);
+            var penDash = new Pen(colorDash);
 
-            string strPermaSL = strategy.UsePermanentSL ? (Data.Strategy.PermanentSLType == PermanentProtectionType.Absolute ? "(Abs) " : "") + strategy.PermanentSL.ToString() : Language.T("None");
-            string strPermaTP = strategy.UsePermanentTP ? (Data.Strategy.PermanentTPType == PermanentProtectionType.Absolute ? "(Abs) " : "") + strategy.PermanentTP.ToString() : Language.T("None");
-            string strBreakEven = strategy.UseBreakEven   ? strategy.BreakEven.ToString()   : Language.T("None");
+            string strPermaSL = _strategy.UsePermanentSL
+                                    ? (Data.Strategy.PermanentSLType == PermanentProtectionType.Absolute ? "(Abs) " : "") +
+                                      _strategy.PermanentSL.ToString(CultureInfo.InvariantCulture)
+                                    : Language.T("None");
+            string strPermaTP = _strategy.UsePermanentTP
+                                    ? (Data.Strategy.PermanentTPType == PermanentProtectionType.Absolute ? "(Abs) " : "") +
+                                      _strategy.PermanentTP.ToString(CultureInfo.InvariantCulture)
+                                    : Language.T("None");
+            string strBreakEven = _strategy.UseBreakEven
+                                      ? _strategy.BreakEven.ToString(CultureInfo.InvariantCulture)
+                                      : Language.T("None");
 
-            if (slotMinMidMax == SlotSizeMinMidMax.min)
+            if (_slotMinMidMax == SlotSizeMinMidMax.Min)
             {
-                string sParam = Language.T(strategy.SameSignalAction.ToString()) + "; " +
-                                Language.T(strategy.OppSignalAction.ToString()) + "; " +
+                string sParam = Language.T(_strategy.SameSignalAction.ToString()) + "; " +
+                                Language.T(_strategy.OppSignalAction.ToString()) + "; " +
                                 "SL-" + strPermaSL + "; " +
                                 "TP-" + strPermaTP + "; " +
                                 "BE-" + strBreakEven;
 
-                SizeF sizeParam      = g.MeasureString(sParam, fontParam);
+                SizeF sizeParam = g.MeasureString(sParam, fontParam);
                 float fMaxParamWidth = sizeParam.Width;
 
                 // Padding Param Padding Dash Padding Value Padding 
-                float fPadding        = space;
-                float fNecessaryWidth = 2 * fPadding + fMaxParamWidth;
+                float fPadding = Space;
+                float fNecessaryWidth = 2*fPadding + fMaxParamWidth;
 
-                if (iWidth > fNecessaryWidth)
-                {   // Padding Param Padding
-                    fPadding = (float)Math.Max((pnl.ClientSize.Width - fMaxParamWidth) / 2, fPadding);
-                }
-                else
-                {
-                    fPadding = 2;
-                }
+                fPadding = iWidth > fNecessaryWidth ? Math.Max((pnl.ClientSize.Width - fMaxParamWidth)/2, fPadding) : 2;
 
                 float fTabParam = fPadding;
 
-                PointF pointParam = new PointF(fTabParam, iVPosition);
+                var pointParam = new PointF(fTabParam, iVPosition);
                 g.DrawString(sParam, fontParam, brushParam, pointParam);
-
             }
             else
             {
                 // Find Maximum width of the strings
-                string [] asParams = new string [5]
-                {
-                    Language.T("Same direction signal"),
-                    Language.T("Opposite direction signal"),
-                    Language.T("Permanent Stop Loss"),
-                    Language.T("Permanent Take Profit"),
-                    Language.T("Break Even")
-                };
+                var asParams = new[]
+                                   {
+                                       Language.T("Same direction signal"),
+                                       Language.T("Opposite direction signal"),
+                                       Language.T("Permanent Stop Loss"),
+                                       Language.T("Permanent Take Profit"),
+                                       Language.T("Break Even")
+                                   };
 
-                string [] asValues = new string [5] {
-                    Language.T(strategy.SameSignalAction.ToString()),
-                    Language.T(strategy.OppSignalAction.ToString()),
-                    strPermaSL,
-                    strPermaTP,
-                    strBreakEven
-                };
+                var asValues = new[]
+                                   {
+                                       Language.T(_strategy.SameSignalAction.ToString()),
+                                       Language.T(_strategy.OppSignalAction.ToString()),
+                                       strPermaSL,
+                                       strPermaTP,
+                                       strBreakEven
+                                   };
 
                 float fMaxParamWidth = 0;
                 foreach (string param in asParams)
@@ -819,32 +785,34 @@ namespace Forex_Strategy_Trader
                 }
 
                 // Padding Param Padding Dash Padding Value Padding 
-                float fPadding   = space;
-                float fDashWidth = 5;
-                float fNecessaryWidth = 4 * fPadding + fMaxParamWidth + fMaxValueWidth + fDashWidth;
+                float fPadding = Space;
+                const float fDashWidth = 5;
+                float fNecessaryWidth = 4*fPadding + fMaxParamWidth + fMaxValueWidth + fDashWidth;
 
                 if (iWidth > fNecessaryWidth)
-                {   // 2*Padding Param Padding Dash Padding Value 2*Padding 
-                    fPadding = (float)Math.Max((pnl.ClientSize.Width - fMaxParamWidth - fMaxValueWidth - fDashWidth) / 6, fPadding);
+                {
+                    // 2*Padding Param Padding Dash Padding Value 2*Padding 
+                    fPadding = Math.Max((pnl.ClientSize.Width - fMaxParamWidth - fMaxValueWidth - fDashWidth)/6,
+                                        fPadding);
                 }
                 else
                 {
                     fPadding = 2;
                 }
 
-                float fTabParam = 2 * fPadding;
-                float fTabDash  = fTabParam + fMaxParamWidth + fPadding;
-                float fTabValue = fTabDash  + fDashWidth     + fPadding;
+                float fTabParam = 2*fPadding;
+                float fTabDash = fTabParam + fMaxParamWidth + fPadding;
+                float fTabValue = fTabDash + fDashWidth + fPadding;
 
                 // Same direction
                 string sParam = Language.T("Same direction signal");
-                string sValue = Language.T(strategy.SameSignalAction.ToString());
-                PointF pointParam = new PointF(fTabParam, iVPosition);
-                PointF pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height / 2 + 2);
-                PointF pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height / 2 + 2);
-                PointF pointValue = new PointF(fTabValue, iVPosition);
-                SizeF  sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
-                RectangleF rectfValue = new RectangleF(pointValue, sizefValue);
+                string sValue = Language.T(_strategy.SameSignalAction.ToString());
+                var pointParam = new PointF(fTabParam, iVPosition);
+                var pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height/2 + 2);
+                var pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height/2 + 2);
+                var pointValue = new PointF(fTabValue, iVPosition);
+                var sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
+                var rectfValue = new RectangleF(pointValue, sizefValue);
                 g.DrawString(sParam, fontParam, brushParam, pointParam);
                 g.DrawLine(penDash, pointDash1, pointDash2);
                 g.DrawString(sValue, fontValue, brushValue, rectfValue, stringFormat);
@@ -852,10 +820,10 @@ namespace Forex_Strategy_Trader
 
                 // Opposite direction
                 sParam = Language.T("Opposite direction signal");
-                sValue = Language.T(strategy.OppSignalAction.ToString());
+                sValue = Language.T(_strategy.OppSignalAction.ToString());
                 pointParam = new PointF(fTabParam, iVPosition);
-                pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height / 2 + 2);
-                pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height / 2 + 2);
+                pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height/2 + 2);
+                pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height/2 + 2);
                 pointValue = new PointF(fTabValue, iVPosition);
                 sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
                 rectfValue = new RectangleF(pointValue, sizefValue);
@@ -868,8 +836,8 @@ namespace Forex_Strategy_Trader
                 sParam = Language.T("Permanent Stop Loss");
                 sValue = strPermaSL;
                 pointParam = new PointF(fTabParam, iVPosition);
-                pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height / 2 + 2);
-                pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height / 2 + 2);
+                pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height/2 + 2);
+                pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height/2 + 2);
                 pointValue = new PointF(fTabValue, iVPosition);
                 sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
                 rectfValue = new RectangleF(pointValue, sizefValue);
@@ -882,8 +850,8 @@ namespace Forex_Strategy_Trader
                 sParam = Language.T("Permanent Take Profit");
                 sValue = strPermaTP;
                 pointParam = new PointF(fTabParam, iVPosition);
-                pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height / 2 + 2);
-                pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height / 2 + 2);
+                pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height/2 + 2);
+                pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height/2 + 2);
                 pointValue = new PointF(fTabValue, iVPosition);
                 sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
                 rectfValue = new RectangleF(pointValue, sizefValue);
@@ -896,30 +864,29 @@ namespace Forex_Strategy_Trader
                 sParam = Language.T("Break Even");
                 sValue = strBreakEven;
                 pointParam = new PointF(fTabParam, iVPosition);
-                pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height / 2 + 2);
-                pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height / 2 + 2);
+                pointDash1 = new PointF(fTabDash, iVPosition + fontParam.Height/2 + 2);
+                pointDash2 = new PointF(fTabDash + fDashWidth, iVPosition + fontParam.Height/2 + 2);
                 pointValue = new PointF(fTabValue, iVPosition);
                 sizefValue = new SizeF(Math.Max(iWidth - fTabValue, 0), fontValue.Height + 2);
                 rectfValue = new RectangleF(pointValue, sizefValue);
                 g.DrawString(sParam, fontParam, brushParam, pointParam);
                 g.DrawLine(penDash, pointDash1, pointDash2);
                 g.DrawString(sValue, fontValue, brushValue, rectfValue, stringFormat);
-                iVPosition += fontValue.Height + 2;
             }
-
-            return;
         }
 
         /// <summary>
         /// Shows Closing Filter Help.
         /// </summary>
-        void BtnClosingFilterHelp_Click(object sender, EventArgs e)
+        private void BtnClosingFilterHelp_Click(object sender, EventArgs e)
         {
-            string text = "You can use Closing Logic Conditions only if the Closing Point of the Position slot contains one of the following indicators:";
+            const string text =
+                "You can use Closing Logic Conditions only if the Closing Point of the Position slot contains one of the following indicators:";
             string inicators = Environment.NewLine;
-            foreach (string indicator in Indicator_Store.ClosingIndicatorsWithClosingFilters)
+            foreach (string indicator in IndicatorStore.ClosingIndicatorsWithClosingFilters)
                 inicators += " - " + indicator + Environment.NewLine;
-            System.Windows.Forms.MessageBox.Show(Language.T(text) + inicators, Language.T("Closing Logic Condition"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            MessageBox.Show(Language.T(text) + inicators, Language.T("Closing Logic Condition"), MessageBoxButtons.OK,
+                            MessageBoxIcon.Asterisk);
         }
 
         /// <summary>
@@ -927,9 +894,9 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void OnResize(EventArgs eventargs)
         {
-            flowLayoutStrategy.SuspendLayout();
+            _flowLayoutStrategy.SuspendLayout();
             ArrangeStrategyControls();
-            flowLayoutStrategy.ResumeLayout();
-        } 
+            _flowLayoutStrategy.ResumeLayout();
+        }
     }
 }

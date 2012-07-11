@@ -20,7 +20,7 @@ namespace Forex_Strategy_Trader
         public double PositionProfit { get; set; }
         public double PositionTakeProfit { get; set; }
         public double PositionStopLoss { get; set; }
-        public Instrument_Properties InstrumentProperties { get; set; }
+        public InstrumentProperties InstrumentProperties { get; set; }
         public int Bars { get; set; }
         public DateTime[] Time { get; set; }
         public double[] Open { get; set; }

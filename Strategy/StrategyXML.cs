@@ -387,7 +387,7 @@ namespace Forex_Strategy_Trader
 
                     // Indicator name.
                     string indicatorName = xmlSlotTagList[0].InnerText;
-                    Indicator indicator = Indicator_Store.ConstructIndicator(indicatorName, slotType);
+                    Indicator indicator = IndicatorStore.ConstructIndicator(indicatorName, slotType);
 
                     for (int tag = 1; tag < xmlSlotTagList.Count; tag++)
                     {

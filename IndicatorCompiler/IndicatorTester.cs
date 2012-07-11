@@ -1,15 +1,16 @@
 ﻿// Indicator_Tester Class
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace Forex_Strategy_Trader
 {
-    public static class Indicator_Tester
+    public static class IndicatorTester
     {
         /// <summary>
         /// Tests general parameters of a custom indicator.
@@ -19,7 +20,7 @@ namespace Forex_Strategy_Trader
         {
             bool isOk = true;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.AppendLine("ERROR: Indicator test failed for the '" + indicator.IndicatorName + "' indicator.");
 
@@ -31,9 +32,9 @@ namespace Forex_Strategy_Trader
             }
 
             // Tests the PossibleSlots property.
-            if (!indicator.TestPossibleSlot(SlotTypes.Open)       && 
-                !indicator.TestPossibleSlot(SlotTypes.OpenFilter) && 
-                !indicator.TestPossibleSlot(SlotTypes.Close)      && 
+            if (!indicator.TestPossibleSlot(SlotTypes.Open) &&
+                !indicator.TestPossibleSlot(SlotTypes.OpenFilter) &&
+                !indicator.TestPossibleSlot(SlotTypes.Close) &&
                 !indicator.TestPossibleSlot(SlotTypes.CloseFilter))
             {
                 sb.AppendLine("\tThe property 'PossibleSlots' is not set.");
@@ -43,21 +44,24 @@ namespace Forex_Strategy_Trader
             // Tests the CustomIndicator property.
             if (!indicator.CustomIndicator)
             {
-                sb.AppendLine("\tThe indicator '" + indicator.IndicatorName + "' is not marked as custom. Set CustomIndicator = true;");
+                sb.AppendLine("\tThe indicator '" + indicator.IndicatorName +
+                              "' is not marked as custom. Set CustomIndicator = true;");
                 isOk = false;
             }
 
             // Tests the SeparatedChartMaxValue properties.
             if (!indicator.SeparatedChart && indicator.SeparatedChartMaxValue != double.MinValue)
             {
-                sb.AppendLine("\tSet SeparatedChart = true; or remove the property: SeparatedChartMaxValue = " + indicator.SeparatedChartMaxValue.ToString());
+                sb.AppendLine("\tSet SeparatedChart = true; or remove the property: SeparatedChartMaxValue = " +
+                              indicator.SeparatedChartMaxValue.ToString(CultureInfo.InvariantCulture));
                 isOk = false;
             }
 
             // Tests the SeparatedChartMinValue properties.
             if (!indicator.SeparatedChart && indicator.SeparatedChartMinValue != double.MaxValue)
             {
-                sb.AppendLine("\tSet SeparatedChart = true; or remove the property: SeparatedChartMinValue = " + indicator.SeparatedChartMinValue.ToString());
+                sb.AppendLine("\tSet SeparatedChart = true; or remove the property: SeparatedChartMinValue = " +
+                              indicator.SeparatedChartMinValue.ToString(CultureInfo.InvariantCulture));
                 isOk = false;
             }
 
@@ -78,7 +82,8 @@ namespace Forex_Strategy_Trader
             // Tests the IndParam.IndicatorName properties.
             if (indicator.IndParam.IndicatorName != indicator.IndicatorName)
             {
-                sb.AppendLine("\tThe property IndParam.IndicatorName is not set. Set IndParam.IndicatorName = IndicatorName;");
+                sb.AppendLine(
+                    "\tThe property IndParam.IndicatorName is not set. Set IndParam.IndicatorName = IndicatorName;");
                 isOk = false;
             }
 
@@ -111,8 +116,8 @@ namespace Forex_Strategy_Trader
                 if (listParam.ItemList[listParam.Index] != listParam.Text)
                 {
                     sb.AppendLine("\tThe property IndParam.ListParam[" + iParam + "].Text is wrong." +
-                        " Set " + "IndParam.ListParam[" + iParam + "].Text = IndParam.ListParam[" + iParam + 
-                        "].ItemList[IndParam.ListParam[" + iParam + "].Index];");
+                                  " Set " + "IndParam.ListParam[" + iParam + "].Text = IndParam.ListParam[" + iParam +
+                                  "].ItemList[IndParam.ListParam[" + iParam + "].Index];");
                     isOk = false;
                 }
 
@@ -137,8 +142,8 @@ namespace Forex_Strategy_Trader
                 }
 
                 double value = numParam.Value;
-                double min   = numParam.Min;
-                double max   = numParam.Max;
+                double min = numParam.Min;
+                double max = numParam.Max;
                 double point = numParam.Point;
 
                 if (min > max)
@@ -202,7 +207,7 @@ namespace Forex_Strategy_Trader
             {
                 indicator.Calculate(SlotTypes.NotDefined);
             }
-            catch (System.Exception exc)
+            catch (Exception exc)
             {
                 sb.AppendLine("\tError when executing Calculate(SlotTypes.NotDefined). " + exc.Message);
                 isOk = false;
@@ -212,7 +217,7 @@ namespace Forex_Strategy_Trader
             {
                 indicator.SetDescription(SlotTypes.NotDefined);
             }
-            catch (System.Exception exc)
+            catch (Exception exc)
             {
                 sb.AppendLine("\tError when executing SetDescription(SlotTypes.NotDefined). " + exc.Message);
                 isOk = false;
@@ -222,16 +227,13 @@ namespace Forex_Strategy_Trader
             {
                 indicator.ToString();
             }
-            catch (System.Exception exc)
+            catch (Exception exc)
             {
                 sb.AppendLine("\tError when executing ToString(). " + exc.Message);
                 isOk = false;
             }
 
-            if (isOk)
-                errorList = string.Empty;
-            else
-                errorList = sb.ToString();
+            errorList = isOk ? string.Empty : sb.ToString();
 
             return isOk;
         }
@@ -244,16 +246,16 @@ namespace Forex_Strategy_Trader
         {
             bool isOk = true;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.AppendLine("ERROR: Indicator test failed for the '" + indicatorName + "' indicator.");
 
-            foreach (SlotTypes slotType in  Enum.GetValues(typeof(SlotTypes)))
+            foreach (SlotTypes slotType in  Enum.GetValues(typeof (SlotTypes)))
             {
                 if (slotType == SlotTypes.NotDefined)
                     continue;
 
-                Indicator indicator = Indicator_Store.ConstructIndicator(indicatorName, slotType);
+                Indicator indicator = IndicatorStore.ConstructIndicator(indicatorName, slotType);
 
                 if (!indicator.TestPossibleSlot(slotType))
                     continue;
@@ -266,7 +268,7 @@ namespace Forex_Strategy_Trader
                 {
                     indicator.Calculate(slotType);
                 }
-                catch (System.Exception exc)
+                catch (Exception exc)
                 {
                     sb.AppendLine("\tError when calculating with NumParams set to their minimal values. " + exc.Message);
                     isOk = false;
@@ -281,7 +283,7 @@ namespace Forex_Strategy_Trader
                 {
                     indicator.Calculate(slotType);
                 }
-                catch (System.Exception exc)
+                catch (Exception exc)
                 {
                     sb.AppendLine("\tError when calculating with NumParams set to their maximal values. " + exc.Message);
                     isOk = false;
@@ -295,99 +297,104 @@ namespace Forex_Strategy_Trader
                         switch (slotType)
                         {
                             case SlotTypes.Open:
-                                if (component.DataType == IndComponentType.AllowOpenLong   ||
-                                    component.DataType == IndComponentType.AllowOpenShort  ||
-                                    component.DataType == IndComponentType.CloseLongPrice  ||
-                                    component.DataType == IndComponentType.ClosePrice      ||
+                                if (component.DataType == IndComponentType.AllowOpenLong ||
+                                    component.DataType == IndComponentType.AllowOpenShort ||
+                                    component.DataType == IndComponentType.CloseLongPrice ||
+                                    component.DataType == IndComponentType.ClosePrice ||
                                     component.DataType == IndComponentType.CloseShortPrice ||
-                                    component.DataType == IndComponentType.ForceClose      ||
-                                    component.DataType == IndComponentType.ForceCloseLong  ||
+                                    component.DataType == IndComponentType.ForceClose ||
+                                    component.DataType == IndComponentType.ForceCloseLong ||
                                     component.DataType == IndComponentType.ForceCloseShort ||
                                     component.DataType == IndComponentType.NotDefined)
                                 {
-                                    sb.AppendLine("\tProbably wrong component type when SlotType is 'SlotTypes.Open' - '" + component.CompName + "' of type '" + component.DataType + "'.");
+                                    sb.AppendLine(
+                                        "\tProbably wrong component type when SlotType is 'SlotTypes.Open' - '" +
+                                        component.CompName + "' of type '" + component.DataType + "'.");
                                     isOk = false;
                                 }
                                 break;
                             case SlotTypes.OpenFilter:
-                                if (component.DataType == IndComponentType.OpenClosePrice  ||
-                                    component.DataType == IndComponentType.OpenLongPrice   ||
-                                    component.DataType == IndComponentType.OpenPrice       ||
-                                    component.DataType == IndComponentType.OpenShortPrice  ||
-                                    component.DataType == IndComponentType.CloseLongPrice  ||
-                                    component.DataType == IndComponentType.ClosePrice      ||
+                                if (component.DataType == IndComponentType.OpenClosePrice ||
+                                    component.DataType == IndComponentType.OpenLongPrice ||
+                                    component.DataType == IndComponentType.OpenPrice ||
+                                    component.DataType == IndComponentType.OpenShortPrice ||
+                                    component.DataType == IndComponentType.CloseLongPrice ||
+                                    component.DataType == IndComponentType.ClosePrice ||
                                     component.DataType == IndComponentType.CloseShortPrice ||
-                                    component.DataType == IndComponentType.ForceClose      ||
-                                    component.DataType == IndComponentType.ForceCloseLong  ||
+                                    component.DataType == IndComponentType.ForceClose ||
+                                    component.DataType == IndComponentType.ForceCloseLong ||
                                     component.DataType == IndComponentType.ForceCloseShort ||
                                     component.DataType == IndComponentType.NotDefined)
                                 {
-                                    sb.AppendLine("\tProbably wrong component type when SlotType is 'SlotTypes.OpenFilter' - '" + component.CompName + "' of type '" + component.DataType + "'.");
+                                    sb.AppendLine(
+                                        "\tProbably wrong component type when SlotType is 'SlotTypes.OpenFilter' - '" +
+                                        component.CompName + "' of type '" + component.DataType + "'.");
                                     isOk = false;
                                 }
                                 break;
                             case SlotTypes.Close:
-                                if (component.DataType == IndComponentType.AllowOpenLong   ||
-                                    component.DataType == IndComponentType.AllowOpenShort  ||
-                                    component.DataType == IndComponentType.OpenLongPrice   ||
-                                    component.DataType == IndComponentType.OpenPrice       ||
-                                    component.DataType == IndComponentType.OpenShortPrice  ||
-                                    component.DataType == IndComponentType.ForceClose      ||
-                                    component.DataType == IndComponentType.ForceCloseLong  ||
+                                if (component.DataType == IndComponentType.AllowOpenLong ||
+                                    component.DataType == IndComponentType.AllowOpenShort ||
+                                    component.DataType == IndComponentType.OpenLongPrice ||
+                                    component.DataType == IndComponentType.OpenPrice ||
+                                    component.DataType == IndComponentType.OpenShortPrice ||
+                                    component.DataType == IndComponentType.ForceClose ||
+                                    component.DataType == IndComponentType.ForceCloseLong ||
                                     component.DataType == IndComponentType.ForceCloseShort ||
                                     component.DataType == IndComponentType.NotDefined)
                                 {
-                                    sb.AppendLine("\tProbably wrong component type when SlotType is 'SlotTypes.Close' - '" + component.CompName + "' of type '" + component.DataType + "'.");
+                                    sb.AppendLine(
+                                        "\tProbably wrong component type when SlotType is 'SlotTypes.Close' - '" +
+                                        component.CompName + "' of type '" + component.DataType + "'.");
                                     isOk = false;
                                 }
                                 break;
                             case SlotTypes.CloseFilter:
-                                if (component.DataType == IndComponentType.AllowOpenLong   ||
-                                    component.DataType == IndComponentType.AllowOpenShort  ||
-                                    component.DataType == IndComponentType.OpenLongPrice   ||
-                                    component.DataType == IndComponentType.OpenPrice       ||
-                                    component.DataType == IndComponentType.OpenShortPrice  ||
-                                    component.DataType == IndComponentType.CloseLongPrice  ||
-                                    component.DataType == IndComponentType.ClosePrice      ||
+                                if (component.DataType == IndComponentType.AllowOpenLong ||
+                                    component.DataType == IndComponentType.AllowOpenShort ||
+                                    component.DataType == IndComponentType.OpenLongPrice ||
+                                    component.DataType == IndComponentType.OpenPrice ||
+                                    component.DataType == IndComponentType.OpenShortPrice ||
+                                    component.DataType == IndComponentType.CloseLongPrice ||
+                                    component.DataType == IndComponentType.ClosePrice ||
                                     component.DataType == IndComponentType.CloseShortPrice ||
                                     component.DataType == IndComponentType.NotDefined)
                                 {
-                                    sb.AppendLine("\tProbably wrong component type when SlotType is 'SlotTypes.CloseFilter' - '" + component.CompName + "' of type '" + component.DataType + "'.");
+                                    sb.AppendLine(
+                                        "\tProbably wrong component type when SlotType is 'SlotTypes.CloseFilter' - '" +
+                                        component.CompName + "' of type '" + component.DataType + "'.");
                                     isOk = false;
                                 }
                                 break;
                             default:
                                 break;
                         }
-                        if (component.DataType == IndComponentType.AllowOpenLong   ||
-                            component.DataType == IndComponentType.AllowOpenShort  ||
-                            component.DataType == IndComponentType.ForceClose      ||
-                            component.DataType == IndComponentType.ForceCloseLong  ||
+                        if (component.DataType == IndComponentType.AllowOpenLong ||
+                            component.DataType == IndComponentType.AllowOpenShort ||
+                            component.DataType == IndComponentType.ForceClose ||
+                            component.DataType == IndComponentType.ForceCloseLong ||
                             component.DataType == IndComponentType.ForceCloseShort)
                         {
-                            foreach(double value in component.Value)
+                            foreach (double value in component.Value)
                                 if (value != 0 && value != 1)
                                 {
-                                    sb.AppendLine("\tWrong component values. The values of '" + component.CompName + "' must be 0 or 1.");
+                                    sb.AppendLine("\tWrong component values. The values of '" + component.CompName +
+                                                  "' must be 0 or 1.");
                                     isOk = false;
                                     break;
                                 }
                         }
                     }
                 }
-                catch (System.Exception exc)
+                catch (Exception exc)
                 {
                     sb.AppendLine("\tError when checking the indicator's components. " + exc.Message);
                     isOk = false;
                     break;
                 }
-
             }
 
-            if (isOk)
-                errorList = string.Empty;
-            else
-                errorList = sb.ToString();
+            errorList = isOk ? string.Empty : sb.ToString();
 
             return isOk;
         }

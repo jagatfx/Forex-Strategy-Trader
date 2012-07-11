@@ -73,7 +73,7 @@ namespace Forex_Strategy_Trader
             // Prepare custom indicators
             UpdateSplashScreeStatus("Loading custom indicators...");
             if (Configs.LoadCustomIndicators)
-                Custom_Indicators.LoadCustomIndicators();
+                CustomIndicators.LoadCustomIndicators();
 
             // Load a strategy
             UpdateSplashScreeStatus("Loading strategy...");
@@ -105,7 +105,7 @@ namespace Forex_Strategy_Trader
             // Starting tips
             if (Configs.ShowStartingTip)
             {
-                var startingTips = new Starting_Tips();
+                var startingTips = new StartingTips();
                 startingTips.Show();
             }
 
@@ -316,7 +316,7 @@ namespace Forex_Strategy_Trader
                 Data.StackStrategy.Push(Data.Strategy.Clone());
             }
 
-            var id = new Indicator_Dialog(iSlot, slotType, bIsDefined);
+            var id = new IndicatorDialog(iSlot, slotType, bIsDefined);
             id.ShowDialog();
 
             if (id.DialogResult == DialogResult.OK)
@@ -517,7 +517,7 @@ namespace Forex_Strategy_Trader
             const string symbol = "EURUSD";
             const DataPeriods dataPeriod = DataPeriods.day;
 
-            var instrProperties = new Instrument_Properties(symbol);
+            var instrProperties = new InstrumentProperties(symbol);
             var instrument = new Instrument(instrProperties, (int) dataPeriod);
             int loadResourceData = instrument.LoadResourceData();
 
@@ -604,7 +604,7 @@ namespace Forex_Strategy_Trader
             foreach (IndicatorSlot slot in Data.Strategy.Slot)
             {
                 // Searching the strategy slots for a custom indicator
-                if (Indicator_Store.CustomIndicatorNames.Contains(slot.IndicatorName))
+                if (IndicatorStore.CustomIndicatorNames.Contains(slot.IndicatorName))
                 {
                     bStrategyHasCustomIndicator = true;
                     break;
@@ -612,7 +612,7 @@ namespace Forex_Strategy_Trader
             }
 
             // Reload all the custom indicators
-            Custom_Indicators.LoadCustomIndicators();
+            CustomIndicators.LoadCustomIndicators();
 
             if (bStrategyHasCustomIndicator)
             {

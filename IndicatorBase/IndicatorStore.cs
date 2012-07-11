@@ -9,9 +9,9 @@ using System.Collections.Generic;
 
 namespace Forex_Strategy_Trader
 {
-    public static class Indicator_Store
+    public static class IndicatorStore
     {
-        static Dictionary<string, Indicator> originalIndicators = new Dictionary<string, Indicator>
+        static readonly Dictionary<string, Indicator> originalIndicators = new Dictionary<string, Indicator>
         {
             {"Accelerator Oscillator",    new Accelerator_Oscillator(SlotTypes.NotDefined)},
             {"Account Percent Stop",      new Account_Percent_Stop(SlotTypes.NotDefined)},
@@ -121,18 +121,18 @@ namespace Forex_Strategy_Trader
         };
 
         // Stores the custom indicators
-        static SortableDictionary<string, Indicator> customIndicators = new SortableDictionary<string, Indicator>();
+        static readonly SortableDictionary<string, Indicator> customIndicators = new SortableDictionary<string, Indicator>();
 
         // Stores all the indicators
-        static SortableDictionary<string, Indicator> indicators = new SortableDictionary<string, Indicator>();
+        static readonly SortableDictionary<string, Indicator> indicators = new SortableDictionary<string, Indicator>();
 
         // Stores all the closing Point indicators, which can be used with Closing Logic conditions
-        static List<string> closingIndicatorsWithClosingFilters = new List<string>();
+        static readonly List<string> closingIndicatorsWithClosingFilters = new List<string>();
 
         /// <summary>
         /// Gets the names of all the original indicators
         /// </summary>
-        public static List<string> OriginalIndicatorNames
+        public static IEnumerable<string> OriginalIndicatorNames
         {
             get { return new List<string>(originalIndicators.Keys); }
         }
@@ -164,7 +164,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Constructor.
         /// </summary>
-        static Indicator_Store()
+        static IndicatorStore()
         {
             foreach (KeyValuePair<string, Indicator> record in originalIndicators)
                 indicators.Add(record.Key, record.Value);
@@ -189,7 +189,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Resets the custom indicators in the custom indicators list.
         /// </summary>
-        public static void ResetCustomIndicators(List<Indicator> indicatorList)
+        public static void ResetCustomIndicators(IEnumerable<Indicator> indicatorList)
         {
             customIndicators.Clear();
 
@@ -230,8 +230,6 @@ namespace Forex_Strategy_Trader
                 if (indicator.AllowClosingFilters)
                     closingIndicatorsWithClosingFilters.Add(indicatorName);
             }
-
-            return;
         }
 
         /// <summary>
@@ -246,9 +244,9 @@ namespace Forex_Strategy_Trader
             }
 
             Type   indicatorType = indicators[indicatorName].GetType();
-            Type[] parameterType = new Type[] { slotType.GetType() };
+            var parameterType = new[] { slotType.GetType() };
             System.Reflection.ConstructorInfo constructorInfo = indicatorType.GetConstructor(parameterType);
-            Indicator indicator = (Indicator)constructorInfo.Invoke(new object[] { slotType });
+            var indicator = (Indicator)constructorInfo.Invoke(new object[] { slotType });
 
             return indicator;
         }

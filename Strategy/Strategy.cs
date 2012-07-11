@@ -503,7 +503,7 @@ namespace Forex_Strategy_Trader
             {
                 string sndicatorName = slot.IndicatorName;
                 SlotTypes slotType = slot.SlotType;
-                Indicator indicator = Indicator_Store.ConstructIndicator(sndicatorName, slotType);
+                Indicator indicator = IndicatorStore.ConstructIndicator(sndicatorName, slotType);
 
                 indicator.IndParam = slot.IndParam;
                 indicator.Calculate(slotType);
@@ -546,7 +546,7 @@ namespace Forex_Strategy_Trader
                 {
                     string sIndicatorName = Data.Strategy.Slot[slot].IndicatorName;
                     SlotTypes slotType = Data.Strategy.Slot[slot].SlotType;
-                    Indicator indicator = Indicator_Store.ConstructIndicator(sIndicatorName, slotType);
+                    Indicator indicator = IndicatorStore.ConstructIndicator(sIndicatorName, slotType);
 
                     indicator.IndParam = Data.Strategy.Slot[slot].IndParam;
 

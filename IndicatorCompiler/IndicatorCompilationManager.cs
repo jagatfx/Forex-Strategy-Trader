@@ -1,7 +1,7 @@
 ﻿// Indicator_Compilation_Manager class
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
@@ -15,37 +15,36 @@ namespace Forex_Strategy_Trader
     /// <summary>
     /// Manages the operation of indicators.
     /// </summary>
-    public class Indicator_Compilation_Manager
+    public class IndicatorCompilationManager
     {
-        CSharp_Compiler compiler;
-
-        List<Indicator> listCustomIndicators = new List<Indicator>();
-
-        /// <summary>
-        /// Gets a list of the loaded custom indicators
-        /// </summary>
-        public List<Indicator> CustomIndicatorsList { get { return listCustomIndicators; } }
+        private readonly CSharpCompiler _compiler;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Indicator_Compilation_Manager()
+        public IndicatorCompilationManager()
         {
-            compiler = new CSharp_Compiler();
+            CustomIndicatorsList = new List<Indicator>();
+            _compiler = new CSharpCompiler();
 
             foreach (Assembly assembly in GetReferencedAndInitialAssembly(Assembly.GetEntryAssembly()))
             {
-                compiler.AddReferencedAssembly(assembly);
+                _compiler.AddReferencedAssembly(assembly);
             }
         }
 
         /// <summary>
+        /// Gets a list of the loaded custom indicators
+        /// </summary>
+        public List<Indicator> CustomIndicatorsList { get; private set; }
+
+        /// <summary>
         /// Gather all assemblies referenced from current assembly.
         /// </summary>
-        static public Assembly[] GetReferencedAndInitialAssembly(Assembly initialAssembly)
+        private static IEnumerable<Assembly> GetReferencedAndInitialAssembly(Assembly initialAssembly)
         {
             AssemblyName[] names = initialAssembly.GetReferencedAssemblies();
-            Assembly[] assemblies = new Assembly[names.Length + 1];
+            var assemblies = new Assembly[names.Length + 1];
 
             for (int i = 0; i < names.Length; i++)
             {
@@ -60,24 +59,29 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Load file, compile it and create/load the indicators into the CustomIndicatorsList.
         /// </summary>
+        /// <param name="filePath">Path to the source file</param>
+        /// <param name="errorMessages">Resulting error messages, if any.</param>
         public void LoadCompileSourceFile(string filePath, out string errorMessages)
         {
             string errorLoadSourceFile;
             string source = LoadSourceFile(filePath, out errorLoadSourceFile);
 
             if (string.IsNullOrEmpty(source))
-            {   // Source file loading failed.
+            {
+                // Source file loading failed.
                 errorMessages = errorLoadSourceFile;
                 return;
             }
 
             Dictionary<string, int> dictCompilationErrors;
-            Assembly assembly = compiler.CompileSource(source, out dictCompilationErrors);
+            Assembly assembly = _compiler.CompileSource(source, out dictCompilationErrors);
 
             if (assembly == null)
-            {   // Assembly compilation failed.
-                StringBuilder sbCompilationError = new StringBuilder();
-                sbCompilationError.AppendLine("ERROR: Indicator compilation failed in file [" + Path.GetFileName(filePath) + "]");
+            {
+                // Assembly compilation failed.
+                var sbCompilationError = new StringBuilder();
+                sbCompilationError.AppendLine("ERROR: Indicator compilation failed in file [" +
+                                              Path.GetFileName(filePath) + "]");
 
                 foreach (string error in dictCompilationErrors.Keys)
                 {
@@ -89,49 +93,53 @@ namespace Forex_Strategy_Trader
             }
 
             string errorGetIndicator;
-            Indicator newIndicator = GetIndicatorInstanceFromAssembly(assembly, out errorGetIndicator);
+            string indicatorFileName = Path.GetFileNameWithoutExtension(filePath);
+            Indicator newIndicator = GetIndicatorInstanceFromAssembly(assembly, indicatorFileName, out errorGetIndicator);
 
             if (newIndicator == null)
-            {   // Getting an indicator instance failed.
+            {
+                // Getting an indicator instance failed.
                 errorMessages = errorGetIndicator;
                 return;
             }
 
             // Check for a repeated indicator name among the custom indicators
-            foreach(Indicator indicator in listCustomIndicators)
+            foreach (Indicator indicator in CustomIndicatorsList)
                 if (indicator.IndicatorName == newIndicator.IndicatorName)
-                {   
-                    errorMessages = "The name '" + newIndicator.IndicatorName + "' found out in [" + Path.GetFileName(filePath) + "] is already in use.";
+                {
+                    errorMessages = "The name '" + newIndicator.IndicatorName + "' found out in [" +
+                                    Path.GetFileName(filePath) + "] is already in use.";
                     return;
                 }
 
             // Check for a repeated indicator name among the original indicators
-            foreach (string indicatorName in Indicator_Store.OriginalIndicatorNames)
+            foreach (string indicatorName in IndicatorStore.OriginalIndicatorNames)
                 if (indicatorName == newIndicator.IndicatorName)
                 {
-                    errorMessages = "The name '" + indicatorName + "' found out in [" + Path.GetFileName(filePath) + "] is already in use.";
+                    errorMessages = "The name '" + indicatorName + "' found out in [" + Path.GetFileName(filePath) +
+                                    "] is already in use.";
                     return;
                 }
 
             // Test the new custom indicator
             string errorTestIndicator;
-            if (!Indicator_Tester.CustomIndicatorFastTest(newIndicator, out errorTestIndicator))
-            {   // Testing the indicator failed.
+            if (!IndicatorTester.CustomIndicatorFastTest(newIndicator, out errorTestIndicator))
+            {
+                // Testing the indicator failed.
                 errorMessages = errorTestIndicator;
                 return;
             }
 
             // Adds the custom indicator to the list
-            listCustomIndicators.Add(newIndicator);
+            CustomIndicatorsList.Add(newIndicator);
 
             errorMessages = string.Empty;
-            return;
         }
 
         /// <summary>
         /// Reads the source code from file contents.
         /// </summary>
-        public string LoadSourceFile(string pathToIndicator, out string errorLoadSourceFile)
+        private string LoadSourceFile(string pathToIndicator, out string errorLoadSourceFile)
         {
             string result = string.Empty;
 
@@ -143,10 +151,9 @@ namespace Forex_Strategy_Trader
 
             try
             {
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(pathToIndicator))
+                using (var sr = new StreamReader(pathToIndicator))
                 {
                     result = sr.ReadToEnd();
-                    result = result.Replace("Forex_Strategy_Builder", "Forex_Strategy_Trader");
                     sr.Close();
                 }
             }
@@ -163,22 +170,23 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Creates an indicator instance from the assembly given.
         /// </summary>
-        static Indicator GetIndicatorInstanceFromAssembly(Assembly assembly, out string errorMessage)
+        private static Indicator GetIndicatorInstanceFromAssembly(Assembly assembly, string indicatorFileName,
+                                                                  out string errorMessage)
         {
             Type[] assemblyTypes = assembly.GetTypes();
             foreach (Type typeAssembly in assemblyTypes)
             {
-                if(typeAssembly.IsSubclassOf(typeof(Indicator)))
+                if (typeAssembly.IsSubclassOf(typeof(Indicator)))
                 {
                     ConstructorInfo[] aConstructorInfo = typeAssembly.GetConstructors();
 
-                    // Looking for an appropriate constructor.
+                    // Looking for an appropriate constructor
                     foreach (ConstructorInfo constructorInfo in aConstructorInfo)
                     {
                         ParameterInfo[] parameterInfo = constructorInfo.GetParameters();
                         if (constructorInfo.IsConstructor &&
-                            constructorInfo.IsPublic      &&
-                            parameterInfo.Length == 1     &&
+                            constructorInfo.IsPublic &&
+                            parameterInfo.Length == 1 &&
                             parameterInfo[0].ParameterType == typeof(SlotTypes))
                         {
                             try
@@ -188,22 +196,21 @@ namespace Forex_Strategy_Trader
                             }
                             catch (Exception exc)
                             {
-                                errorMessage = "ERROR: [" + typeAssembly.Name + "] " + exc.Message;
-                                if(!string.IsNullOrEmpty(exc.InnerException.Message))
+                                errorMessage = "ERROR: [" + indicatorFileName + "] " + exc.Message;
+                                if (!string.IsNullOrEmpty(exc.InnerException.Message))
                                     errorMessage += Environment.NewLine + "\t" + exc.InnerException.Message;
                                 return null;
                             }
-
                         }
                     }
 
-                    errorMessage = "ERROR: Cannot find an appropriate constructor for " + typeAssembly.Name + ".";
-                    return null; 
+                    errorMessage = "ERROR: Cannot find an appropriate constructor for " + indicatorFileName + ".";
+                    return null;
                 }
             }
 
-            errorMessage = "ERROR: Cannot create an instance of an indicator from " + assembly.ToString() + ".";
-            return null; 
+            errorMessage = "ERROR: Cannot create an instance of an indicator from " + assembly + ".";
+            return null;
         }
     }
 }

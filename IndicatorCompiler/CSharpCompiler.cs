@@ -1,7 +1,7 @@
 ﻿// CSharp_Compiler Class
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System.CodeDom.Compiler;
@@ -13,29 +13,25 @@ namespace Forex_Strategy_Trader
 {
     /// <summary>
     /// CSharp_Compiler manages the compilation of source code to an assembly.
-    /// This class is thread safe, so multiple threads are capable 
+    /// This class is thread safe, so multiple threads are capable
     /// to utilize it simultaneously.
     /// </summary>
-    public class CSharp_Compiler
+    public class CSharpCompiler
     {
         // Provides the actual compilation of source code.
-        volatile CSharpCodeProvider codeProvider;
 
         // Represents the parameters used to invoke a compiler.
-        CompilerParameters compilationParameters;
+        private readonly CompilerParameters _compilationParameters;
+        private volatile CSharpCodeProvider _codeProvider;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public CSharp_Compiler()
+        public CSharpCompiler()
         {
-            codeProvider = new CSharpCodeProvider();
-            compilationParameters = new CompilerParameters();
-
+            _codeProvider = new CSharpCodeProvider();
             // Make sure we conduct all the operations "in memory".
-            compilationParameters.GenerateInMemory = true;
-
-            return;
+            _compilationParameters = new CompilerParameters { GenerateInMemory = true };
         }
 
         /// <summary>
@@ -47,32 +43,32 @@ namespace Forex_Strategy_Trader
         {
             lock (this)
             {
-                compilationParameters.ReferencedAssemblies.Add(assembly.Location);
+                _compilationParameters.ReferencedAssemblies.Add(assembly.Location);
             }
-
-            return;
         }
 
         /// <summary>
         /// Compile a single source file to assembly.
         /// </summary>
+        /// <param name="source">Indicator source to compile.</param>
         /// <param name="compilerErrors">Compiler errors, if any.</param>
         /// <returns>Compiled assembly or null.</returns>
         public Assembly CompileSource(string source, out Dictionary<string, int> compilerErrors)
         {
             compilerErrors = new Dictionary<string, int>();
 
-            CompilerResults compilerResults = codeProvider.CompileAssemblyFromSource(compilationParameters, source);
+            CompilerResults compilerResults = _codeProvider.CompileAssemblyFromSource(_compilationParameters, source);
 
             if (compilerResults.Errors.Count > 0)
-            {   // Compilation failed.
+            {
+                // Compilation failed.
                 foreach (CompilerError error in compilerResults.Errors)
                 {
-                    string sErrorMessage = "Line " + error.Line + " Column " + error.Column + ": " + error.ErrorText + ".";
-                    int    iErrorLine    = error.Line;
+                    string errorMessage = "Line " + error.Line + " Column " + error.Column + ": " + error.ErrorText + ".";
+                    int errorLine = error.Line;
 
-                    if (!compilerErrors.ContainsKey(sErrorMessage))
-                        compilerErrors.Add(sErrorMessage, iErrorLine);
+                    if (!compilerErrors.ContainsKey(errorMessage))
+                        compilerErrors.Add(errorMessage, errorLine);
                 }
 
                 return null;

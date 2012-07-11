@@ -348,7 +348,7 @@ namespace Forex_Strategy_Trader
             var asIndicatorTexts = new string[_chartData.Strategy.Slots];
             for (int slot = 0; slot < _chartData.Strategy.Slots; slot++)
             {
-                Indicator indicator = Indicator_Store.ConstructIndicator(_chartData.Strategy.Slot[slot].IndicatorName,
+                Indicator indicator = IndicatorStore.ConstructIndicator(_chartData.Strategy.Slot[slot].IndicatorName,
                                                                          _chartData.Strategy.Slot[slot].SlotType);
                 indicator.IndParam = _chartData.Strategy.Slot[slot].IndParam;
                 asIndicatorTexts[slot] = indicator.ToString();
@@ -620,7 +620,7 @@ namespace Forex_Strategy_Trader
                 if (isChart)
                 {
                     Indicator indicator =
-                        Indicator_Store.ConstructIndicator(_chartData.Strategy.Slot[slot].IndicatorName,
+                        IndicatorStore.ConstructIndicator(_chartData.Strategy.Slot[slot].IndicatorName,
                                                            _chartData.Strategy.Slot[slot].SlotType);
                     indicator.IndParam = _chartData.Strategy.Slot[slot].IndParam;
                     if (!_chartTitle.Contains(indicator.ToString()))
@@ -1775,7 +1775,7 @@ namespace Forex_Strategy_Trader
                 g.DrawLine(_penCross, _mouseX, 0, _mouseX, pnl.ClientSize.Height);
 
             // Chart title
-            Indicator indicator = Indicator_Store.ConstructIndicator(_chartData.Strategy.Slot[slot].IndicatorName,
+            Indicator indicator = IndicatorStore.ConstructIndicator(_chartData.Strategy.Slot[slot].IndicatorName,
                                                                      _chartData.Strategy.Slot[slot].SlotType);
             indicator.IndParam = _chartData.Strategy.Slot[slot].IndParam;
             string title = indicator.ToString();

@@ -56,8 +56,8 @@ namespace Forex_Strategy_Trader
 
             // StrategyLayout
             StrategyLayout = new StrategyLayout(Data.Strategy.Clone()) {Parent = PnlStrategyBase};
-            StrategyLayout.btnAddOpenFilter.Click += BtnAddOpenFilterClick;
-            StrategyLayout.btnAddCloseFilter.Click += BtnAddCloseFilterClick;
+            StrategyLayout.BtnAddOpenFilter.Click += BtnAddOpenFilterClick;
+            StrategyLayout.BtnAddCloseFilter.Click += BtnAddCloseFilterClick;
 
             // ToolStrip Strategy
             TsStrategy = new ToolStrip {Parent = PnlStrategyBase, Dock = DockStyle.None, AutoSize = false};
@@ -238,7 +238,7 @@ namespace Forex_Strategy_Trader
         protected void RebuildStrategyLayout()
         {
             StrategyLayout.RebuildStrategyControls(Data.Strategy.Clone());
-            StrategyLayout.pnlProperties.Click += PnlAveragingClick;
+            StrategyLayout.PnlProperties.Click += PnlAveragingClick;
             for (int slot = 0; slot < Data.Strategy.Slots; slot++)
             {
                 var miEdit = new ToolStripMenuItem
@@ -296,16 +296,16 @@ namespace Forex_Strategy_Trader
                 miDelete.Enabled = (Data.Strategy.Slot[slot].SlotType == SlotTypes.OpenFilter ||
                                     Data.Strategy.Slot[slot].SlotType == SlotTypes.CloseFilter);
 
-                StrategyLayout.apnlSlot[slot].ContextMenuStrip = new ContextMenuStrip();
-                StrategyLayout.apnlSlot[slot].ContextMenuStrip.Items.AddRange(new ToolStripItem[]
+                StrategyLayout.ApnlSlot[slot].ContextMenuStrip = new ContextMenuStrip();
+                StrategyLayout.ApnlSlot[slot].ContextMenuStrip.Items.AddRange(new ToolStripItem[]
                                                                                   {
                                                                                       miEdit, miUpwards, miDownwards,
                                                                                       miDuplicate, miDelete
                                                                                   });
 
-                StrategyLayout.apnlSlot[slot].MouseClick += PnlSlotMouseUp;
+                StrategyLayout.ApnlSlot[slot].MouseClick += PnlSlotMouseUp;
                 if (slot != Data.Strategy.OpenSlot && slot != Data.Strategy.CloseSlot)
-                    StrategyLayout.abtnRemoveSlot[slot].Click += BtnRemoveSlotClick;
+                    StrategyLayout.AbtnRemoveSlot[slot].Click += BtnRemoveSlotClick;
             }
         }
 
@@ -384,23 +384,23 @@ namespace Forex_Strategy_Trader
             switch (btn.Name)
             {
                 case "ZoomIn":
-                    if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.min)
+                    if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.Min)
                     {
-                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.mid;
+                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.Mid;
                     }
-                    else if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.mid)
+                    else if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.Mid)
                     {
-                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.max;
+                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.Max;
                     }
                     break;
                 case "ZoomOut":
-                    if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.max)
+                    if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.Max)
                     {
-                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.mid;
+                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.Mid;
                     }
-                    else if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.mid)
+                    else if (StrategyLayout.SlotMinMidMax == SlotSizeMinMidMax.Mid)
                     {
-                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.min;
+                        StrategyLayout.SlotMinMidMax = SlotSizeMinMidMax.Min;
                     }
                     break;
             }
@@ -414,7 +414,7 @@ namespace Forex_Strategy_Trader
         private void BtnStrategyDescriptionClick(object sender, EventArgs e)
         {
             string oldInfo = Data.Strategy.Description;
-            var si = new Strategy_Description();
+            var si = new StrategyDescription();
             si.ShowDialog();
             if (oldInfo == Data.Strategy.Description) return;
             Data.SetStrategyIndicators();

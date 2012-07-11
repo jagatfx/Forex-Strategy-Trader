@@ -939,7 +939,7 @@ namespace Forex_Strategy_Trader
 
             if ((string) mi.Tag == "tips")
             {
-                var shv = new Starting_Tips();
+                var shv = new StartingTips();
                 shv.Show();
                 return;
             }

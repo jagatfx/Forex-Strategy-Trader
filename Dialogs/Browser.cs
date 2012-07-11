@@ -1,24 +1,31 @@
 // Browser Form
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace Forex_Strategy_Trader
 {
     /// <summary>
-    /// Class Browser
+    /// Class Actions : Controls
     /// </summary>
-    public class Browser : Form
+    public sealed class Browser : Form
     {
-        MenuStrip menu;
-        ToolStripMenuItem itemSaveAs, itemPrint, itemPreview, itemProps, itemOnlineHelp, itemForum;
-        WebBrowser browser;
-        string webPage;
+        private MenuStrip MainMenu { get; set; }
+        private WebBrowser WbBrowser { get; set; }
+        private ToolStripMenuItem ItemForum { get; set; }
+        private ToolStripMenuItem ItemOnlineHelp { get; set; }
+        private ToolStripMenuItem ItemPreview { get; set; }
+        private ToolStripMenuItem ItemPrint { get; set; }
+        private ToolStripMenuItem ItemProps { get; set; }
+        private ToolStripMenuItem ItemSaveAs { get; set; }
+        private readonly string _webPage;
 
         /// <summary>
         /// Constructor
@@ -27,22 +34,18 @@ namespace Forex_Strategy_Trader
         {
             Text = caption;
             ResizeRedraw = true;
-            BackColor    = SystemColors.GradientInactiveCaption;
+            BackColor = SystemColors.GradientInactiveCaption;
 
-            browser = new WebBrowser();
-            browser.Parent = this;
-            browser.Dock   = DockStyle.Fill;
+            WbBrowser = new WebBrowser { Parent = this, Dock = DockStyle.Fill };
 
-            this.webPage = webPage;
+            _webPage = webPage;
 
             // Create MenuStrip
-            menu = new MenuStrip();
-            menu.Parent = this;
-            menu.Dock   = DockStyle.Top;
+            MainMenu = new MenuStrip { Parent = this, Dock = DockStyle.Top };
 
-            MainMenuStrip = menu;
-            menu.Items.Add(FileMenu());
-            menu.Items.Add(HelpMenu());
+            MainMenuStrip = MainMenu;
+            MainMenu.Items.Add(FileMenu());
+            MainMenu.Items.Add(HelpMenu());
         }
 
         /// <summary>
@@ -50,48 +53,45 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void OnLoad(EventArgs e)
         {
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Icon = Data.Icon;
-            this.Size = new Size(660, 450);
-
+            StartPosition = FormStartPosition.CenterScreen;
+            Icon = Data.Icon;
+            Size = new Size(660, 450);
             ShowDocument();
         }
 
         /// <summary>
-        /// Loads the webpage in the browser.
+        /// Loads the help page.
         /// </summary>
         private void ShowDocument()
         {
-            browser.DocumentText = webPage;
+            WbBrowser.DocumentText = _webPage;
         }
 
-        ToolStripMenuItem FileMenu()
+        private ToolStripMenuItem FileMenu()
         {
-            ToolStripMenuItem item;
-            ToolStripMenuItem itemFile = new ToolStripMenuItem(Language.T("File"));
+            var itemFile = new ToolStripMenuItem(Language.T("File"));
 
-            itemSaveAs = new ToolStripMenuItem(Language.T("Save As") + "...");
-            itemSaveAs.Click += SaveAsOnClick;
-            itemFile.DropDownItems.Add(itemSaveAs);
+            ItemSaveAs = new ToolStripMenuItem(Language.T("Save As") + "...");
+            ItemSaveAs.Click += SaveAsOnClick;
+            itemFile.DropDownItems.Add(ItemSaveAs);
 
-            item = new ToolStripMenuItem(Language.T("Page Setup") + "...");
+            var item = new ToolStripMenuItem(Language.T("Page Setup") + "...");
             item.Click += PageSetupOnClick;
             itemFile.DropDownItems.Add(item);
 
-            itemPrint = new ToolStripMenuItem(Language.T("Print") + "...");
-            itemPrint.ShortcutKeys = Keys.Control | Keys.P;
-            itemPrint.Click += PrintDialogOnClick;
-            itemFile.DropDownItems.Add(itemPrint);
+            ItemPrint = new ToolStripMenuItem(Language.T("Print") + "...") { ShortcutKeys = Keys.Control | Keys.P };
+            ItemPrint.Click += PrintDialogOnClick;
+            itemFile.DropDownItems.Add(ItemPrint);
 
-            itemPreview = new ToolStripMenuItem(Language.T("Print Preview") + "...");
-            itemPreview.Click += PreviewOnClick;
-            itemFile.DropDownItems.Add(itemPreview);
+            ItemPreview = new ToolStripMenuItem(Language.T("Print Preview") + "...");
+            ItemPreview.Click += PreviewOnClick;
+            itemFile.DropDownItems.Add(ItemPreview);
 
             itemFile.DropDownItems.Add(new ToolStripSeparator());
 
-            itemProps = new ToolStripMenuItem(Language.T("Properties") + "...");
-            itemProps.Click += PropertiesOnClick;
-            itemFile.DropDownItems.Add(itemProps);
+            ItemProps = new ToolStripMenuItem(Language.T("Properties") + "...");
+            ItemProps.Click += PropertiesOnClick;
+            itemFile.DropDownItems.Add(ItemProps);
 
             itemFile.DropDownItems.Add(new ToolStripSeparator());
 
@@ -102,68 +102,91 @@ namespace Forex_Strategy_Trader
             return itemFile;
         }
 
-        ToolStripMenuItem HelpMenu()
+        private ToolStripMenuItem HelpMenu()
         {
-            ToolStripMenuItem itemHelp = new ToolStripMenuItem(Language.T("Help"));
+            var itemHelp = new ToolStripMenuItem(Language.T("Help"));
 
-            itemOnlineHelp = new ToolStripMenuItem(Language.T("Online Help") + "...");
-            itemOnlineHelp.ShortcutKeys = Keys.F1;
-            itemOnlineHelp.Click += OnlineHelpOnClick;
-            itemHelp.DropDownItems.Add(itemOnlineHelp);
+            ItemOnlineHelp = new ToolStripMenuItem(Language.T("Online Help") + "...") { ShortcutKeys = Keys.F1 };
+            ItemOnlineHelp.Click += OnlineHelpOnClick;
+            itemHelp.DropDownItems.Add(ItemOnlineHelp);
 
-            itemForum = new ToolStripMenuItem(Language.T("Forum") + "...");
-            itemForum.Click += ForumOnClick;
-            itemHelp.DropDownItems.Add(itemForum);
+            ItemForum = new ToolStripMenuItem(Language.T("Forum") + "...");
+            ItemForum.Click += ForumOnClick;
+            itemHelp.DropDownItems.Add(ItemForum);
 
             return itemHelp;
         }
 
-        void SaveAsOnClick(object objSrc, EventArgs args)
+        private void SaveAsOnClick(object objSrc, EventArgs args)
         {
-            browser.ShowSaveAsDialog();
+            try
+            {
+                string tempFile = Path.GetTempFileName();
+                string tempDir = Path.GetDirectoryName(tempFile);
+                string tempFileName = Path.GetFileNameWithoutExtension(tempFile) + ".html";
+                if (tempDir != null) tempFile = Path.Combine(tempDir, tempFileName);
+                StreamWriter writer = File.CreateText(tempFile);
+                writer.Write(WbBrowser.DocumentText);
+                writer.Flush();
+                writer.Close();
+                WbBrowser.Navigate(tempFile);
+                WbBrowser.ShowSaveAsDialog();
+                WbBrowser.DocumentText = _webPage;
+                File.Delete(tempFile);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message);
+            }
         }
 
-        void PageSetupOnClick(object objSrc, EventArgs args)
+        private void PageSetupOnClick(object objSrc, EventArgs args)
         {
-            browser.ShowPageSetupDialog();
+            WbBrowser.ShowPageSetupDialog();
         }
 
-        void PrintDialogOnClick(object objSrc, EventArgs args)
+        private void PrintDialogOnClick(object objSrc, EventArgs args)
         {
-            browser.ShowPrintDialog();
+            WbBrowser.ShowPrintDialog();
         }
 
-        void PreviewOnClick(object objSrc, EventArgs args)
+        private void PreviewOnClick(object objSrc, EventArgs args)
         {
-            browser.ShowPrintPreviewDialog();
+            WbBrowser.ShowPrintPreviewDialog();
         }
 
-        void PropertiesOnClick(object objSrc, EventArgs args)
+        private void PropertiesOnClick(object objSrc, EventArgs args)
         {
-            browser.ShowPropertiesDialog();
+            WbBrowser.ShowPropertiesDialog();
         }
 
-        void ExitOnClick(object objSrc, EventArgs args)
+        private void ExitOnClick(object objSrc, EventArgs args)
         {
             Close();
         }
 
-        void OnlineHelpOnClick(object objSrc, EventArgs args)
+        private void OnlineHelpOnClick(object objSrc, EventArgs args)
         {
             try
             {
-                System.Diagnostics.Process.Start("http://forexsb.com/wiki/fst/manual/start");
+                Process.Start("http://forexsb.com/wiki/fsb/manual/start");
             }
-            catch { }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
         }
 
-        void ForumOnClick(object objSrc, EventArgs args)
+        private void ForumOnClick(object objSrc, EventArgs args)
         {
             try
             {
-                System.Diagnostics.Process.Start("http://forexsb.com/forum/");
+                Process.Start("http://forexsb.com/forum/");
             }
-            catch { }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
         }
     }
 }

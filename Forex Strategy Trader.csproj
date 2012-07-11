@@ -77,17 +77,18 @@
     <Compile Include="Common\DataPeriods.cs" />
     <Compile Include="Common\Logger.cs" />
     <Compile Include="Common\SlotSizeMinMidMax.cs" />
-    <Compile Include="Dialogs\Command Console.cs">
+    <Compile Include="Dialogs\CommandConsole.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="IndicatorCompiler\CustomIndicators.cs" />
     <Compile Include="Indicators\Day Closing.cs" />
     <Compile Include="Indicators\Week Closing 2.cs" />
     <Compile Include="Indicators\N Bars Exit.cs" />
-    <Compile Include="Instruments\Bar Stats.cs" />
+    <Compile Include="Instruments\BarStats.cs" />
     <Compile Include="Common\Configs.cs" />
     <Compile Include="Common\DataCommon.cs" />
     <Compile Include="Common\DataMarket.cs" />
-    <Compile Include="Dialogs\About Screen.cs">
+    <Compile Include="Dialogs\AboutScreen.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dialogs\Browser.cs">
@@ -96,6 +97,7 @@
     <Compile Include="Dialogs\TradeSettings.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Instruments\Operation.cs" />
     <Compile Include="MT4Bridge\MT4 Errors.cs" />
     <Compile Include="Strategy\PermanentProtectionType.cs" />
     <Compile Include="Strategy\StrategySlotStatus.cs" />
@@ -103,34 +105,34 @@
     <Compile Include="UserInterface\Chart.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Dialogs\Indicator Dialog.cs">
+    <Compile Include="Dialogs\IndicatorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\Starting Tips.cs">
+    <Compile Include="Dialogs\StartingTips.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\Strategy Description.cs">
+    <Compile Include="Dialogs\StrategyDescription.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dialogs\StrategyProperties.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\Strategy Publish.cs">
+    <Compile Include="Dialogs\StrategyPublish.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Indicator base\Check Params.cs" />
-    <Compile Include="Indicator base\Enumerations.cs" />
-    <Compile Include="Indicator base\Indicator Component.cs" />
-    <Compile Include="Indicator base\Indicator Parameters.cs" />
-    <Compile Include="Indicator base\Indicator Slot.cs" />
-    <Compile Include="Indicator base\Indicator Store.cs" />
-    <Compile Include="Indicator base\Indicator.cs" />
-    <Compile Include="Indicator base\List Params.cs" />
-    <Compile Include="Indicator base\Numeric Params.cs" />
-    <Compile Include="Indicator compiler\CSharp Compiler.cs" />
-    <Compile Include="Indicator compiler\Custom Indicators.cs" />
-    <Compile Include="Indicator compiler\Indicator Compilation Manager.cs" />
-    <Compile Include="Indicator compiler\Indicator Tester.cs" />
+    <Compile Include="IndicatorBase\CheckParam.cs" />
+    <Compile Include="IndicatorBase\Enumerations.cs" />
+    <Compile Include="IndicatorBase\IndicatorComp.cs" />
+    <Compile Include="IndicatorBase\IndicatorParam.cs" />
+    <Compile Include="IndicatorBase\Indicator Slot.cs" />
+    <Compile Include="IndicatorBase\IndicatorStore.cs" />
+    <Compile Include="IndicatorBase\Indicator.cs" />
+    <Compile Include="IndicatorBase\ListParam.cs" />
+    <Compile Include="IndicatorBase\Numeric Params.cs" />
+    <Compile Include="IndicatorCompiler\CSharpCompiler.cs" />
+    <Compile Include="IndicatorCompiler\CustomIndicatorsTestResult.cs" />
+    <Compile Include="IndicatorCompiler\IndicatorCompilationManager.cs" />
+    <Compile Include="IndicatorCompiler\IndicatorTester.cs" />
     <Compile Include="Indicators\Accelerator Oscillator.cs" />
     <Compile Include="Indicators\Account Percent Stop.cs" />
     <Compile Include="Indicators\Accumulation Distribution.cs" />
@@ -234,8 +236,8 @@
     <Compile Include="Indicators\Week Closing.cs" />
     <Compile Include="Indicators\Williams Percent Range.cs" />
     <Compile Include="Instruments\Bar.cs" />
-    <Compile Include="Instruments\Data Parser.cs" />
-    <Compile Include="Instruments\Instrument Properties.cs" />
+    <Compile Include="Instruments\DataParser.cs" />
+    <Compile Include="Instruments\InstrumentProperties.cs" />
     <Compile Include="Instruments\Instrument.cs" />
     <Compile Include="Tools\Language.cs" />
     <Compile Include="Tools\LiveContent.cs" />
@@ -258,10 +260,10 @@
     <Compile Include="Strategy\Strategy Reports.cs" />
     <Compile Include="Strategy\StrategyXML.cs" />
     <Compile Include="Strategy\Strategy.cs" />
-    <Compile Include="Dialogs\Edit Translation.cs">
+    <Compile Include="Dialogs\EditTranslation.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\New Translation.cs">
+    <Compile Include="Dialogs\NewTranslation.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Common\ActionsTrade.cs">
