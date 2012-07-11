@@ -154,8 +154,9 @@ namespace Forex_Strategy_Trader
                 using (var sr = new StreamReader(pathToIndicator))
                 {
                     result = sr.ReadToEnd();
+                    result = result.Replace("Forex_Strategy_Builder", "Forex_Strategy_Trader");
                     sr.Close();
-                }
+               }
             }
             catch
             {
