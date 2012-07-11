@@ -401,7 +401,6 @@ namespace Forex_Strategy_Trader
                                                        takeprofit.ToString(Data.FF));
                         var jmsg = new JournalMessage(JournalIcons.OrderBuy, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
-                        Data.Logger.WriteLogLine(message);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
@@ -459,7 +458,6 @@ namespace Forex_Strategy_Trader
                                                        takeprofit.ToString(Data.FF));
                         var jmsg = new JournalMessage(JournalIcons.OrderSell, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
-                        Data.Logger.WriteLogLine(message);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
@@ -509,7 +507,6 @@ namespace Forex_Strategy_Trader
                                                        lots, price.ToString(Data.FF));
                         var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
-                        Data.Logger.WriteLogLine(message);
 
                         bool responseOK = _bridge.OrderClose(ticket, lots, price, slippage);
 

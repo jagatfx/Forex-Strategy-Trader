@@ -95,7 +95,6 @@ namespace Forex_Strategy_Trader
                         string message = Language.T("There is no connection with MetaTrader.");
                         var jmsgsys = new JournalMessage(JournalIcons.Warning, DateTime.Now, message);
                         AppendJournalMessage(jmsgsys);
-                        Data.Logger.WriteLogLine(message);
                         if (Configs.PlaySounds)
                             Data.SoundError.Play();
                     }
@@ -156,7 +155,6 @@ namespace Forex_Strategy_Trader
 
                             string fileNameHeader = ping.Symbol + "_" + ping.Period + "_ID" + Data.ConnectionID + "_";
                             Data.Logger.CreateLogFile(fileNameHeader);
-                            Data.Logger.WriteLogLine("ExpertVersion: " + Data.ExpertVersion + ", " + "LibraryVersion: " + Data.LibraryVersion);
                         }
 
                         SetLblConnectionText(connection);
@@ -164,7 +162,6 @@ namespace Forex_Strategy_Trader
                         SetConnMarketText(market);
                         string message = market + " " + connection;
                         var jmsg = new JournalMessage(JournalIcons.OK, DateTime.Now, message);
-                        Data.Logger.WriteLogLine(message);
                         AppendJournalMessage(jmsg);
 
                         // Check for reconnection.
@@ -216,13 +213,12 @@ namespace Forex_Strategy_Trader
                     {
                         string message = string.Format(
                             Language.T("Account Balance") + " {0:F2}, " +
-                            Language.T("Equity") + " {1:F2}, " + Language.T("Profit") +
-                            ", {2:F2}, " + Language.T("Free Margin") + " {3:F2}",
-                            ping.AccountBalance, ping.AccountEquity, ping.AccountProfit,
-                            ping.AccountFreeMargin);
+                            Language.T("Equity") + " {1:F2}, " +
+                            Language.T("Profit") + " {2:F2}, " +
+                            Language.T("Free Margin") + " {3:F2}",
+                            ping.AccountBalance, ping.AccountEquity, ping.AccountProfit, ping.AccountFreeMargin);
                         var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
-                        Data.Logger.WriteLogLine(message);
                     }
 
                     if (Data.IsBalanceDataChganged)
@@ -272,7 +268,6 @@ namespace Forex_Strategy_Trader
                                      Language.T("Tick received from a different chart!");
                     var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now, message);
                     AppendJournalMessage(jmsg);
-                    Data.Logger.WriteLogLine(message);
 
                     return;
                 }
@@ -328,7 +323,6 @@ namespace Forex_Strategy_Trader
                         tea.AccountFreeMargin);
                     var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now, message);
                     AppendJournalMessage(jmsg);
-                    Data.Logger.WriteLogLine(message);
                 }
 
                 if (Data.IsBalanceDataChganged)
@@ -778,30 +772,33 @@ namespace Forex_Strategy_Trader
             {
                 // Expert was not sure which one was activated, so reported both.
                 Data.AddBarStats(OperationType.Close, Data.ClosedSLTPLots, Data.ActivatedStopLoss);
-                string message = "Position closed at " + Data.ActivatedStopLoss.ToString("F5") + ", Closed Lots " + Data.ClosedSLTPLots.ToString("F2");
+                string message = Data.Symbol + " " + Data.PeriodMTStr + " " +
+                    Language.T("Position closed at") + " " + Data.ActivatedStopLoss.ToString(Data.FF) + ", " +
+                    Language.T("Closed Lots") + " " + Data.ClosedSLTPLots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
                 AppendJournalMessage(msg);
-                Data.Logger.WriteLogLine(message);
                 _activationReportedAt = Data.ActivatedStopLoss;
             }
             else if (Data.ActivatedStopLoss > Epsilon)
             {
                 // Activated Stop Loss
                 Data.AddBarStats(OperationType.Close, Data.ClosedSLTPLots, Data.ActivatedStopLoss);
-                string message = "Activated Stop Loss at " + Data.ActivatedStopLoss.ToString("F5") + ", Closed Lots " + Data.ClosedSLTPLots.ToString("F2");
+                string message = Data.Symbol + " " + Data.PeriodMTStr + " "  +
+                    Language.T("Activated Stop Loss at") + " " + Data.ActivatedStopLoss.ToString(Data.FF) + ", " +
+                    Language.T("Closed Lots") + " " + Data.ClosedSLTPLots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
                 AppendJournalMessage(msg);
-                Data.Logger.WriteLogLine(message);
                 _activationReportedAt = Data.ActivatedStopLoss;
             }
             else if (Data.ActivatedTakeProfit > Epsilon)
             {
                 // Activated Take Profit
                 Data.AddBarStats(OperationType.Close, Data.ClosedSLTPLots, Data.ActivatedTakeProfit);
-                string message = "Activated Take Profit at " + Data.ActivatedTakeProfit.ToString("F5") + ", Closed Lots " + Data.ClosedSLTPLots.ToString("F2");
+                string message = Data.Symbol + " " + Data.PeriodMTStr + " " +
+                    Language.T("Activated Take Profit at") + " " + Data.ActivatedTakeProfit.ToString(Data.FF) + ", " +
+                    Language.T("Closed Lots") + " " + Data.ClosedSLTPLots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
                 AppendJournalMessage(msg);
-                Data.Logger.WriteLogLine(message);
                 _activationReportedAt = Data.ActivatedTakeProfit;
             }
         }
@@ -817,10 +814,9 @@ namespace Forex_Strategy_Trader
             InitTrade();
 
             Data.SetStartTradingTime();
-            string message = Language.T("Automatic trade started.");
+            string message = Data.Symbol + " " + Data.PeriodMTStr + " " + Language.T("Automatic trade started.");
             var msg = new JournalMessage(JournalIcons.StartTrading, DateTime.Now, message);
             AppendJournalMessage(msg);
-            Data.Logger.WriteLogLine(message);
 
             _symbolReconnect = Data.Symbol;
             _periodReconnect = Data.Period;
@@ -844,10 +840,9 @@ namespace Forex_Strategy_Trader
 
             Data.SetStopTradingTime();
 
-            string message = Language.T("Automatic trade stopped.");
+            string message = Data.Symbol + " " + Data.PeriodMTStr + " " + Language.T("Automatic trade stopped.");
             var msg = new JournalMessage(JournalIcons.StopTrading, DateTime.Now, message);
             AppendJournalMessage(msg);
-            Data.Logger.WriteLogLine(message);
             SetTradeStrip();
         }
 
@@ -904,7 +899,6 @@ namespace Forex_Strategy_Trader
                 string message = string.Format(Data.Symbol + " " + Data.PeriodMTStr + " " + text);
                 var jmsg = new JournalMessage(icon, DateTime.Now, message);
                 AppendJournalMessage(jmsg);
-                Data.Logger.WriteLogLine(message);
             }
         }
 

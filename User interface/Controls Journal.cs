@@ -219,7 +219,7 @@ namespace Forex_Strategy_Trader
 
             UpdateJournal(messages);
 
-            return;
+            Data.Logger.WriteLogLine(message.Message);
         }
 
         delegate void UpdateJournalDelegate(List<JournalMessage> newMessages);
