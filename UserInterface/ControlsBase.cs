@@ -14,7 +14,7 @@ namespace Forex_Strategy_Trader
     /// <summary>
     /// Class Controls : Menu_and_StatusBar
     /// </summary>
-    public partial class Controls : Menu_and_StatusBar
+    public partial class Controls : MenuAndStatusBar
     {
         /// <summary>
         /// The default constructor.
@@ -32,7 +32,7 @@ namespace Forex_Strategy_Trader
             TabControlBase = new TabControl
                                  {
                                      Name = "tabControlBase",
-                                     Parent = pnlWorkspace,
+                                     Parent = PnlWorkspace,
                                      Dock = DockStyle.Fill,
                                      ImageList = imageList,
                                      HotTrack = true
@@ -53,13 +53,13 @@ namespace Forex_Strategy_Trader
             TabControlBase.Controls.Add(TabPageJournal);
             TabControlBase.Controls.Add(TabPageOperation);
 
-            Initialize_StripTrade();
-            Initialize_PageStatus();
+            InitializeStripTrade();
+            InitializePageStatus();
             InitializePageStrategy();
             InitializePageChart();
-            Initialize_PageAccount();
+            InitializePageAccount();
             InitializePageJournal();
-            Initialize_PageOperation();
+            InitializePageOperation();
         }
 
         private TabControl TabControlBase { get; set; }
@@ -88,63 +88,63 @@ namespace Forex_Strategy_Trader
             if (TabControlBase.SelectedTab == TabPageStatus)
             {
                 DisposeChart();
-                miTabStatus.Checked = true;
-                miTabStrategy.Checked = false;
-                miTabChart.Checked = false;
-                miTabAccount.Checked = false;
-                miTabJournal.Checked = false;
-                miTabOperation.Checked = false;
+                MITabStatus.Checked = true;
+                MITabStrategy.Checked = false;
+                MITabChart.Checked = false;
+                MITabAccount.Checked = false;
+                MITabJournal.Checked = false;
+                MITabOperation.Checked = false;
             }
             else if (TabControlBase.SelectedTab == TabPageStrategy)
             {
                 DisposeChart();
-                miTabStatus.Checked = false;
-                miTabStrategy.Checked = true;
-                miTabChart.Checked = false;
-                miTabAccount.Checked = false;
-                miTabJournal.Checked = false;
-                miTabOperation.Checked = false;
+                MITabStatus.Checked = false;
+                MITabStrategy.Checked = true;
+                MITabChart.Checked = false;
+                MITabAccount.Checked = false;
+                MITabJournal.Checked = false;
+                MITabOperation.Checked = false;
             }
             else if (TabControlBase.SelectedTab == TabPageChart)
             {
                 CreateChart();
-                miTabStatus.Checked = false;
-                miTabStrategy.Checked = false;
-                miTabChart.Checked = true;
-                miTabAccount.Checked = false;
-                miTabJournal.Checked = false;
-                miTabOperation.Checked = false;
+                MITabStatus.Checked = false;
+                MITabStrategy.Checked = false;
+                MITabChart.Checked = true;
+                MITabAccount.Checked = false;
+                MITabJournal.Checked = false;
+                MITabOperation.Checked = false;
             }
             else if (TabControlBase.SelectedTab == TabPageAccount)
             {
                 DisposeChart();
-                miTabStatus.Checked = false;
-                miTabStrategy.Checked = false;
-                miTabChart.Checked = false;
-                miTabAccount.Checked = true;
-                miTabJournal.Checked = false;
-                miTabOperation.Checked = false;
+                MITabStatus.Checked = false;
+                MITabStrategy.Checked = false;
+                MITabChart.Checked = false;
+                MITabAccount.Checked = true;
+                MITabJournal.Checked = false;
+                MITabOperation.Checked = false;
             }
             else if (TabControlBase.SelectedTab == TabPageJournal)
             {
                 DisposeChart();
                 PageJournalSelected();
-                miTabStatus.Checked = false;
-                miTabStrategy.Checked = false;
-                miTabChart.Checked = false;
-                miTabAccount.Checked = false;
-                miTabJournal.Checked = true;
-                miTabOperation.Checked = false;
+                MITabStatus.Checked = false;
+                MITabStrategy.Checked = false;
+                MITabChart.Checked = false;
+                MITabAccount.Checked = false;
+                MITabJournal.Checked = true;
+                MITabOperation.Checked = false;
             }
             else if (TabControlBase.SelectedTab == TabPageOperation)
             {
                 DisposeChart();
-                miTabStatus.Checked = false;
-                miTabStrategy.Checked = false;
-                miTabChart.Checked = false;
-                miTabAccount.Checked = false;
-                miTabJournal.Checked = false;
-                miTabOperation.Checked = true;
+                MITabStatus.Checked = false;
+                MITabStrategy.Checked = false;
+                MITabChart.Checked = false;
+                MITabAccount.Checked = false;
+                MITabJournal.Checked = false;
+                MITabOperation.Checked = true;
             }
 
             Configs.LastTab = TabControlBase.SelectedIndex;

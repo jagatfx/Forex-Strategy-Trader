@@ -153,8 +153,12 @@ namespace Forex_Strategy_Trader
                             Data.LibraryVersion = te.LibraryVersion;
                             Data.TerminalName = te.TerminalName;
 
-                            string fileNameHeader = ping.Symbol + "_" + ping.Period + "_ID" + Data.ConnectionID + "_";
-                            Data.Logger.CreateLogFile(fileNameHeader);
+                            if (Configs.WriteLogFile)
+                            {
+                                string fileNameHeader = ping.Symbol + "_" + ping.Period + "_" + 
+                                                        "ID" + Data.ConnectionID + "_";
+                                Data.Logger.CreateLogFile(fileNameHeader);
+                            }
                         }
 
                         SetLblConnectionText(connection);
@@ -918,29 +922,29 @@ namespace Forex_Strategy_Trader
 
         private void SetTradeStripThreadSafely(string connectText, bool isConnectedNow, bool isTradingNow)
         {
-            if (tsTradeControl.InvokeRequired)
+            if (TsTradeControl.InvokeRequired)
             {
-                tsTradeControl.BeginInvoke(new SetTradeStripDelegate(SetTradeStripThreadSafely),
+                TsTradeControl.BeginInvoke(new SetTradeStripDelegate(SetTradeStripThreadSafely),
                                            new object[] {connectText, isConnectedNow, isTradingNow});
             }
             else
             {
                 // Sets label Connection
-                tslblConnection.Text = connectText;
+                TslblConnection.Text = connectText;
 
                 // Sets button Automatic Execution
                 if (isTradingNow)
                 {
-                    tsbtnTrading.Image = Resources.stop;
-                    tsbtnTrading.Text = Language.T("Stop Automatic Execution");
+                    TsbtnTrading.Image = Resources.stop;
+                    TsbtnTrading.Text = Language.T("Stop Automatic Execution");
                 }
                 else
                 {
-                    tsbtnTrading.Image = Resources.play;
-                    tsbtnTrading.Text = Language.T("Start Automatic Execution");
+                    TsbtnTrading.Image = Resources.play;
+                    TsbtnTrading.Text = Language.T("Start Automatic Execution");
                 }
-                tsbtnTrading.Enabled = isConnectedNow;
-                tsbtnConnectionHelp.Visible = !isConnectedNow;
+                TsbtnTrading.Enabled = isConnectedNow;
+                TsbtnConnectionHelp.Visible = !isConnectedNow;
             }
         }
 
@@ -956,15 +960,15 @@ namespace Forex_Strategy_Trader
                 Disconnect();
                 DeinitDataFeed();
 
-                tsTradeControl.SuspendLayout();
-                tsbtnChangeID.Visible = false;
-                tslblConnection.Visible = false;
-                tsbtnTrading.Visible = false;
+                TsTradeControl.SuspendLayout();
+                TsbtnChangeID.Visible = false;
+                TslblConnection.Visible = false;
+                TsbtnTrading.Visible = false;
 
-                tslblConnectionID.Visible = true;
-                tstbxConnectionID.Visible = true;
-                tsbtnConnectionGo.Visible = true;
-                tsTradeControl.ResumeLayout();
+                TslblConnectionID.Visible = true;
+                TstbxConnectionID.Visible = true;
+                TsbtnConnectionGo.Visible = true;
+                TsTradeControl.ResumeLayout();
             }
             else
             {
@@ -973,15 +977,15 @@ namespace Forex_Strategy_Trader
                 DeinitDataFeed();
                 Data.ConnectionID = 0;
 
-                tsTradeControl.SuspendLayout();
-                tsbtnChangeID.Visible = false;
-                tslblConnection.Visible = true;
-                tsbtnTrading.Visible = true;
+                TsTradeControl.SuspendLayout();
+                TsbtnChangeID.Visible = false;
+                TslblConnection.Visible = true;
+                TsbtnTrading.Visible = true;
 
-                tslblConnectionID.Visible = false;
-                tstbxConnectionID.Visible = false;
-                tsbtnConnectionGo.Visible = false;
-                tsTradeControl.ResumeLayout();
+                TslblConnectionID.Visible = false;
+                TstbxConnectionID.Visible = false;
+                TsbtnConnectionGo.Visible = false;
+                TsTradeControl.ResumeLayout();
 
                 InitDataFeed();
             }
@@ -992,9 +996,9 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// ID changed.
         /// </summary>
-        protected override void TstbxConnectionID_KeyPress(object sender, KeyPressEventArgs e)
+        protected override void TstbxConnectionIDKeyPress(object sender, KeyPressEventArgs e)
         {
-            tsbtnConnectionGo.Enabled = true;
+            TsbtnConnectionGo.Enabled = true;
             if (e.KeyChar == (char) Keys.Return)
                 ConnectionGo();
         }
@@ -1006,64 +1010,64 @@ namespace Forex_Strategy_Trader
         {
             try
             {
-                int id = int.Parse(tstbxConnectionID.Text);
+                int id = int.Parse(TstbxConnectionID.Text);
                 if (id >= 0)
                 {
                     Data.ConnectionID = id;
                     Disconnect();
 
-                    tsTradeControl.SuspendLayout();
-                    tsbtnChangeID.Text = string.Format("ID = {0}", tstbxConnectionID.Text);
-                    tsbtnChangeID.Visible = true;
-                    tslblConnection.Visible = true;
-                    tsbtnTrading.Visible = true;
-                    tslblConnectionID.Visible = false;
-                    tstbxConnectionID.Visible = false;
-                    tsbtnConnectionGo.Visible = false;
-                    tsTradeControl.ResumeLayout();
+                    TsTradeControl.SuspendLayout();
+                    TsbtnChangeID.Text = string.Format("ID = {0}", TstbxConnectionID.Text);
+                    TsbtnChangeID.Visible = true;
+                    TslblConnection.Visible = true;
+                    TsbtnTrading.Visible = true;
+                    TslblConnectionID.Visible = false;
+                    TstbxConnectionID.Visible = false;
+                    TsbtnConnectionGo.Visible = false;
+                    TsTradeControl.ResumeLayout();
 
                     InitDataFeed();
                 }
                 else
                 {
-                    tstbxConnectionID.Text = "";
+                    TstbxConnectionID.Text = "";
                 }
             }
             catch
             {
-                tsbtnConnectionGo.Enabled = false;
-                tstbxConnectionID.Text = "";
+                TsbtnConnectionGo.Enabled = false;
+                TstbxConnectionID.Text = "";
             }
         }
 
         /// <summary>
         /// Button Change ID clicked.
         /// </summary>
-        protected override void TsbtChangeID_Click(object sender, EventArgs e)
+        protected override void TsbtChangeIDClick(object sender, EventArgs e)
         {
             Disconnect();
             DeinitDataFeed();
 
-            tsTradeControl.SuspendLayout();
-            tsbtnChangeID.Visible = false;
-            tslblConnection.Visible = false;
-            tsbtnTrading.Visible = false;
+            TsTradeControl.SuspendLayout();
+            TsbtnChangeID.Visible = false;
+            TslblConnection.Visible = false;
+            TsbtnTrading.Visible = false;
 
-            tslblConnectionID.Visible = true;
-            tstbxConnectionID.Visible = true;
-            tsbtnConnectionGo.Visible = true;
-            tsTradeControl.ResumeLayout();
+            TslblConnectionID.Visible = true;
+            TstbxConnectionID.Visible = true;
+            TsbtnConnectionGo.Visible = true;
+            TsTradeControl.ResumeLayout();
         }
 
         /// <summary>
         /// Button Connection Go clicked.
         /// </summary>
-        protected override void TsbtConnectionGo_Click(object sender, EventArgs e)
+        protected override void TsbtConnectionGoClick(object sender, EventArgs e)
         {
             ConnectionGo();
         }
 
-        protected override void TsbtTrading_Click(object sender, EventArgs e)
+        protected override void TsbtTradingClick(object sender, EventArgs e)
         {
             if (_isTrading)
             {
@@ -1079,7 +1083,7 @@ namespace Forex_Strategy_Trader
             }
         }
 
-        protected override void BtnShowAccountInfo_Click(object sender, EventArgs e)
+        protected override void BtnShowAccountInfoClick(object sender, EventArgs e)
         {
             if (!Data.IsConnected)
             {
@@ -1142,7 +1146,7 @@ namespace Forex_Strategy_Trader
             SetBarDataText(sb.ToString());
         }
 
-        protected override void BtnShowMarketInfo_Click(object sender, EventArgs e)
+        protected override void BtnShowMarketInfoClick(object sender, EventArgs e)
         {
             if (!Data.IsConnected)
             {
@@ -1234,7 +1238,7 @@ namespace Forex_Strategy_Trader
             UpdateStatusPageMarketInfo(asValue);
         }
 
-        protected override void BtnShowBars_Click(object sender, EventArgs e)
+        protected override void BtnShowBarsClick(object sender, EventArgs e)
         {
             var sb = new StringBuilder(Data.Bars + 2);
 

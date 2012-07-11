@@ -40,7 +40,7 @@ namespace Forex_Strategy_Trader
                                             };
             PositionOpenTime = DateTime.MinValue;
             PositionType = -1;
-            BalanceData = new Balance_Chart_Unit[BalanceLenght];
+            BalanceData = new BalanceChartUnit[BalanceLenght];
             LibraryVersion = "unknown";
             ExpertVersion = "unknown";
             TerminalName = "MetaTrader";

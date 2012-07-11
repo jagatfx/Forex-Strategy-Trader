@@ -13,9 +13,9 @@ namespace Forex_Strategy_Trader
     public class Strategy_Description : Form
     {
         Panel       pnlBase;
-        Fancy_Panel pnlWarnBase;
+        FancyPanel pnlWarnBase;
         Label       lblWarning;
-        Fancy_Panel pnlTbxBase;
+        FancyPanel pnlTbxBase;
         TextBox     txboxInfo;
         Button      btnClose;
         Button      btnAccept;
@@ -28,9 +28,9 @@ namespace Forex_Strategy_Trader
         public Strategy_Description()
         {
             pnlBase     = new Panel();
-            pnlWarnBase = new Fancy_Panel();
+            pnlWarnBase = new FancyPanel();
             lblWarning  = new Label();
-            pnlTbxBase  = new Fancy_Panel(Language.T("Strategy Description"));
+            pnlTbxBase  = new FancyPanel(Language.T("Strategy Description"));
             txboxInfo   = new TextBox();
             btnClose    = new Button();
             btnAccept   = new Button();

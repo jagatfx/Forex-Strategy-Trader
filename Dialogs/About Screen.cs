@@ -12,7 +12,7 @@ namespace Forex_Strategy_Trader
 {
     public class AboutScreen : Form
     {
-        Fancy_Panel pnlBase;
+        FancyPanel pnlBase;
         Label lblProgramName;
         Label lblProgramVersion;
         Label lblLibraryVersion;
@@ -29,7 +29,7 @@ namespace Forex_Strategy_Trader
 
         public AboutScreen()
         {
-            pnlBase            = new Fancy_Panel();
+            pnlBase            = new FancyPanel();
             lblProgramName     = new Label();
             lblProgramVersion  = new Label();
             lblLibraryVersion  = new Label();

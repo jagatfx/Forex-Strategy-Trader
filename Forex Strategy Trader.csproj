@@ -99,8 +99,8 @@
     <Compile Include="MT4Bridge\MT4 Errors.cs" />
     <Compile Include="Strategy\PermanentProtectionType.cs" />
     <Compile Include="Strategy\StrategySlotStatus.cs" />
-    <Compile Include="User interface\Chart Data.cs" />
-    <Compile Include="User interface\Chart.cs">
+    <Compile Include="UserInterface\ChartData.cs" />
+    <Compile Include="UserInterface\Chart.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Dialogs\Indicator Dialog.cs">
@@ -267,62 +267,62 @@
     <Compile Include="Common\ActionsTrade.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Controls Operation.cs">
+    <Compile Include="UserInterface\ControlsOperation.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Controls Account.cs">
+    <Compile Include="UserInterface\ControlsAccount.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Controls Journal.cs">
+    <Compile Include="UserInterface\ControlsJournal.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Colors.cs" />
-    <Compile Include="User interface\Controls Base.cs">
+    <Compile Include="UserInterface\Colors.cs" />
+    <Compile Include="UserInterface\ControlsBase.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Controls Chart.cs">
+    <Compile Include="UserInterface\ControlsChart.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Controls Trade.cs">
+    <Compile Include="UserInterface\ControlsTrade.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Controls Status.cs">
+    <Compile Include="UserInterface\ControlsStatus.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Controls Strategy.cs">
+    <Compile Include="UserInterface\ControlsStrategy.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Tick Chart.cs">
+    <Compile Include="UserInterface\TickChart.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="User interface\Fancy Message Box.cs">
+    <Compile Include="UserInterface\FancyMessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\Fancy Panel.cs">
+    <Compile Include="UserInterface\FancyPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="User interface\Info Panel.cs">
+    <Compile Include="UserInterface\InfoPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="User interface\Journal.cs">
+    <Compile Include="UserInterface\Journal.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="User interface\LinkPanel.cs">
+    <Compile Include="UserInterface\LinkPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="User interface\Menu and StatusBar.cs">
+    <Compile Include="UserInterface\MenuAndStatusBar.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="User interface\NUD.cs">
+    <Compile Include="UserInterface\NUD.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="User interface\Balance Chart.cs">
+    <Compile Include="UserInterface\BalanceChart.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="User interface\Strategy Layout.cs">
+    <Compile Include="UserInterface\StrategyLayout.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="User interface\Workspace.cs">
+    <Compile Include="UserInterface\Workspace.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Tools\Utils.cs" />

@@ -12,8 +12,8 @@ namespace Forex_Strategy_Trader
 {
     public class Strategy_Publish : Form
     {
-        Fancy_Panel pnlBBCodeBase;
-        Fancy_Panel pnlInfoBase;
+        FancyPanel pnlBBCodeBase;
+        FancyPanel pnlInfoBase;
         TextBox txboxBBCode;
         Label   lblInformation;
         Button  btnClose;
@@ -24,8 +24,8 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public Strategy_Publish()
         {
-            pnlBBCodeBase  = new Fancy_Panel();
-            pnlInfoBase    = new Fancy_Panel();
+            pnlBBCodeBase  = new FancyPanel();
+            pnlInfoBase    = new FancyPanel();
             txboxBBCode    = new TextBox();
             lblInformation = new Label();
             btnClose       = new Button();

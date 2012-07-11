@@ -17,7 +17,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public TradeSettings()
         {
-            PnlSettings = new Fancy_Panel();
+            PnlSettings = new FancyPanel();
 
             LblCloseAdvance = new Label();
             LblSlippageEntry = new Label();
@@ -166,7 +166,7 @@ namespace Forex_Strategy_Trader
             BtnAccept.UseVisualStyleBackColor = true;
         }
 
-        private Fancy_Panel PnlSettings { get; set; }
+        private FancyPanel PnlSettings { get; set; }
 
         private Label LblCloseAdvance { get; set; }
         private Label LblSlippageEntry { get; set; }

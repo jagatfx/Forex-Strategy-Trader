@@ -16,8 +16,8 @@ namespace Forex_Strategy_Trader
     /// </summary>
     class Edit_Translation : Form
     {
-        Fancy_Panel pnlCommon;
-        Fancy_Panel pnlPhrases;
+        FancyPanel pnlCommon;
+        FancyPanel pnlPhrases;
         Label[]     alblInputNames;
         TextBox[]   atbxInputValues;
         TextBox[]   atbxMain;
@@ -52,8 +52,8 @@ namespace Forex_Strategy_Trader
             FormClosing    += new FormClosingEventHandler(Actions_FormClosing);
 
             // Controls
-            pnlCommon       = new Fancy_Panel(Language.T("Common Parameters"));
-            pnlPhrases      = new Fancy_Panel(Language.T("English Phrase - Translated Phrase"));
+            pnlCommon       = new FancyPanel(Language.T("Common Parameters"));
+            pnlPhrases      = new FancyPanel(Language.T("English Phrase - Translated Phrase"));
             alblInputNames  = new Label[5];
             atbxInputValues = new TextBox[5];
             atbxMain        = new TextBox[TEXTBOXES];

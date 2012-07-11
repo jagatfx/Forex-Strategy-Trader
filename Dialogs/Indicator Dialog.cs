@@ -44,9 +44,9 @@ namespace Forex_Strategy_Trader
     public class Indicator_Dialog : Form
     {
 
-        Fancy_Panel pnlTreeViewBase;
+        FancyPanel pnlTreeViewBase;
         TreeView    trvIndicators;
-        Fancy_Panel pnlParameters;
+        FancyPanel pnlParameters;
 
         Label       lblIndicatorInfo;
         Label       lblIndicatorWarning;
@@ -120,26 +120,26 @@ namespace Forex_Strategy_Trader
             if (slotType == SlotTypes.Open)
             {
                 slotTitle       = Language.T("Opening Point of the Position");
-                pnlParameters   = new Fancy_Panel(slotTitle, LayoutColors.ColorSlotCaptionBackOpen, LayoutColors.ColorSlotCaptionText);
-                pnlTreeViewBase = new Fancy_Panel(Language.T("Indicators"), LayoutColors.ColorSlotCaptionBackOpen, LayoutColors.ColorSlotCaptionText);
+                pnlParameters   = new FancyPanel(slotTitle, LayoutColors.ColorSlotCaptionBackOpen, LayoutColors.ColorSlotCaptionText);
+                pnlTreeViewBase = new FancyPanel(Language.T("Indicators"), LayoutColors.ColorSlotCaptionBackOpen, LayoutColors.ColorSlotCaptionText);
             }
             else if (slotType == SlotTypes.OpenFilter)
             {
                 slotTitle       = Language.T("Opening Logic Condition");
-                pnlParameters   = new Fancy_Panel(slotTitle, LayoutColors.ColorSlotCaptionBackOpenFilter, LayoutColors.ColorSlotCaptionText);
-                pnlTreeViewBase = new Fancy_Panel(Language.T("Indicators"), LayoutColors.ColorSlotCaptionBackOpenFilter, LayoutColors.ColorSlotCaptionText);
+                pnlParameters   = new FancyPanel(slotTitle, LayoutColors.ColorSlotCaptionBackOpenFilter, LayoutColors.ColorSlotCaptionText);
+                pnlTreeViewBase = new FancyPanel(Language.T("Indicators"), LayoutColors.ColorSlotCaptionBackOpenFilter, LayoutColors.ColorSlotCaptionText);
             }
             else if (slotType == SlotTypes.Close)
             {
                 slotTitle       = Language.T("Closing Point of the Position");
-                pnlParameters   = new Fancy_Panel(slotTitle, LayoutColors.ColorSlotCaptionBackClose, LayoutColors.ColorSlotCaptionText);
-                pnlTreeViewBase = new Fancy_Panel(Language.T("Indicators"), LayoutColors.ColorSlotCaptionBackClose, LayoutColors.ColorSlotCaptionText);
+                pnlParameters   = new FancyPanel(slotTitle, LayoutColors.ColorSlotCaptionBackClose, LayoutColors.ColorSlotCaptionText);
+                pnlTreeViewBase = new FancyPanel(Language.T("Indicators"), LayoutColors.ColorSlotCaptionBackClose, LayoutColors.ColorSlotCaptionText);
             }
             else
             {
                 slotTitle       = Language.T("Closing Logic Condition");
-                pnlParameters   = new Fancy_Panel(slotTitle, LayoutColors.ColorSlotCaptionBackCloseFilter, LayoutColors.ColorSlotCaptionText);
-                pnlTreeViewBase = new Fancy_Panel(Language.T("Indicators"), LayoutColors.ColorSlotCaptionBackCloseFilter, LayoutColors.ColorSlotCaptionText);
+                pnlParameters   = new FancyPanel(slotTitle, LayoutColors.ColorSlotCaptionBackCloseFilter, LayoutColors.ColorSlotCaptionText);
+                pnlTreeViewBase = new FancyPanel(Language.T("Indicators"), LayoutColors.ColorSlotCaptionBackCloseFilter, LayoutColors.ColorSlotCaptionText);
             }
 
             trvIndicators = new TreeView();

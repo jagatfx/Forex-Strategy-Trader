@@ -107,7 +107,7 @@ namespace Forex_Strategy_Trader
         public static double AccountProfit { get; private set; }
         public static double AccountFreeMargin { get; private set; }
 
-        public static Balance_Chart_Unit[] BalanceData { get; private set; }
+        public static BalanceChartUnit[] BalanceData { get; private set; }
         public static int BalanceDataPoints { get; private set; }
         public static bool IsBalanceDataChganged { get; private set; }
 
@@ -197,7 +197,7 @@ namespace Forex_Strategy_Trader
 
             if (balance > 0.01 && (equityChanged || balanceChanged))
             {
-                var chartUnit = new Balance_Chart_Unit {Time = time, Balance = balance, Equity = equity};
+                var chartUnit = new BalanceChartUnit {Time = time, Balance = balance, Equity = equity};
 
                 if (BalanceDataPoints == 0)
                 {
@@ -232,7 +232,7 @@ namespace Forex_Strategy_Trader
             AccountFreeMargin = 0;
 
             BalanceDataPoints = 0;
-            BalanceData = new Balance_Chart_Unit[BalanceLenght];
+            BalanceData = new BalanceChartUnit[BalanceLenght];
         }
 
         public static bool SetCurrentPosition(int ticket, int type, double lots, double price, DateTime opentime,

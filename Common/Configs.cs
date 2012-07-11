@@ -1,7 +1,7 @@
 // Configs Class
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
@@ -13,10 +13,10 @@ namespace Forex_Strategy_Trader
 {
     public static class Configs
     {
-        static XmlDocument xmlConfig;
-        static string pathToConfigFile;
-        static bool   isConfigLoaded   = false;
-        static bool   isResetActivated = false;
+        static XmlDocument _xmlConfig;
+        static readonly string PathToConfigFile;
+        static bool   _isConfigLoaded;
+        static bool   _isResetActivated;
 
         // Constant parameters
         static int    MAX_ENTRY_FILTERSDefault          = 4;
@@ -51,6 +51,7 @@ namespace Forex_Strategy_Trader
         static bool   useLogicalGroupsDefault  = false;
         static int    journalLengthDefault     = 1000;
         static bool   sendUsageStatsDefault    = true;
+        static bool   writeLogFileDefault     = true;
 
         // Chart
         static int  chartZoomDefault            = 9;
@@ -80,8 +81,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 iMAX_ENTRY_FILTERS = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/MAX_ENTRY_FILTERS").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/MAX_ENTRY_FILTERS").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -95,8 +96,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 iMAX_EXIT_FILTERS = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/MAX_EXIT_FILTERS").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/MAX_EXIT_FILTERS").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -110,8 +111,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 iSIGMA_MODE_MAIN_CHART = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/SIGMA_MODE_MAIN_CHART").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/SIGMA_MODE_MAIN_CHART").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -125,8 +126,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 iSIGMA_MODE_SEPARATED_CHART = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/SIGMA_MODE_SEPARATED_CHART").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/SIGMA_MODE_SEPARATED_CHART").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -142,8 +143,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 songTradeLogicPrice = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/trade/longTradeLogicPrice").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/trade/longTradeLogicPrice").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -157,8 +158,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 barCloseAdvance = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/trade/barCloseAdvance").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/trade/barCloseAdvance").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -172,8 +173,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 autoSlippage = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/trade/autoSlippage").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/trade/autoSlippage").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -187,8 +188,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 slippageEntryOrders = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/trade/slippageEntryOrders").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/trade/slippageEntryOrders").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -202,8 +203,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 slippageExitOrders = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/trade/slippageExitOrders").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/trade/slippageExitOrders").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -217,8 +218,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 minChartBars = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/trade/minChartBars").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/trade/minChartBars").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -230,8 +231,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isInstalled = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/installed").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/installed").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -246,8 +247,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 language = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/language").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/language").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -262,8 +263,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 showStartingTip = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/showStartingTip").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/showStartingTip").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -278,8 +279,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 currentTipNumber = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/currentTipNumber").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/currentTipNumber").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -290,8 +291,20 @@ namespace Forex_Strategy_Trader
             set
             {
                 sendUsageStats = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/sendUsageStats").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/sendUsageStats").Item(0).InnerText = value.ToString();
+            }
+        }
+
+        static bool writeLogFile = writeLogFileDefault;
+        public static bool WriteLogFile
+        {
+            get { return writeLogFile; }
+            set
+            {
+                writeLogFile = value;
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/writeLogFile").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -306,8 +319,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 gradientView = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/gradientView").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/gradientView").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -322,8 +335,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 colorScheme = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/colorScheme").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/colorScheme").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -337,8 +350,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 multipleInstances = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/multipleInstances").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/multipleInstances").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -353,8 +366,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 playSounds = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/playSounds").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/playSounds").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -369,8 +382,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 rememberLastStr = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/rememberLastStrategy").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/rememberLastStrategy").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -385,8 +398,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 lastStrategy = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/lastStrategy").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/lastStrategy").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -401,8 +414,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 checkForUpdates = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/checkForUpdates").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/checkForUpdates").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -417,8 +430,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 checkForNewBeta = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/checkForNewBeta").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/checkForNewBeta").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -432,8 +445,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 loadCustomIndicators = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/loadCustomIndicators").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/loadCustomIndicators").Item(0).InnerText = value.ToString();
             }
         }
         static bool showCustomIndicators = showCustIndDefault;
@@ -446,8 +459,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 showCustomIndicators = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/showCustomIndicators").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/showCustomIndicators").Item(0).InnerText = value.ToString();
             }
         }
         static bool bridgeWritesLog = bridgeWritesLogDefault;
@@ -460,8 +473,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 bridgeWritesLog = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/bridgeWritesLog").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/bridgeWritesLog").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -476,8 +489,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 journalShowSystemMsg = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/journal/showSystemMessages").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/journal/showSystemMessages").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -491,8 +504,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 journalShowTicks = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/journal/showTicks").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/journal/showTicks").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -503,8 +516,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 lastTab = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/lastTab").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/lastTab").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -518,8 +531,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 useLogicalGroups = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/useLogicalGroups").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/useLogicalGroups").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -530,8 +543,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 journalLength = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/journalLength").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/journalLength").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -543,8 +556,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 chartZoom = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/zoom").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/zoom").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -555,8 +568,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartInfoPanel = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/infoPanel").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/infoPanel").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -567,8 +580,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartGrid = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/grid").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/grid").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -579,8 +592,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartCross = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/cross").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/cross").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -591,8 +604,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartVolume = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/volume").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/volume").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -603,8 +616,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartLots = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/lots").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/lots").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -615,8 +628,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartOrders = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/orders").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/orders").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -627,8 +640,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartPositionPrice = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/positionPrice").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/positionPrice").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -639,8 +652,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartTrueCharts = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/trueCharts").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/trueCharts").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -651,8 +664,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartShift = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/shift").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/shift").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -663,8 +676,8 @@ namespace Forex_Strategy_Trader
             set
             {
                 isChartAutoScroll = value;
-                if (isConfigLoaded)
-                    xmlConfig.SelectNodes("config/chart/autoScroll").Item(0).InnerText = value.ToString();
+                if (_isConfigLoaded)
+                    _xmlConfig.SelectNodes("config/chart/autoScroll").Item(0).InnerText = value.ToString();
             }
         }
 
@@ -675,8 +688,8 @@ namespace Forex_Strategy_Trader
         /// </summary>
         static Configs()
         {
-            xmlConfig = new XmlDocument();
-            pathToConfigFile = Path.Combine(Data.SystemDir, @"config.xml");
+            _xmlConfig = new XmlDocument();
+            PathToConfigFile = Path.Combine(Data.SystemDir, @"config.xml");
 
             return;
         }
@@ -686,7 +699,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public static void ResetParams()
         {
-            if (!isConfigLoaded)
+            if (!_isConfigLoaded)
                 return;
 
             // Constants
@@ -722,6 +735,7 @@ namespace Forex_Strategy_Trader
             LastTab                    = lastTabDefault;
             UseLogicalGroups           = useLogicalGroupsDefault;
             JournalLength              = journalLengthDefault;
+            WriteLogFile               = writeLogFileDefault;
           
             // Indicator Chart
             ChartZoom                  = chartZoomDefault;
@@ -737,7 +751,7 @@ namespace Forex_Strategy_Trader
             ChartAutoScroll            = isChartAutoScrollDefault;
 
             SaveConfigs();
-            isResetActivated = true;
+            _isResetActivated = true;
 
             return;
         }
@@ -748,56 +762,57 @@ namespace Forex_Strategy_Trader
         static void ParseConfigs()
         {
             // Constants
-            iMAX_ENTRY_FILTERS          = int.Parse(xmlConfig.SelectNodes("config/MAX_ENTRY_FILTERS").Item(0).InnerText);
-            iMAX_EXIT_FILTERS           = int.Parse(xmlConfig.SelectNodes("config/MAX_EXIT_FILTERS").Item(0).InnerText);
-            iSIGMA_MODE_MAIN_CHART      = int.Parse(xmlConfig.SelectNodes("config/SIGMA_MODE_MAIN_CHART").Item(0).InnerText);
-            iSIGMA_MODE_SEPARATED_CHART = int.Parse(xmlConfig.SelectNodes("config/SIGMA_MODE_SEPARATED_CHART").Item(0).InnerText);
+            iMAX_ENTRY_FILTERS          = int.Parse(_xmlConfig.SelectNodes("config/MAX_ENTRY_FILTERS").Item(0).InnerText);
+            iMAX_EXIT_FILTERS           = int.Parse(_xmlConfig.SelectNodes("config/MAX_EXIT_FILTERS").Item(0).InnerText);
+            iSIGMA_MODE_MAIN_CHART      = int.Parse(_xmlConfig.SelectNodes("config/SIGMA_MODE_MAIN_CHART").Item(0).InnerText);
+            iSIGMA_MODE_SEPARATED_CHART = int.Parse(_xmlConfig.SelectNodes("config/SIGMA_MODE_SEPARATED_CHART").Item(0).InnerText);
 
             // Trade settings
-            songTradeLogicPrice        = xmlConfig.SelectNodes("config/trade/longTradeLogicPrice").Item(0).InnerText;
-            barCloseAdvance            = int.Parse(xmlConfig.SelectNodes("config/trade/barCloseAdvance").Item(0).InnerText);
-            autoSlippage               = bool.Parse(xmlConfig.SelectNodes("config/trade/autoSlippage").Item(0).InnerText);
-            slippageEntryOrders        = int.Parse(xmlConfig.SelectNodes("config/trade/slippageEntryOrders").Item(0).InnerText);
-            slippageExitOrders         = int.Parse(xmlConfig.SelectNodes("config/trade/slippageExitOrders").Item(0).InnerText);
-            minChartBars               = int.Parse(xmlConfig.SelectNodes("config/trade/minChartBars").Item(0).InnerText);
+            songTradeLogicPrice        = _xmlConfig.SelectNodes("config/trade/longTradeLogicPrice").Item(0).InnerText;
+            barCloseAdvance            = int.Parse(_xmlConfig.SelectNodes("config/trade/barCloseAdvance").Item(0).InnerText);
+            autoSlippage               = bool.Parse(_xmlConfig.SelectNodes("config/trade/autoSlippage").Item(0).InnerText);
+            slippageEntryOrders        = int.Parse(_xmlConfig.SelectNodes("config/trade/slippageEntryOrders").Item(0).InnerText);
+            slippageExitOrders         = int.Parse(_xmlConfig.SelectNodes("config/trade/slippageExitOrders").Item(0).InnerText);
+            minChartBars               = int.Parse(_xmlConfig.SelectNodes("config/trade/minChartBars").Item(0).InnerText);
 
             // Program settings
-            isInstalled                = bool.Parse(xmlConfig.SelectNodes("config/installed").Item(0).InnerText);
-            language                   = xmlConfig.SelectNodes("config/language").Item(0).InnerText;
-            showStartingTip            = bool.Parse(xmlConfig.SelectNodes("config/showStartingTip").Item(0).InnerText);
-            currentTipNumber           = int.Parse(xmlConfig.SelectNodes("config/currentTipNumber").Item(0).InnerText);
-            gradientView               = bool.Parse(xmlConfig.SelectNodes("config/gradientView").Item(0).InnerText);
-            colorScheme                = xmlConfig.SelectNodes("config/colorScheme").Item(0).InnerText;
-            playSounds                 = bool.Parse(xmlConfig.SelectNodes("config/playSounds").Item(0).InnerText);
-            multipleInstances          = bool.Parse(xmlConfig.SelectNodes("config/multipleInstances").Item(0).InnerText);
-            rememberLastStr            = bool.Parse(xmlConfig.SelectNodes("config/rememberLastStrategy").Item(0).InnerText);
-            lastStrategy               = xmlConfig.SelectNodes("config/lastStrategy").Item(0).InnerText;
-            checkForUpdates            = bool.Parse(xmlConfig.SelectNodes("config/checkForUpdates").Item(0).InnerText);
-            checkForNewBeta            = bool.Parse(xmlConfig.SelectNodes("config/checkForNewBeta").Item(0).InnerText);
-            loadCustomIndicators       = bool.Parse(xmlConfig.SelectNodes("config/loadCustomIndicators").Item(0).InnerText);
-            showCustomIndicators       = bool.Parse(xmlConfig.SelectNodes("config/showCustomIndicators").Item(0).InnerText);
-            bridgeWritesLog            = bool.Parse(xmlConfig.SelectNodes("config/bridgeWritesLog").Item(0).InnerText);
-            lastTab                    = int.Parse(xmlConfig.SelectNodes("config/lastTab").Item(0).InnerText);
-            useLogicalGroups           = bool.Parse(xmlConfig.SelectNodes("config/useLogicalGroups").Item(0).InnerText);
-            journalLength              = int.Parse(xmlConfig.SelectNodes("config/journalLength").Item(0).InnerText);
-            sendUsageStats             = bool.Parse(xmlConfig.SelectNodes("config/sendUsageStats").Item(0).InnerText);
+            isInstalled                = bool.Parse(_xmlConfig.SelectNodes("config/installed").Item(0).InnerText);
+            language                   = _xmlConfig.SelectNodes("config/language").Item(0).InnerText;
+            showStartingTip            = bool.Parse(_xmlConfig.SelectNodes("config/showStartingTip").Item(0).InnerText);
+            currentTipNumber           = int.Parse(_xmlConfig.SelectNodes("config/currentTipNumber").Item(0).InnerText);
+            gradientView               = bool.Parse(_xmlConfig.SelectNodes("config/gradientView").Item(0).InnerText);
+            colorScheme                = _xmlConfig.SelectNodes("config/colorScheme").Item(0).InnerText;
+            playSounds                 = bool.Parse(_xmlConfig.SelectNodes("config/playSounds").Item(0).InnerText);
+            multipleInstances          = bool.Parse(_xmlConfig.SelectNodes("config/multipleInstances").Item(0).InnerText);
+            rememberLastStr            = bool.Parse(_xmlConfig.SelectNodes("config/rememberLastStrategy").Item(0).InnerText);
+            lastStrategy               = _xmlConfig.SelectNodes("config/lastStrategy").Item(0).InnerText;
+            checkForUpdates            = bool.Parse(_xmlConfig.SelectNodes("config/checkForUpdates").Item(0).InnerText);
+            checkForNewBeta            = bool.Parse(_xmlConfig.SelectNodes("config/checkForNewBeta").Item(0).InnerText);
+            loadCustomIndicators       = bool.Parse(_xmlConfig.SelectNodes("config/loadCustomIndicators").Item(0).InnerText);
+            showCustomIndicators       = bool.Parse(_xmlConfig.SelectNodes("config/showCustomIndicators").Item(0).InnerText);
+            bridgeWritesLog            = bool.Parse(_xmlConfig.SelectNodes("config/bridgeWritesLog").Item(0).InnerText);
+            lastTab                    = int.Parse(_xmlConfig.SelectNodes("config/lastTab").Item(0).InnerText);
+            useLogicalGroups           = bool.Parse(_xmlConfig.SelectNodes("config/useLogicalGroups").Item(0).InnerText);
+            journalLength              = int.Parse(_xmlConfig.SelectNodes("config/journalLength").Item(0).InnerText);
+            sendUsageStats             = bool.Parse(_xmlConfig.SelectNodes("config/sendUsageStats").Item(0).InnerText);
+            writeLogFile               = bool.Parse(_xmlConfig.SelectNodes("config/writeLogFile").Item(0).InnerText);
 
             // Indicator Chart
-            chartZoom                    = int.Parse(xmlConfig.SelectNodes("config/chart/zoom").Item(0).InnerText);
-            isChartInfoPanel             = bool.Parse(xmlConfig.SelectNodes("config/chart/infoPanel").Item(0).InnerText);
-            isChartGrid                  = bool.Parse(xmlConfig.SelectNodes("config/chart/grid").Item(0).InnerText);
-            isChartCross                 = bool.Parse(xmlConfig.SelectNodes("config/chart/cross").Item(0).InnerText);
-            isChartVolume                = bool.Parse(xmlConfig.SelectNodes("config/chart/volume").Item(0).InnerText);
-            isChartLots                  = bool.Parse(xmlConfig.SelectNodes("config/chart/lots").Item(0).InnerText);
-            isChartOrders                = bool.Parse(xmlConfig.SelectNodes("config/chart/orders").Item(0).InnerText);
-            isChartPositionPrice         = bool.Parse(xmlConfig.SelectNodes("config/chart/positionPrice").Item(0).InnerText);
-            isChartTrueCharts            = bool.Parse(xmlConfig.SelectNodes("config/chart/trueCharts").Item(0).InnerText);
-            isChartShift                 = bool.Parse(xmlConfig.SelectNodes("config/chart/shift").Item(0).InnerText);
-            isChartAutoScroll            = bool.Parse(xmlConfig.SelectNodes("config/chart/autoScroll").Item(0).InnerText);
+            chartZoom                    = int.Parse(_xmlConfig.SelectNodes("config/chart/zoom").Item(0).InnerText);
+            isChartInfoPanel             = bool.Parse(_xmlConfig.SelectNodes("config/chart/infoPanel").Item(0).InnerText);
+            isChartGrid                  = bool.Parse(_xmlConfig.SelectNodes("config/chart/grid").Item(0).InnerText);
+            isChartCross                 = bool.Parse(_xmlConfig.SelectNodes("config/chart/cross").Item(0).InnerText);
+            isChartVolume                = bool.Parse(_xmlConfig.SelectNodes("config/chart/volume").Item(0).InnerText);
+            isChartLots                  = bool.Parse(_xmlConfig.SelectNodes("config/chart/lots").Item(0).InnerText);
+            isChartOrders                = bool.Parse(_xmlConfig.SelectNodes("config/chart/orders").Item(0).InnerText);
+            isChartPositionPrice         = bool.Parse(_xmlConfig.SelectNodes("config/chart/positionPrice").Item(0).InnerText);
+            isChartTrueCharts            = bool.Parse(_xmlConfig.SelectNodes("config/chart/trueCharts").Item(0).InnerText);
+            isChartShift                 = bool.Parse(_xmlConfig.SelectNodes("config/chart/shift").Item(0).InnerText);
+            isChartAutoScroll            = bool.Parse(_xmlConfig.SelectNodes("config/chart/autoScroll").Item(0).InnerText);
             
             // Journal
-            journalShowSystemMsg       = bool.Parse(xmlConfig.SelectNodes("config/journal/showSystemMessages").Item(0).InnerText);
-            journalShowTicks           = bool.Parse(xmlConfig.SelectNodes("config/journal/showTicks").Item(0).InnerText);
+            journalShowSystemMsg       = bool.Parse(_xmlConfig.SelectNodes("config/journal/showSystemMessages").Item(0).InnerText);
+            journalShowTicks           = bool.Parse(_xmlConfig.SelectNodes("config/journal/showTicks").Item(0).InnerText);
 
             return;
         }
@@ -807,13 +822,11 @@ namespace Forex_Strategy_Trader
         /// </summary>
         static void ConfigAfterLoading()
         {
-            if (!isInstalled)
-            {
-                RegistryKey regKey = Registry.CurrentUser;
-                regKey = regKey.CreateSubKey("Software\\Forex Software\\Forex Strategy Trader");
-                SendUsageStats = (regKey.GetValue("UsageStats") == null || regKey.GetValue("UsageStats").ToString() == "0");
-                IsInstalled = true;
-            }
+            if (isInstalled) return;
+            RegistryKey regKey = Registry.CurrentUser;
+            regKey = regKey.CreateSubKey("Software\\Forex Software\\Forex Strategy Trader");
+            SendUsageStats = (regKey.GetValue("UsageStats") == null || regKey.GetValue("UsageStats").ToString() == "0");
+            IsInstalled = true;
         }
 
         /// <summary>
@@ -823,25 +836,22 @@ namespace Forex_Strategy_Trader
         {
             try
             {
-                if (!File.Exists(pathToConfigFile))
+                if (!File.Exists(PathToConfigFile))
                 {
-                    xmlConfig = new XmlDocument();
-                    xmlConfig.InnerXml = Properties.Resources.config;
+                    _xmlConfig = new XmlDocument {InnerXml = Properties.Resources.config};
                 }
                 else
                 {
-                    xmlConfig.Load(pathToConfigFile);
+                    _xmlConfig.Load(PathToConfigFile);
                 }
                 ParseConfigs();
-                isConfigLoaded = true;
+                _isConfigLoaded = true;
                 ConfigAfterLoading();
             }
             catch (Exception e)
             {
                 System.Windows.Forms.MessageBox.Show(e.Message, "Reading Configuration File");
             }
-
-            return;
         }
 
         /// <summary>
@@ -849,11 +859,11 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public static void SaveConfigs()
         {
-            if (isResetActivated || !isConfigLoaded) return;
+            if (_isResetActivated || !_isConfigLoaded) return;
 
             try
             {
-                xmlConfig.Save(pathToConfigFile);
+                _xmlConfig.Save(PathToConfigFile);
             }
             catch (Exception e)
             {

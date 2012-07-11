@@ -1,7 +1,7 @@
 ﻿// Controls Strategy
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
@@ -17,10 +17,10 @@ namespace Forex_Strategy_Trader
     public partial class Controls
     {
         private WebBrowser BrowserOverview { get; set; }
-        private Fancy_Panel PnlBrawserBase { get; set; }
+        private FancyPanel PnlBrawserBase { get; set; }
         private Panel PnlOverviewBase { get; set; }
         private Panel PnlStrategyBase { get; set; }
-        private Strategy_Layout StrategyLayout { get; set; }
+        private StrategyLayout StrategyLayout { get; set; }
 
         private ToolStrip TsStrategy { get; set; }
 
@@ -40,7 +40,7 @@ namespace Forex_Strategy_Trader
             PnlStrategyBase = new Panel {Parent = TabPageStrategy, Dock = DockStyle.Left};
 
             // Panel Browser Base
-            PnlBrawserBase = new Fancy_Panel(Language.T("Strategy Overview"));
+            PnlBrawserBase = new FancyPanel(Language.T("Strategy Overview"));
             PnlBrawserBase.Padding = new Padding(2, (int) PnlBrawserBase.CaptionHeight, 2, 2);
             PnlBrawserBase.Parent = PnlOverviewBase;
             PnlBrawserBase.Dock = DockStyle.Fill;
@@ -55,7 +55,7 @@ namespace Forex_Strategy_Trader
                                   };
 
             // StrategyLayout
-            StrategyLayout = new Strategy_Layout(Data.Strategy.Clone()) {Parent = PnlStrategyBase};
+            StrategyLayout = new StrategyLayout(Data.Strategy.Clone()) {Parent = PnlStrategyBase};
             StrategyLayout.btnAddOpenFilter.Click += BtnAddOpenFilterClick;
             StrategyLayout.btnAddCloseFilter.Click += BtnAddCloseFilterClick;
 
@@ -214,12 +214,12 @@ namespace Forex_Strategy_Trader
         {
             PnlStrategyBase.Width = TabPageStrategy.ClientSize.Width/2;
 
-            TsStrategy.Width = PnlStrategyBase.Width - space;
+            TsStrategy.Width = PnlStrategyBase.Width - Space;
             TsStrategy.Location = Point.Empty;
 
-            StrategyLayout.Width = PnlStrategyBase.Width - space;
-            StrategyLayout.Height = TabPageStrategy.ClientSize.Height - TsStrategy.Bottom - space;
-            StrategyLayout.Location = new Point(0, TsStrategy.Bottom + space);
+            StrategyLayout.Width = PnlStrategyBase.Width - Space;
+            StrategyLayout.Height = TabPageStrategy.ClientSize.Height - TsStrategy.Bottom - Space;
+            StrategyLayout.Location = new Point(0, TsStrategy.Bottom + Space);
         }
 
         /// <summary>

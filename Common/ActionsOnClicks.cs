@@ -128,7 +128,7 @@ namespace Forex_Strategy_Trader
         protected override void MenuGradientView_OnClick(object sender, EventArgs e)
         {
             Configs.GradientView = ((ToolStripMenuItem) sender).Checked;
-            pnlWorkspace.Invalidate(true);
+            PnlWorkspace.Invalidate(true);
             SetColors();
         }
 
@@ -353,7 +353,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Manual operation execution.
         /// </summary>
-        protected override void BtnOperation_Click(object sender, EventArgs e)
+        protected override void BtnOperationClick(object sender, EventArgs e)
         {
             if (!Data.IsConnected)
             {

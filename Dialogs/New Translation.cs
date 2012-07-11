@@ -16,7 +16,7 @@ namespace Forex_Strategy_Trader
     /// </summary>
     class New_Translation : Form
     {
-        Fancy_Panel pnlInput;
+        FancyPanel pnlInput;
         Label[]     alblInputNames;
         TextBox[]   atbxInputValues;
         Button      btnAccept;
@@ -36,7 +36,7 @@ namespace Forex_Strategy_Trader
             Text            = Language.T("New Translation");
 
             // Controls
-            pnlInput        = new Fancy_Panel(Language.T("Common Parameters"));
+            pnlInput        = new FancyPanel(Language.T("Common Parameters"));
             alblInputNames  = new Label[5];
             atbxInputValues = new TextBox[5];
             btnAccept       = new Button();

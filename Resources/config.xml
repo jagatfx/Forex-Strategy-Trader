@@ -23,6 +23,7 @@
   <useLogicalGroups>False</useLogicalGroups>
   <journalLength>1000</journalLength>
   <sendUsageStats>True</sendUsageStats>
+  <writeLogFile>True</writeLogFile>
   <trade>
     <longTradeLogicPrice>Bid</longTradeLogicPrice>
     <barCloseAdvance>3</barCloseAdvance>

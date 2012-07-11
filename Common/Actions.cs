@@ -100,7 +100,7 @@ namespace Forex_Strategy_Trader
 
             ChangeTabPage(Configs.LastTab);
 
-            var liveContent = new LiveContent(Data.SystemDir, miLiveContent, miForex, pnlUsefulLinks, pnlForexBrokers);
+            var liveContent = new LiveContent(Data.SystemDir, MILiveContent, MIForex, PnlUsefulLinks, PnlForexBrokers);
 
             // Starting tips
             if (Configs.ShowStartingTip)
@@ -154,7 +154,7 @@ namespace Forex_Strategy_Trader
         private void StartTradeWhenConnectionEstablished()
         {
                 InitDataFeed();
-                tstbxConnectionID.Text = Data.ConnectionID.ToString(CultureInfo.InvariantCulture);
+                TstbxConnectionID.Text = Data.ConnectionID.ToString(CultureInfo.InvariantCulture);
                 ConnectionGo();
         }
 
@@ -456,7 +456,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         private void UsePreviousBarValueChange()
         {
-            if (miStrategyAUPBV.Checked == false)
+            if (MIStrategyAUPBV.Checked == false)
             {
                 // Confirmation Message
                 string messageText = Language.T("Are you sure you want to control \"Use previous bar value\" manually?");
@@ -478,7 +478,7 @@ namespace Forex_Strategy_Trader
                 else
                 {
                     // Not just now
-                    miStrategyAUPBV.Checked = true;
+                    MIStrategyAUPBV.Checked = true;
                 }
             }
             else

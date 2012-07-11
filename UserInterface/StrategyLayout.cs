@@ -1,7 +1,7 @@
 // Strategy Layout
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
@@ -13,7 +13,7 @@ namespace Forex_Strategy_Trader
     /// <summary>
     /// Represents the strategies slots into a readable form
     /// </summary>
-    public class Strategy_Layout : Panel
+    public class StrategyLayout : Panel
     {
         VScrollBar      VScrollBarStrategy; // Vertical scrollbar
         FlowLayoutPanel flowLayoutStrategy; // Contains the strategy slots
@@ -63,7 +63,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Initializes the strategy field
         /// </summary>
-        public Strategy_Layout(Strategy strategy)
+        public StrategyLayout(Strategy strategy)
         {
             this.strategy      = strategy;
             slots              = strategy.Slots;

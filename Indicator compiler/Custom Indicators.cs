@@ -64,7 +64,7 @@ namespace Forex_Strategy_Trader
 
             if (isError)
             {
-                Fancy_Message_Box msgBox = new Fancy_Message_Box(errorReport.ToString(), Language.T("Custom Indicators"));
+                FancyMessageBox msgBox = new FancyMessageBox(errorReport.ToString(), Language.T("Custom Indicators"));
                 msgBox.BoxWidth  = 550;
                 msgBox.BoxHeight = 340;
                 msgBox.TopMost   = true;
@@ -143,14 +143,14 @@ namespace Forex_Strategy_Trader
 
             if (result.IsErrors)
             {
-                Fancy_Message_Box msgBoxError = new Fancy_Message_Box(result.ErrorReport, Language.T("Custom Indicators"));
+                FancyMessageBox msgBoxError = new FancyMessageBox(result.ErrorReport, Language.T("Custom Indicators"));
                 msgBoxError.BoxWidth  = 550;
                 msgBoxError.BoxHeight = 340;
                 msgBoxError.TopMost   = true;
                 msgBoxError.Show();
             }
 
-            Fancy_Message_Box msgBoxOK = new Fancy_Message_Box(result.OKReport, Language.T("Custom Indicators"));
+            FancyMessageBox msgBoxOK = new FancyMessageBox(result.OKReport, Language.T("Custom Indicators"));
             msgBoxOK.BoxWidth  = 350;
             msgBoxOK.BoxHeight = 280;
             msgBoxOK.TopMost   = true;
@@ -174,7 +174,7 @@ namespace Forex_Strategy_Trader
                 loadedIndicators.AppendLine(indicator.ToString() + "</br>");
             loadedIndicators.AppendLine("</p>");
 
-            Fancy_Message_Box msgBox = new Fancy_Message_Box(loadedIndicators.ToString(), Language.T("Custom Indicators"));
+            FancyMessageBox msgBox = new FancyMessageBox(loadedIndicators.ToString(), Language.T("Custom Indicators"));
             msgBox.BoxWidth  = 480;
             msgBox.BoxHeight = 260;
             msgBox.TopMost   = true;

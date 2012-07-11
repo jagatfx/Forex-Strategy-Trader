@@ -30,11 +30,11 @@ namespace Forex_Strategy_Trader
             PermanentSL = 100;
             PermanentSLType = PermanentProtectionType.Relative;
             UsePermanentSL = false;
-            PnlAveraging = new Fancy_Panel(Language.T("Handling of Additional Entry Signals"),
+            PnlAveraging = new FancyPanel(Language.T("Handling of Additional Entry Signals"),
                                            LayoutColors.ColorSlotCaptionBackAveraging, LayoutColors.ColorSlotCaptionText);
-            PnlAmounts = new Fancy_Panel(Language.T("Trading Size"), LayoutColors.ColorSlotCaptionBackAveraging,
+            PnlAmounts = new FancyPanel(Language.T("Trading Size"), LayoutColors.ColorSlotCaptionBackAveraging,
                                          LayoutColors.ColorSlotCaptionText);
-            PnlProtection = new Fancy_Panel(Language.T("Permanent Protection"),
+            PnlProtection = new FancyPanel(Language.T("Permanent Protection"),
                                             LayoutColors.ColorSlotCaptionBackAveraging,
                                             LayoutColors.ColorSlotCaptionText);
 
@@ -368,9 +368,9 @@ namespace Forex_Strategy_Trader
             BtnAccept.UseVisualStyleBackColor = true;
         }
 
-        private Fancy_Panel PnlAveraging { get; set; }
-        private Fancy_Panel PnlAmounts { get; set; }
-        private Fancy_Panel PnlProtection { get; set; }
+        private FancyPanel PnlAveraging { get; set; }
+        private FancyPanel PnlAmounts { get; set; }
+        private FancyPanel PnlProtection { get; set; }
 
         private Label LblAveragingSameDir { get; set; }
         private Label LblAveragingOppDir { get; set; }

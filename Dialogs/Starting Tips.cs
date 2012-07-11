@@ -15,7 +15,7 @@ namespace Forex_Strategy_Trader
 {
     class Starting_Tips : Form
     {
-        Fancy_Panel pnlBase;
+        FancyPanel pnlBase;
         Panel       pnlControl;
         WebBrowser  browser;
         CheckBox    chboxShow;
@@ -50,7 +50,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public Starting_Tips()
         {
-            pnlBase    = new Fancy_Panel();
+            pnlBase    = new FancyPanel();
             pnlControl = new Panel();
             browser    = new WebBrowser();
             chboxShow  = new CheckBox();
