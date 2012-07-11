@@ -1,8 +1,8 @@
 [Setup]
 AppName            = Forex Strategy Trader
-AppVersion         = 1.5.1.0
-VersionInfoVersion = 1.5.1.0
-AppVerName         = Forex Strategy Trader v1.5.1.0 NB
+AppVersion         = 1.5.2.0
+VersionInfoVersion = 1.5.2.0
+AppVerName         = Forex Strategy Trader v1.5.2.0 NB
 
 ArchitecturesInstallIn64BitMode = x64 ia64
 AppPublisher       = Forex Software Ltd.
@@ -53,6 +53,7 @@ Source: System\StartingTips\*;      DestDir: "{app}\System\StartingTips";  Compo
 
 [Dirs]
 Name: "{app}\Custom Indicators";    Permissions: users-modify;
+Name: "{app}\Logs";                 Permissions: users-modify;
 Name: "{app}\Strategies";           Permissions: users-modify;
 Name: "{app}\System";               Permissions: users-modify;
 Name: "{app}\System\SplashScreen";  Permissions: users-modify;
