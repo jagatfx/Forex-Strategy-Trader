@@ -390,17 +390,18 @@ namespace Forex_Strategy_Trader
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        var jmsg = new JournalMessage(JournalIcons.OrderBuy, DateTime.Now,
-                                                      string.Format(symbol + " " + Data.PeriodMTStr + " " +
-                                                                    Language.T("An entry order sent") + ": " +
-                                                                    Language.T("Buy") + " {0} " +
-                                                                    LotOrLots(lots) + " " +
-                                                                    Language.T("at") + " {1}, " +
-                                                                    Language.T("Stop Loss") + " {2}, " +
-                                                                    Language.T("Take Profit") + " {3}", lots,
-                                                                    price.ToString(Data.FF), stoploss.ToString(Data.FF),
-                                                                    takeprofit.ToString(Data.FF)));
+                        string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                                                       Language.T("An entry order sent") + ": " +
+                                                       Language.T("Buy") + " {0} " +
+                                                       LotOrLots(lots) + " " +
+                                                       Language.T("at") + " {1}, " +
+                                                       Language.T("Stop Loss") + " {2}, " +
+                                                       Language.T("Take Profit") + " {3}", lots,
+                                                       price.ToString(Data.FF), stoploss.ToString(Data.FF),
+                                                       takeprofit.ToString(Data.FF));
+                        var jmsg = new JournalMessage(JournalIcons.OrderBuy, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Data.Logger.WriteLogLine(message);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
@@ -417,20 +418,7 @@ namespace Forex_Strategy_Trader
                         else
                         {
                             // Error in operation execution.
-                            if (Configs.PlaySounds)
-                                Data.SoundError.Play();
-
-                            if (_bridge.LastError == 0)
-                                jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                                                          Language.T("Operation execution") + ": " +
-                                                          Language.T("MetaTrader is not responding!").Replace(
-                                                              "MetaTrader", Data.TerminalName));
-                            else
-                                jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                                                          Language.T("MetaTrader failed to execute order! Returned").
-                                                              Replace("MetaTrader", Data.TerminalName) + ": " +
-                                                          MT4_Errors.ErrorDescription(_bridge.LastError));
-                            AppendJournalMessage(jmsg);
+                            ReportOperationError();
                             Data.WrongStopLoss = stopLossPips;
                             Data.WrongTakeProf = OperationTakeProfit;
                         }
@@ -460,17 +448,18 @@ namespace Forex_Strategy_Trader
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        var jmsg = new JournalMessage(JournalIcons.OrderSell, DateTime.Now,
-                                                      string.Format(symbol + " " + Data.PeriodMTStr + " " +
-                                                                    Language.T("An entry order sent") + ": " +
-                                                                    Language.T("Sell") + " {0} " +
-                                                                    LotOrLots(lots) + " " +
-                                                                    Language.T("at") + " {1}, " +
-                                                                    Language.T("Stop Loss") + " {2}, " +
-                                                                    Language.T("Take Profit") + " {3}", lots,
-                                                                    price.ToString(Data.FF), stoploss.ToString(Data.FF),
-                                                                    takeprofit.ToString(Data.FF)));
+                        string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                                                       Language.T("An entry order sent") + ": " +
+                                                       Language.T("Sell") + " {0} " +
+                                                       LotOrLots(lots) + " " +
+                                                       Language.T("at") + " {1}, " +
+                                                       Language.T("Stop Loss") + " {2}, " +
+                                                       Language.T("Take Profit") + " {3}", lots,
+                                                       price.ToString(Data.FF), stoploss.ToString(Data.FF),
+                                                       takeprofit.ToString(Data.FF));
+                        var jmsg = new JournalMessage(JournalIcons.OrderSell, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Data.Logger.WriteLogLine(message);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
@@ -487,18 +476,7 @@ namespace Forex_Strategy_Trader
                         else
                         {
                             // Error in operation execution.
-                            if (Configs.PlaySounds)
-                                Data.SoundError.Play();
-
-                            if (_bridge.LastError == 0)
-                                jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                                                          Language.T("Operation execution") + ": " +
-                                                          Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName));
-                            else
-                                jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                                                          Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
-                                                          MT4_Errors.ErrorDescription(_bridge.LastError));
-                            AppendJournalMessage(jmsg);
+                            ReportOperationError();
                             Data.WrongStopLoss = stopLossPips;
                             Data.WrongTakeProf = OperationTakeProfit;
                         }
@@ -523,36 +501,23 @@ namespace Forex_Strategy_Trader
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now,
-                                                      string.Format(symbol + " " + Data.PeriodMTStr + " " +
-                                                                    Language.T("An exit order sent") + ": " +
-                                                                    Language.T("Close") + " {0} " +
-                                                                    LotOrLots(lots) + " " +
-                                                                    Language.T("at") + " {1}",
-                                                                    lots, price.ToString(Data.FF)));
+                        string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                                                       Language.T("An exit order sent") + ": " +
+                                                       Language.T("Close") + " {0} " +
+                                                       LotOrLots(lots) + " " +
+                                                       Language.T("at") + " {1}",
+                                                       lots, price.ToString(Data.FF));
+                        var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Data.Logger.WriteLogLine(message);
 
                         bool responseOK = _bridge.OrderClose(ticket, lots, price, slippage);
 
                         if (responseOK)
                             Data.AddBarStats(OperationType.Close, lots, price);
                         else
-                        {
-                            if (Configs.PlaySounds)
-                                Data.SoundError.Play();
+                            ReportOperationError();
 
-                            if (_bridge.LastError == 0)
-                                jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                                                          Language.T("Operation execution") + ": " +
-                                                          Language.T("MetaTrader is not responding!").Replace(
-                                                              "MetaTrader", Data.TerminalName));
-                            else
-                                jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                                                          Language.T("MetaTrader failed to execute order! Returned").
-                                                              Replace("MetaTrader", Data.TerminalName) + ": " +
-                                                          MT4_Errors.ErrorDescription(_bridge.LastError));
-                            AppendJournalMessage(jmsg);
-                        }
                         Data.WrongStopLoss = 0;
                         Data.WrongTakeProf = 0;
                         Data.WrongStopsRetry = 0;
@@ -611,20 +576,7 @@ namespace Forex_Strategy_Trader
                         }
                         else
                         {
-                            if (Configs.PlaySounds)
-                                Data.SoundError.Play();
-
-                            if (_bridge.LastError == 0)
-                                jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                                                          Language.T("Operation execution") + ": " +
-                                                          Language.T("MetaTrader is not responding!").Replace(
-                                                              "MetaTrader", Data.TerminalName));
-                            else
-                                jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
-                                                          Language.T("MetaTrader failed to execute order! Returned").
-                                                              Replace("MetaTrader", Data.TerminalName) + ": " +
-                                                          MT4_Errors.ErrorDescription(_bridge.LastError));
-                            AppendJournalMessage(jmsg);
+                            ReportOperationError();
                             Data.WrongStopLoss = stopLossPips;
                             Data.WrongTakeProf = OperationTakeProfit;
                         }

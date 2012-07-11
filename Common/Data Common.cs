@@ -24,8 +24,6 @@ namespace Forex_Strategy_Trader
     /// </summary>
     public static partial class Data
     {
-        private static string _logFileName = "Logfile.txt"; // Logfile name
-        private static StreamWriter _swLogFile = StreamWriter.Null; // For the Log file
         private static string[] _asStrategyIndicators;
 
         /// <summary>
@@ -60,7 +58,6 @@ namespace Forex_Strategy_Trader
             LanguageDir = @"Languages\";
             SystemDir = @"System\";
             ProgramDir = @"";
-            ToLog = false;
             IsProgramBeta = false;
             IsStrategyChanged = false;
             Debug = false;
@@ -188,11 +185,6 @@ namespace Forex_Strategy_Trader
         public static Stack<Strategy> StackStrategy { get; private set; }
 
         /// <summary>
-        /// Whether to log
-        /// </summary>
-        private static bool ToLog { get; set; }
-
-        /// <summary>
         /// Debug mode
         /// </summary>
         public static bool Debug { get; set; }
@@ -280,7 +272,7 @@ namespace Forex_Strategy_Trader
         public static bool IsAutoStart { get; set; }
         public static bool StartAutotradeWhenConnected { get; set; }
 
-
+        public static Logger Logger { get; private set; }
         /// <summary>
         /// Initial settings.
         /// </summary>
@@ -319,7 +311,6 @@ namespace Forex_Strategy_Trader
             SystemDir = Path.Combine(ProgramDir, SystemDir);
             LanguageDir = Path.Combine(SystemDir, LanguageDir);
             ColorDir = Path.Combine(SystemDir, ColorDir);
-            _logFileName = Path.Combine(ProgramDir, _logFileName);
 
             try
             {
@@ -338,11 +329,7 @@ namespace Forex_Strategy_Trader
                 SoundPositionChanged = new SoundPlayer(Resources.sound_position_changed);
             }
 
-            // Create a new Logfile
-            if (ToLog)
-            {
-                _swLogFile = new StreamWriter(_logFileName, false);
-            }
+            Logger = new Logger();
         }
 
         // The names of the strategy indicators
@@ -439,29 +426,6 @@ namespace Forex_Strategy_Trader
             }
         }
 
-
-        /// <summary>
-        /// Saves a text line in log file.
-        /// </summary>
-        /// <param name="logLine">The text line.</param>
-        public static void Log(string logLine)
-        {
-            if (!ToLog) return;
-            _swLogFile.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + "   " + logLine);
-            _swLogFile.Flush();
-        }
-
-        /// <summary>
-        /// Closes the log file.
-        /// </summary>
-        public static void CloseLogFile()
-        {
-            // Closes the logfile
-            if (!ToLog) return;
-            _swLogFile.Flush();
-            _swLogFile.Close();
-            ToLog = false;
-        }
 
         /// <summary>
         /// Converts a data period from DataPeriods type to string.

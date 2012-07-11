@@ -92,9 +92,10 @@ namespace Forex_Strategy_Trader
                     }
                     if (_pingAttempt == 30)
                     {
-                        var jmsgsys = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                                                         Language.T("There is no connection with MetaTrader."));
+                        string message = Language.T("There is no connection with MetaTrader.");
+                        var jmsgsys = new JournalMessage(JournalIcons.Warning, DateTime.Now, message);
                         AppendJournalMessage(jmsgsys);
+                        Data.Logger.WriteLogLine(message);
                         if (Configs.PlaySounds)
                             Data.SoundError.Play();
                     }
@@ -152,12 +153,18 @@ namespace Forex_Strategy_Trader
                             Data.ExpertVersion = te.ExpertVersion;
                             Data.LibraryVersion = te.LibraryVersion;
                             Data.TerminalName = te.TerminalName;
+
+                            string fileNameHeader = ping.Symbol + "_" + ping.Period + "_ID" + Data.ConnectionID + "_";
+                            Data.Logger.CreateLogFile(fileNameHeader);
+                            Data.Logger.WriteLogLine("ExpertVersion: " + Data.ExpertVersion + ", " + "LibraryVersion: " + Data.LibraryVersion);
                         }
 
                         SetLblConnectionText(connection);
                         string market = string.Format("{0} {1}", ping.Symbol, ping.Period);
                         SetConnMarketText(market);
-                        var jmsg = new JournalMessage(JournalIcons.OK, DateTime.Now, market + " " + connection);
+                        string message = market + " " + connection;
+                        var jmsg = new JournalMessage(JournalIcons.OK, DateTime.Now, message);
+                        Data.Logger.WriteLogLine(message);
                         AppendJournalMessage(jmsg);
 
                         // Check for reconnection.
@@ -207,14 +214,15 @@ namespace Forex_Strategy_Trader
 
                     if (isAccChanged)
                     {
-                        var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now,
-                                                      string.Format(
-                                                          Language.T("Account Balance") + " {0:F2}, " +
-                                                          Language.T("Equity") + " {1:F2}, " + Language.T("Profit") +
-                                                          ", {2:F2}, " + Language.T("Free Margin") + " {3:F2}",
-                                                          ping.AccountBalance, ping.AccountEquity, ping.AccountProfit,
-                                                          ping.AccountFreeMargin));
+                        string message = string.Format(
+                            Language.T("Account Balance") + " {0:F2}, " +
+                            Language.T("Equity") + " {1:F2}, " + Language.T("Profit") +
+                            ", {2:F2}, " + Language.T("Free Margin") + " {3:F2}",
+                            ping.AccountBalance, ping.AccountEquity, ping.AccountProfit,
+                            ping.AccountFreeMargin);
+                        var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Data.Logger.WriteLogLine(message);
                     }
 
                     if (Data.IsBalanceDataChganged)
@@ -260,10 +268,11 @@ namespace Forex_Strategy_Trader
                     if (Configs.PlaySounds)
                         Data.SoundDisconnect.Play();
 
-                    var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                                                  tea.Symbol + " " + tea.Period + " " +
-                                                  Language.T("Tick received from a different chart!"));
+                    string message = tea.Symbol + " " + tea.Period + " " +
+                                     Language.T("Tick received from a different chart!");
+                    var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now, message);
                     AppendJournalMessage(jmsg);
+                    Data.Logger.WriteLogLine(message);
 
                     return;
                 }
@@ -311,14 +320,15 @@ namespace Forex_Strategy_Trader
 
                 if (isAccChanged)
                 {
-                    var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now,
-                                                  string.Format(
-                                                      Language.T("Account Balance") + " {0:F2}, " + Language.T("Equity") +
-                                                      " {1:F2}, " + Language.T("Profit") + ", {2:F2}, " +
-                                                      Language.T("Free Margin") + " {3:F2}",
-                                                      tea.AccountBalance, tea.AccountEquity, tea.AccountProfit,
-                                                      tea.AccountFreeMargin));
+                    string message = string.Format(
+                        Language.T("Account Balance") + " {0:F2}, " + Language.T("Equity") +
+                        " {1:F2}, " + Language.T("Profit") + ", {2:F2}, " +
+                        Language.T("Free Margin") + " {3:F2}",
+                        tea.AccountBalance, tea.AccountEquity, tea.AccountProfit,
+                        tea.AccountFreeMargin);
+                    var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now, message);
                     AppendJournalMessage(jmsg);
+                    Data.Logger.WriteLogLine(message);
                 }
 
                 if (Data.IsBalanceDataChganged)
@@ -750,27 +760,49 @@ namespace Forex_Strategy_Trader
 
         private void LogActivatedSLTP()
         {
-            if (Data.ActivatedStopLoss > Epsilon && Math.Abs(Data.ActivatedStopLoss - _activationReportedAt) > Epsilon)
+            if (Data.ActivatedStopLoss < Epsilon  && Data.ActivatedTakeProfit < Epsilon)
+            {
+                // There is nothing to report.
+                _activationReportedAt = 0;
+                return;
+            }
+
+            if (Data.ActivatedStopLoss   > Epsilon && Math.Abs(Data.ActivatedStopLoss   - _activationReportedAt) < Epsilon ||
+                Data.ActivatedTakeProfit > Epsilon && Math.Abs(Data.ActivatedTakeProfit - _activationReportedAt) < Epsilon)
+            {
+                // Activation was already reported.
+                return;
+            }
+
+            if (Data.ActivatedStopLoss > Epsilon && Data.ActivatedTakeProfit > Epsilon)
+            {
+                // Expert was not sure which one was activated, so reported both.
+                Data.AddBarStats(OperationType.Close, Data.ClosedSLTPLots, Data.ActivatedStopLoss);
+                string message = "Position closed at " + Data.ActivatedStopLoss.ToString("F5") + ", Closed Lots " + Data.ClosedSLTPLots.ToString("F2");
+                var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
+                AppendJournalMessage(msg);
+                Data.Logger.WriteLogLine(message);
+                _activationReportedAt = Data.ActivatedStopLoss;
+            }
+            else if (Data.ActivatedStopLoss > Epsilon)
             {
                 // Activated Stop Loss
                 Data.AddBarStats(OperationType.Close, Data.ClosedSLTPLots, Data.ActivatedStopLoss);
                 string message = "Activated Stop Loss at " + Data.ActivatedStopLoss.ToString("F5") + ", Closed Lots " + Data.ClosedSLTPLots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
                 AppendJournalMessage(msg);
+                Data.Logger.WriteLogLine(message);
                 _activationReportedAt = Data.ActivatedStopLoss;
             }
-            else if (Data.ActivatedTakeProfit > Epsilon && Math.Abs(Data.ActivatedTakeProfit - _activationReportedAt) > Epsilon)
+            else if (Data.ActivatedTakeProfit > Epsilon)
             {
                 // Activated Take Profit
                 Data.AddBarStats(OperationType.Close, Data.ClosedSLTPLots, Data.ActivatedTakeProfit);
                 string message = "Activated Take Profit at " + Data.ActivatedTakeProfit.ToString("F5") + ", Closed Lots " + Data.ClosedSLTPLots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
                 AppendJournalMessage(msg);
+                Data.Logger.WriteLogLine(message);
                 _activationReportedAt = Data.ActivatedTakeProfit;
-            }
-            else
-            {
-                _activationReportedAt = 0;
             }
         }
 
@@ -785,8 +817,10 @@ namespace Forex_Strategy_Trader
             InitTrade();
 
             Data.SetStartTradingTime();
-            var msg = new JournalMessage(JournalIcons.StartTrading, DateTime.Now, Language.T("Automatic trade started."));
+            string message = Language.T("Automatic trade started.");
+            var msg = new JournalMessage(JournalIcons.StartTrading, DateTime.Now, message);
             AppendJournalMessage(msg);
+            Data.Logger.WriteLogLine(message);
 
             _symbolReconnect = Data.Symbol;
             _periodReconnect = Data.Period;
@@ -810,8 +844,10 @@ namespace Forex_Strategy_Trader
 
             Data.SetStopTradingTime();
 
-            var msg = new JournalMessage(JournalIcons.StopTrading, DateTime.Now, Language.T("Automatic trade stopped."));
+            string message = Language.T("Automatic trade stopped.");
+            var msg = new JournalMessage(JournalIcons.StopTrading, DateTime.Now, message);
             AppendJournalMessage(msg);
+            Data.Logger.WriteLogLine(message);
             SetTradeStrip();
         }
 
@@ -865,9 +901,10 @@ namespace Forex_Strategy_Trader
 
             if (showInJournal)
             {
-                var jmsg = new JournalMessage(icon, DateTime.Now,
-                                              string.Format(Data.Symbol + " " + Data.PeriodMTStr + " " + text));
+                string message = string.Format(Data.Symbol + " " + Data.PeriodMTStr + " " + text);
+                var jmsg = new JournalMessage(icon, DateTime.Now, message);
                 AppendJournalMessage(jmsg);
+                Data.Logger.WriteLogLine(message);
             }
         }
 
