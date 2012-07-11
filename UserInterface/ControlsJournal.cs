@@ -193,7 +193,7 @@ namespace Forex_Strategy_Trader
         {
             var sb = new StringBuilder();
             foreach (JournalMessage message in _messages)
-                sb.AppendLine(message.Time.ToString("yyyy-MM-dd hh:mm:ss") + "," + message.Message);
+                sb.AppendLine(message.Time.ToString("yyyy-MM-dd HH:mm:ss") + ", " + message.Message);
 
             string fileName = Data.Strategy.StrategyName + "_" + Data.Symbol + "_" + Data.PeriodMTStr + "_" +
                               Data.ConnectionID + ".log";

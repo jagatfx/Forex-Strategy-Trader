@@ -18,7 +18,7 @@ namespace Forex_Strategy_Trader
 
         public void CreateLogFile(string fileNameHeader)
         {
-            string time = DateTime.Now.ToString("yyyy.MM.dd_hhmmss");
+            string time = DateTime.Now.ToString("yyyy.MM.dd_HHmmss");
             string name = fileNameHeader + time + ".log";
             string path = Path.Combine(Environment.CurrentDirectory, @"Logs\" + name);
 
@@ -44,7 +44,7 @@ namespace Forex_Strategy_Trader
 
         public void WriteLogLine(string text)
         {
-            string message = DateTime.Now.ToString("yyyy.MM.dd hh:mm:ss") + ", " + text;
+            string message = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss") + ", " + text;
 
             if (!_isCreated)
             {

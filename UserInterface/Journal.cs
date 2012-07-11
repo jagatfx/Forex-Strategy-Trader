@@ -329,8 +329,8 @@ namespace Forex_Strategy_Trader
             _hScrollBar.Value = 0;
             if (isHorisontal)
             {
-                var iPoinShort = (int) (IconWidth + _timeWidth + MaxMessageWidth + 2*Space - _width);
-                _hScrollBar.Maximum = iPoinShort + _hScrollBar.LargeChange - Space;
+                var poinShort = (int) (IconWidth + _timeWidth + MaxMessageWidth + 2*Space - _width);
+                _hScrollBar.Maximum = poinShort + _hScrollBar.LargeChange - Space;
             }
 
             _visibleRows = (int) Math.Min((_height/_rowHeight), _rows);
