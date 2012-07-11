@@ -1,7 +1,7 @@
 // Controls class 
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
@@ -58,7 +58,7 @@ namespace Forex_Strategy_Trader
             InitializePageStrategy();
             InitializePageChart();
             Initialize_PageAccount();
-            Initialize_PageJournal();
+            InitializePageJournal();
             Initialize_PageOperation();
         }
 

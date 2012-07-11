@@ -1,79 +1,74 @@
 ﻿// Forex Strategy Trader
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Forex_Strategy_Trader.Properties;
 
 namespace Forex_Strategy_Trader
 {
     public enum JournalIcons
     {
-        Information, System, Warning, Error, OK, Currency, Blocked, Globe,
-        StartTrading, StopTrading, OrderBuy, OrderSell, OrderClose, Recalculate,
-        BarOpen, BarClose, PosBuy, PosSell, PosSquare
+        Information,
+        System,
+        Warning,
+        Error,
+        OK,
+        Currency,
+        Blocked,
+        Globe,
+        StartTrading,
+        StopTrading,
+        OrderBuy,
+        OrderSell,
+        OrderClose,
+        Recalculate,
+        BarOpen,
+        BarClose,
+        PosBuy,
+        PosSell,
+        PosSquare
     };
 
     public class JournalMessage
     {
-        JournalIcons icon;
-        DateTime     time;
-        string       message;
-
-        public JournalIcons Icon
-        {
-            get { return icon; }
-            set { icon = value; }
-        }
-
-        public DateTime Time
-        {
-            get { return time; }
-            set { time = value; }
-        }
-
-        public string Message
-        {
-            get { return message; }
-            set { message = value; }
-        }
-
         public JournalMessage(JournalIcons icon, DateTime time, string message)
         {
-            this.icon    = icon;
-            this.time    = time;
-            this.message = message;
+            Icon = icon;
+            Time = time;
+            Message = message;
         }
+
+        public JournalIcons Icon { get; private set; }
+        public DateTime Time { get; private set; }
+        public string Message { get; private set; }
     }
 
     public class Journal : Panel
     {
-        List<JournalMessage> messages;
-
-        int space = 2;
-
-        int   rows;
-        int   visibleRows;
-        float rowHeight;
-        float iconWidth  = 16;
-        float iconHeight = 16;
-        float timeWidth;
-        float maxMessageWidth = 400;
-        float requiredHeight;
-        float width;
-        float height;
-        Font  fontMessage;
-        Brush brushParams;
-        Brush brushData;
-        Color colorBackroundEvenRows;
-        Color colorBackroundOddRows;
-
-        VScrollBar vScrollBar;
-        HScrollBar hScrollBar;
+        private const float IconHeight = 16;
+        private const float IconWidth = 16;
+        private const float MaxMessageWidth = 400;
+        private const int Space = 2;
+        private Brush _brushParams;
+        private Color _colorBackroundEvenRows;
+        private Color _colorBackroundOddRows;
+        private Font _fontMessage;
+        private HScrollBar _hScrollBar;
+        private float _height;
+        private List<JournalMessage> _messages;
+        private float _requiredHeight;
+        private float _rowHeight;
+        private int _rows;
+        private float _timeWidth;
+        private VScrollBar _vScrollBar;
+        private int _visibleRows;
+        private float _width;
 
         /// <summary>
         /// Default Constructor
@@ -82,46 +77,46 @@ namespace Forex_Strategy_Trader
         {
             InitializeParameters();
             SetColors();
-
-            return;
         }
 
         /// <summary>
         /// Initialize Parameters
         /// </summary>
-        void InitializeParameters()
+        private void InitializeParameters()
         {
-            messages = new List<JournalMessage>();
+            _messages = new List<JournalMessage>();
 
             // Data row
-            fontMessage = new Font(Font.FontFamily, 9);
-            rowHeight   = Math.Max(fontMessage.Height + 4, 18F);
+            _fontMessage = new Font(Font.FontFamily, 9);
+            _rowHeight = Math.Max(_fontMessage.Height + 4, 18F);
 
             Graphics g = CreateGraphics();
-            timeWidth = g.MeasureString(DateTime.Now.ToString(Data.DF + " HH:mm:ss"), fontMessage).Width;
+            _timeWidth = g.MeasureString(DateTime.Now.ToString(Data.DF + " HH:mm:ss"), _fontMessage).Width;
             g.Dispose();
 
-            hScrollBar = new HScrollBar();
-            hScrollBar.Parent  = this;
-            hScrollBar.Dock    = DockStyle.Bottom;
-            hScrollBar.Enabled = false;
-            hScrollBar.Visible = false;
-            hScrollBar.SmallChange = 10;
-            hScrollBar.LargeChange = 30;
-            hScrollBar.Scroll += new ScrollEventHandler(ScrollBar_Scroll);
+            _hScrollBar = new HScrollBar
+                              {
+                                  Parent = this,
+                                  Dock = DockStyle.Bottom,
+                                  Enabled = false,
+                                  Visible = false,
+                                  SmallChange = 10,
+                                  LargeChange = 30
+                              };
+            _hScrollBar.Scroll += ScrollBarScroll;
 
-            vScrollBar = new VScrollBar();
-            vScrollBar.Parent  = this;
-            vScrollBar.Dock    = DockStyle.Right;
-            vScrollBar.TabStop = true;
-            vScrollBar.Enabled = false;
-            vScrollBar.Visible = false;
-            vScrollBar.SmallChange = 1;
-            vScrollBar.LargeChange = 3;
-            vScrollBar.Maximum     = 20;
-            vScrollBar.Scroll += new ScrollEventHandler(ScrollBar_Scroll);
-
-            return;
+            _vScrollBar = new VScrollBar
+                              {
+                                  Parent = this,
+                                  Dock = DockStyle.Right,
+                                  TabStop = true,
+                                  Enabled = false,
+                                  Visible = false,
+                                  SmallChange = 1,
+                                  LargeChange = 3,
+                                  Maximum = 20
+                              };
+            _vScrollBar.Scroll += ScrollBarScroll;
         }
 
         /// <summary>
@@ -129,13 +124,9 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public void SetColors()
         {
-            colorBackroundEvenRows = LayoutColors.ColorEvenRowBack;
-            colorBackroundOddRows  = LayoutColors.ColorOddRowBack;
-
-            brushParams = new SolidBrush(LayoutColors.ColorControlText);
-            brushData   = new SolidBrush(LayoutColors.ColorControlText);
-
-            return;
+            _colorBackroundEvenRows = LayoutColors.ColorEvenRowBack;
+            _colorBackroundOddRows = LayoutColors.ColorOddRowBack;
+            _brushParams = new SolidBrush(LayoutColors.ColorControlText);
         }
 
         /// <summary>
@@ -143,70 +134,70 @@ namespace Forex_Strategy_Trader
         /// </summary>
         /// <param name="icon"></param>
         /// <returns></returns>
-        public Image GetImage (JournalIcons icon)
+        private Image GetImage(JournalIcons icon)
         {
             Image image;
-            switch(icon)
+            switch (icon)
             {
                 case JournalIcons.Information:
-                    image = Properties.Resources.journal_information;
+                    image = Resources.journal_information;
                     break;
                 case JournalIcons.System:
-                    image = Properties.Resources.journal_system;
+                    image = Resources.journal_system;
                     break;
                 case JournalIcons.Warning:
-                    image = Properties.Resources.journal_warning;
+                    image = Resources.journal_warning;
                     break;
                 case JournalIcons.Error:
-                    image = Properties.Resources.journal_error;
+                    image = Resources.journal_error;
                     break;
                 case JournalIcons.OK:
-                    image = Properties.Resources.journal_ok;
+                    image = Resources.journal_ok;
                     break;
                 case JournalIcons.Currency:
-                    image = Properties.Resources.currency;
+                    image = Resources.currency;
                     break;
                 case JournalIcons.Blocked:
-                    image = Properties.Resources.journal_blocked;
+                    image = Resources.journal_blocked;
                     break;
                 case JournalIcons.Globe:
-                    image = Properties.Resources.globe;
+                    image = Resources.globe;
                     break;
                 case JournalIcons.StartTrading:
-                    image = Properties.Resources.journal_start_trading;
+                    image = Resources.journal_start_trading;
                     break;
                 case JournalIcons.StopTrading:
-                    image = Properties.Resources.journal_stop_trading;
+                    image = Resources.journal_stop_trading;
                     break;
                 case JournalIcons.OrderBuy:
-                    image = Properties.Resources.ord_buy;
+                    image = Resources.ord_buy;
                     break;
                 case JournalIcons.OrderSell:
-                    image = Properties.Resources.ord_sell;
+                    image = Resources.ord_sell;
                     break;
                 case JournalIcons.OrderClose:
-                    image = Properties.Resources.ord_close;
+                    image = Resources.ord_close;
                     break;
                 case JournalIcons.Recalculate:
-                    image = Properties.Resources.recalculate;
+                    image = Resources.recalculate;
                     break;
                 case JournalIcons.BarOpen:
-                    image = Properties.Resources.journal_bar_open;
+                    image = Resources.journal_bar_open;
                     break;
                 case JournalIcons.BarClose:
-                    image = Properties.Resources.journal_bar_close;
+                    image = Resources.journal_bar_close;
                     break;
                 case JournalIcons.PosBuy:
-                    image = Properties.Resources.pos_buy;
+                    image = Resources.pos_buy;
                     break;
                 case JournalIcons.PosSell:
-                    image = Properties.Resources.pos_sell;
+                    image = Resources.pos_sell;
                     break;
                 case JournalIcons.PosSquare:
-                    image = Properties.Resources.pos_square;
+                    image = Resources.pos_square;
                     break;
                 default:
-                    image = Properties.Resources.journal_error;
+                    image = Resources.journal_error;
                     break;
             }
 
@@ -214,35 +205,17 @@ namespace Forex_Strategy_Trader
         }
 
         /// <summary>
-        /// Adds a message.
-        /// </summary>
-        public void AppendMessage(JournalMessage message)
-        {
-            messages.Add(message);
-
-            rows = messages.Count;
-            requiredHeight = rows * rowHeight;
-
-            CalculateScrollBarStatus();
-            Invalidate();
-
-            return;
-        }
-
-        /// <summary>
         /// Update message list.
         /// </summary>
         public void UpdateMessages(List<JournalMessage> newMessages)
         {
-            messages = newMessages;
+            _messages = newMessages;
 
-            rows = messages.Count;
-            requiredHeight = rows * rowHeight;
+            _rows = _messages.Count;
+            _requiredHeight = _rows*_rowHeight;
 
             CalculateScrollBarStatus();
             Invalidate();
-
-            return;
         }
 
         /// <summary>
@@ -250,15 +223,13 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public void ClearMessages()
         {
-            messages = new List<JournalMessage>();
+            _messages = new List<JournalMessage>();
 
-            rows = messages.Count;
-            requiredHeight = rows * rowHeight;
+            _rows = _messages.Count;
+            _requiredHeight = _rows*_rowHeight;
 
             CalculateScrollBarStatus();
             Invalidate();
-
-            return;
         }
 
         /// <summary>
@@ -266,9 +237,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         public void SelectVScrollBar()
         {
-            vScrollBar.Select();
-
-            return;
+            _vScrollBar.Select();
         }
 
         /// <summary>
@@ -277,28 +246,26 @@ namespace Forex_Strategy_Trader
         protected override void OnPaint(PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            for (int row = 0; row * rowHeight < height; row++)
+            for (int row = 0; row*_rowHeight < _height; row++)
             {
-                float  vertPos = row * rowHeight;
+                float vertPos = row*_rowHeight;
 
                 // Row background
-                RectangleF rectRow = new RectangleF(space, vertPos, width, rowHeight);
-                if (row % 2f != 0)
-                    g.FillRectangle(new SolidBrush(colorBackroundEvenRows), rectRow);
-                else
-                    g.FillRectangle(new SolidBrush(colorBackroundOddRows), rectRow);
+                var rectRow = new RectangleF(Space, vertPos, _width, _rowHeight);
+                g.FillRectangle(
+                    Math.Abs(row%2f) > 0.001
+                        ? new SolidBrush(_colorBackroundEvenRows)
+                        : new SolidBrush(_colorBackroundOddRows), rectRow);
 
-                if (row + vScrollBar.Value >= rows)
+                if (row + _vScrollBar.Value >= _rows)
                     continue;
 
-                PointF pointMessage = new PointF(iconWidth + 2 * space, vertPos);
-                int index = rows - row - vScrollBar.Value - 1;
-                g.DrawImage(GetImage(messages[index].Icon), space, vertPos, iconWidth, iconHeight);
-                string text  = messages[index].Time.ToString(Data.DF + " HH:mm:ss") + "   " + messages[index].Message;
-                g.DrawString(text, fontMessage, brushParams, pointMessage);
+                var pointMessage = new PointF(IconWidth + 2*Space, vertPos);
+                int index = _rows - row - _vScrollBar.Value - 1;
+                g.DrawImage(GetImage(_messages[index].Icon), Space, vertPos, IconWidth, IconHeight);
+                string text = _messages[index].Time.ToString(Data.DF + " HH:mm:ss") + "   " + _messages[index].Message;
+                g.DrawString(text, _fontMessage, _brushParams, pointMessage);
             }
-
-            return;
         }
 
         /// <summary>
@@ -310,80 +277,74 @@ namespace Forex_Strategy_Trader
 
             CalculateScrollBarStatus();
             Invalidate();
-
-            return;
         }
 
         /// <summary>
         /// Scroll Bars status
         /// </summary>
-        void CalculateScrollBarStatus()
+        private void CalculateScrollBarStatus()
         {
-            width  = ClientSize.Width;
-            height = ClientSize.Height;
+            _width = ClientSize.Width;
+            _height = ClientSize.Height;
 
-            bool mustHorisontal = width  < iconWidth + timeWidth + maxMessageWidth + 2 * space;
-            bool mustVertical   = height < requiredHeight;
-            bool isHorisontal   = mustHorisontal;
-            bool isVertical     = mustVertical;
+            bool mustHorisontal = _width < IconWidth + _timeWidth + MaxMessageWidth + 2*Space;
+            bool mustVertical = _height < _requiredHeight;
+            bool isHorisontal;
+            bool isVertical;
 
             if (mustHorisontal && mustVertical)
             {
-                isVertical   = true;
+                isVertical = true;
                 isHorisontal = true;
             }
-            else if (mustHorisontal && !mustVertical)
+            else if (mustHorisontal)
             {
                 isHorisontal = true;
-                height = ClientSize.Height - hScrollBar.Height;
-                isVertical = height < requiredHeight;
+                _height = ClientSize.Height - _hScrollBar.Height;
+                isVertical = _height < _requiredHeight;
             }
-            else if (!mustHorisontal && mustVertical)
+            else if (mustVertical)
             {
                 isVertical = true;
-                width = ClientSize.Width - vScrollBar.Width - 2 * space;
-                isHorisontal = width < iconWidth + timeWidth + maxMessageWidth + 2 * space;
+                _width = ClientSize.Width - _vScrollBar.Width - 2*Space;
+                isHorisontal = _width < IconWidth + _timeWidth + MaxMessageWidth + 2*Space;
             }
             else
             {
                 isHorisontal = false;
-                isVertical   = false;
+                isVertical = false;
             }
 
             if (isHorisontal)
-                height = ClientSize.Height - hScrollBar.Height;
+                _height = ClientSize.Height - _hScrollBar.Height;
 
             if (isVertical)
-                width = ClientSize.Width - vScrollBar.Width - 2 * space;
+                _width = ClientSize.Width - _vScrollBar.Width - 2*Space;
 
-            vScrollBar.Enabled = isVertical;
-            vScrollBar.Visible = isVertical;
-            hScrollBar.Enabled = isHorisontal;
-            hScrollBar.Visible = isHorisontal;
+            _vScrollBar.Enabled = isVertical;
+            _vScrollBar.Visible = isVertical;
+            _hScrollBar.Enabled = isHorisontal;
+            _hScrollBar.Visible = isHorisontal;
 
-            hScrollBar.Value = 0;
+            _hScrollBar.Value = 0;
             if (isHorisontal)
             {
-                int iPoinShort = (int)(iconWidth + timeWidth + maxMessageWidth + 2 * space - width);
-                hScrollBar.Maximum = iPoinShort + hScrollBar.LargeChange - space;
+                var iPoinShort = (int) (IconWidth + _timeWidth + MaxMessageWidth + 2*Space - _width);
+                _hScrollBar.Maximum = iPoinShort + _hScrollBar.LargeChange - Space;
             }
 
-            visibleRows = (int)Math.Min((height / rowHeight), rows);
+            _visibleRows = (int) Math.Min((_height/_rowHeight), _rows);
 
-            vScrollBar.Value = 0;
-            vScrollBar.Maximum = rows - visibleRows + vScrollBar.LargeChange - 1;
-
-            return;
+            _vScrollBar.Value = 0;
+            _vScrollBar.Maximum = _rows - _visibleRows + _vScrollBar.LargeChange - 1;
         }
 
         /// <summary>
         /// ScrollBar_Scroll
         /// </summary>
-        void ScrollBar_Scroll(object sender, ScrollEventArgs e)
+        private void ScrollBarScroll(object sender, ScrollEventArgs e)
         {
             Invalidate();
-
-            return;
         }
     }
 }

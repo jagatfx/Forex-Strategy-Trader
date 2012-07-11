@@ -1,266 +1,255 @@
 ﻿// Controls Class
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using Forex_Strategy_Trader.Properties;
 
 namespace Forex_Strategy_Trader
 {
     /// <summary>
     /// Class Controls : Menu_and_StatusBar
     /// </summary>
-    public partial class Controls : Menu_and_StatusBar
+    public partial class Controls
     {
-        Journal   journal;
-        ToolStrip tsJournal;
-        bool isShowTicks          = Configs.JournalShowTicks;
-        bool isShowSystemMessages = Configs.JournalShowSystemMessages;
+        private readonly List<JournalMessage> _messages = new List<JournalMessage>();
+        private bool _isShowSystemMessages = Configs.JournalShowSystemMessages;
+        private bool _isShowTicks = Configs.JournalShowTicks;
+        private Journal Journal { get; set; }
+        private ToolStrip TsJournal { get; set; }
 
         /// <summary>
         /// Gets or sets if the journal shows ticks.
         /// </summary>
-        public bool JournalShowTicks
+        protected bool JournalShowTicks
         {
-            get { return isShowTicks; }
+            get { return _isShowTicks; }
         }
 
         /// <summary>
         /// Gets or sets if the journal shows system messages.
         /// </summary>
-        public bool JournalShowSystemMessages
+        protected bool JournalShowSystemMessages
         {
-            get { return isShowSystemMessages; }
+            get { return _isShowSystemMessages; }
         }
 
         /// <summary>
         /// Initializes page Chart.
         /// </summary>
-        public void Initialize_PageJournal()
+        private void InitializePageJournal()
         {
             // tabPageJournal
             TabPageJournal.Name = "tabPageJournal";
             TabPageJournal.Text = Language.T("Journal");
             TabPageJournal.ImageIndex = 4;
 
-            journal = new Journal();
-            journal.Parent = TabPageJournal;
-            journal.Dock   = DockStyle.Fill;
+            Journal = new Journal {Parent = TabPageJournal, Dock = DockStyle.Fill};
 
-            tsJournal = new ToolStrip();
-            tsJournal.Parent = TabPageJournal;
-            tsJournal.Dock   = DockStyle.Top;
+            TsJournal = new ToolStrip {Parent = TabPageJournal, Dock = DockStyle.Top};
 
-            Font fontMessage = new Font(Font.FontFamily, 9);
+            var fontMessage = new Font(Font.FontFamily, 9);
             Graphics g = CreateGraphics();
             float fTimeWidth = g.MeasureString(DateTime.Now.ToString(Data.DF + " HH:mm:ss"), fontMessage).Width;
             g.Dispose();
 
-            ToolStripLabel lblTime = new ToolStripLabel(Language.T("Time"));
-            lblTime.AutoSize = false;
-            lblTime.Width    = 16 + (int)fTimeWidth - 5;
-            tsJournal.Items.Add(lblTime);
+            var lblTime = new ToolStripLabel(Language.T("Time")) {AutoSize = false, Width = 16 + (int) fTimeWidth - 5};
+            TsJournal.Items.Add(lblTime);
 
-            tsJournal.Items.Add(new ToolStripSeparator());
+            TsJournal.Items.Add(new ToolStripSeparator());
 
-            ToolStripLabel lblMessage = new ToolStripLabel(Language.T("Message"));
-            lblMessage.AutoSize = false;
-            lblMessage.Width    = 250;
-            tsJournal.Items.Add(lblMessage);
+            var lblMessage = new ToolStripLabel(Language.T("Message")) {AutoSize = false, Width = 250};
+            TsJournal.Items.Add(lblMessage);
 
             // Tool strip buttons
-            ToolStripButton tsbClear = new ToolStripButton();
-            tsbClear.Image        = Properties.Resources.clear;
-            tsbClear.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbClear.Alignment    = ToolStripItemAlignment.Right;
-            tsbClear.ToolTipText  = Language.T("Clear journal's messages.");
-            tsbClear.Click       += new EventHandler(TsbClear_Click);
-            tsJournal.Items.Add(tsbClear);
+            var tsbClear = new ToolStripButton
+                               {
+                                   Image = Resources.clear,
+                                   DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                   Alignment = ToolStripItemAlignment.Right,
+                                   ToolTipText = Language.T("Clear journal's messages.")
+                               };
+            tsbClear.Click += TsbClearClick;
+            TsJournal.Items.Add(tsbClear);
 
-            ToolStripSeparator sep = new ToolStripSeparator();
-            sep.Alignment = ToolStripItemAlignment.Right;
-            tsJournal.Items.Add(sep);
+            var sep = new ToolStripSeparator {Alignment = ToolStripItemAlignment.Right};
+            TsJournal.Items.Add(sep);
 
-            ToolStripComboBox tscbxJounalLength = new ToolStripComboBox();
-            tscbxJounalLength.Alignment = ToolStripItemAlignment.Right;
-            tscbxJounalLength.DropDownStyle = ComboBoxStyle.DropDownList;
-            tscbxJounalLength.AutoSize = false;
-            tscbxJounalLength.Size = new System.Drawing.Size(60, 25);
-            tscbxJounalLength.Items.AddRange(new object[] { "20", "200", "500", "1000", "5000", "10000" });
-            tscbxJounalLength.SelectedItem = Configs.JournalLength.ToString();
-            tscbxJounalLength.ToolTipText  = Language.T("Maximum messages in the journal.");
-            tscbxJounalLength.SelectedIndexChanged += new EventHandler(TscbxJounalLenght_SelectedIndexChanged);
-            tsJournal.Items.Add(tscbxJounalLength);
+            var tscbxJounalLength = new ToolStripComboBox
+                                        {
+                                            Alignment = ToolStripItemAlignment.Right,
+                                            DropDownStyle = ComboBoxStyle.DropDownList,
+                                            AutoSize = false,
+                                            Size = new Size(60, 25)
+                                        };
+            tscbxJounalLength.Items.AddRange(new object[] {"20", "200", "500", "1000", "5000", "10000"});
+            tscbxJounalLength.SelectedItem = Configs.JournalLength.ToString(CultureInfo.InvariantCulture);
+            tscbxJounalLength.ToolTipText = Language.T("Maximum messages in the journal.");
+            tscbxJounalLength.SelectedIndexChanged += TscbxJounalLenghtSelectedIndexChanged;
+            TsJournal.Items.Add(tscbxJounalLength);
 
-            ToolStripButton tsbShowTicks = new ToolStripButton();
-            tsbShowTicks.Image        = Properties.Resources.show_ticks;
-            tsbShowTicks.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbShowTicks.Alignment    = ToolStripItemAlignment.Right;
-            tsbShowTicks.Checked      = isShowTicks;
-            tsbShowTicks.ToolTipText  = Language.T("Show incoming ticks.");
-            tsbShowTicks.Click       += new EventHandler(TsbShowTicks_Click);
-            tsJournal.Items.Add(tsbShowTicks);
+            var tsbShowTicks = new ToolStripButton
+                                   {
+                                       Image = Resources.show_ticks,
+                                       DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                       Alignment = ToolStripItemAlignment.Right,
+                                       Checked = _isShowTicks,
+                                       ToolTipText = Language.T("Show incoming ticks.")
+                                   };
+            tsbShowTicks.Click += TsbShowTicksClick;
+            TsJournal.Items.Add(tsbShowTicks);
 
-            ToolStripButton tsbShowSystemMessages = new ToolStripButton();
-            tsbShowSystemMessages.Image        = Properties.Resources.show_system_messages;
-            tsbShowSystemMessages.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbShowSystemMessages.Alignment    = ToolStripItemAlignment.Right;
-            tsbShowSystemMessages.Checked      = isShowSystemMessages;
-            tsbShowSystemMessages.ToolTipText  = Language.T("Show system messages.");
-            tsbShowSystemMessages.Click       += new EventHandler(TsbShowSystems_Click);
-            tsJournal.Items.Add(tsbShowSystemMessages);
+            var tsbShowSystemMessages = new ToolStripButton
+                                            {
+                                                Image = Resources.show_system_messages,
+                                                DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                                Alignment = ToolStripItemAlignment.Right,
+                                                Checked = _isShowSystemMessages,
+                                                ToolTipText = Language.T("Show system messages.")
+                                            };
+            tsbShowSystemMessages.Click += TsbShowSystemsClick;
+            TsJournal.Items.Add(tsbShowSystemMessages);
 
-            ToolStripSeparator sep1 = new ToolStripSeparator();
-            sep1.Alignment = ToolStripItemAlignment.Right;
-            tsJournal.Items.Add(sep1);
+            var sep1 = new ToolStripSeparator {Alignment = ToolStripItemAlignment.Right};
+            TsJournal.Items.Add(sep1);
 
-            ToolStripButton tsbSaveJournal = new ToolStripButton();
-            tsbSaveJournal.Image = Properties.Resources.save;
-            tsbSaveJournal.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            tsbSaveJournal.Alignment = ToolStripItemAlignment.Right;
-            tsbSaveJournal.Checked = isShowSystemMessages;
-            tsbSaveJournal.ToolTipText = Language.T("Save journal.");
-            tsbSaveJournal.Click += new EventHandler(TsbSaveJournalClick);
-            tsJournal.Items.Add(tsbSaveJournal);
-
-            return;
+            var tsbSaveJournal = new ToolStripButton
+                                     {
+                                         Image = Resources.save,
+                                         DisplayStyle = ToolStripItemDisplayStyle.Image,
+                                         Alignment = ToolStripItemAlignment.Right,
+                                         Checked = _isShowSystemMessages,
+                                         ToolTipText = Language.T("Save journal.")
+                                     };
+            tsbSaveJournal.Click += TsbSaveJournalClick;
+            TsJournal.Items.Add(tsbSaveJournal);
         }
 
         /// <summary>
         /// Journal Length changed
         /// </summary>
-        void TscbxJounalLenght_SelectedIndexChanged(object sender, EventArgs e)
+        private void TscbxJounalLenghtSelectedIndexChanged(object sender, EventArgs e)
         {
-            ToolStripComboBox comboBox = (ToolStripComboBox)sender;
+            var comboBox = (ToolStripComboBox) sender;
             Configs.JournalLength = int.Parse(comboBox.SelectedItem.ToString());
-            if (messages.Count > Configs.JournalLength)
-                messages.RemoveRange(0, messages.Count - Configs.JournalLength);
+            if (_messages.Count > Configs.JournalLength)
+                _messages.RemoveRange(0, _messages.Count - Configs.JournalLength);
 
             TabPageJournal.Select();
-            UpdateJournal(messages);
+            UpdateJournal(_messages);
         }
 
         /// <summary>
         /// Page journal was selected.
         /// </summary>
-        void PageJournalSelected()
+        private void PageJournalSelected()
         {
-            journal.SelectVScrollBar();
-
-            return;
+            Journal.SelectVScrollBar();
         }
 
         /// <summary>
         /// Clears the journal messages.
         /// </summary>
-        void TsbClear_Click(object sender, EventArgs e)
+        private void TsbClearClick(object sender, EventArgs e)
         {
-            messages.Clear();
-            journal.ClearMessages();
-
-            return;
+            _messages.Clear();
+            Journal.ClearMessages();
         }
 
         /// <summary>
         /// Journal starts showing ticks.
         /// </summary>
-        void TsbShowTicks_Click(object sender, EventArgs e)
+        private void TsbShowTicksClick(object sender, EventArgs e)
         {
-            ToolStripButton btn = (ToolStripButton)sender;
+            var btn = (ToolStripButton) sender;
             btn.Checked = !btn.Checked;
-            isShowTicks = btn.Checked;
-            Configs.JournalShowTicks = isShowTicks;
-
-            return;
+            _isShowTicks = btn.Checked;
+            Configs.JournalShowTicks = _isShowTicks;
         }
 
         /// <summary>
         /// Journal starts showing system messages.
         /// </summary>
-        void TsbShowSystems_Click(object sender, EventArgs e)
+        private void TsbShowSystemsClick(object sender, EventArgs e)
         {
-            ToolStripButton btn = (ToolStripButton)sender;
+            var btn = (ToolStripButton) sender;
             btn.Checked = !btn.Checked;
-            isShowSystemMessages = btn.Checked;
-            Configs.JournalShowSystemMessages = isShowSystemMessages;
-
-            return;
+            _isShowSystemMessages = btn.Checked;
+            Configs.JournalShowSystemMessages = _isShowSystemMessages;
         }
 
         /// <summary>
         /// Saves journal to a file.
         /// </summary>
-        void TsbSaveJournalClick(object sender, EventArgs e)
+        private void TsbSaveJournalClick(object sender, EventArgs e)
         {
             var sb = new StringBuilder();
-            foreach (JournalMessage message in messages)
+            foreach (JournalMessage message in _messages)
                 sb.AppendLine(message.Time.ToString("yyyy-MM-dd hh:mm:ss") + "," + message.Message);
 
-            string fileName = Data.Strategy.StrategyName + "_" + Data.Symbol + "_" + Data.PeriodMTStr + "_" + Data.ConnectionID + ".log";
+            string fileName = Data.Strategy.StrategyName + "_" + Data.Symbol + "_" + Data.PeriodMTStr + "_" +
+                              Data.ConnectionID + ".log";
 
             SaveDataFile(fileName, sb);
         }
 
-        List<JournalMessage> messages = new List<JournalMessage>();
         /// <summary>
         /// Adds a message to the journal.
         /// </summary>
         protected void AppendJournalMessage(JournalMessage message)
         {
-            messages.Add(message);
-            if (messages.Count > Configs.JournalLength)
-                messages.RemoveRange(0, messages.Count - Configs.JournalLength);
+            _messages.Add(message);
+            if (_messages.Count > Configs.JournalLength)
+                _messages.RemoveRange(0, _messages.Count - Configs.JournalLength);
 
-            UpdateJournal(messages);
+            UpdateJournal(_messages);
 
             Data.Logger.WriteLogLine(message.Message);
         }
 
-        delegate void UpdateJournalDelegate(List<JournalMessage> newMessages);
         /// <summary>
         /// Updates journal.
         /// </summary>
-        void UpdateJournal(List<JournalMessage> newMessages)
+        private void UpdateJournal(List<JournalMessage> newMessages)
         {
-            if (journal.InvokeRequired)
+            if (Journal.InvokeRequired)
             {
-                journal.BeginInvoke(new UpdateJournalDelegate(UpdateJournal), new object[] { newMessages });
+                Journal.BeginInvoke(new UpdateJournalDelegate(UpdateJournal), new object[] {newMessages});
             }
             else
             {
-                journal.UpdateMessages(newMessages);
+                Journal.UpdateMessages(newMessages);
             }
-
-            return;
         }
 
         /// <summary>
         /// Sets the colors of tab page Journal.
         /// </summary>
-        void SetJournalColors()
+        private void SetJournalColors()
         {
             TabPageJournal.BackColor = LayoutColors.ColorFormBack;
-            journal.SetColors();
-
-            return;
+            Journal.SetColors();
         }
 
         private void SaveDataFile(string fileName, StringBuilder data)
         {
             var sfdExport = new SaveFileDialog
-            {
-                AddExtension = true,
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                Title = Language.T("Save"),
-                Filter = "Log file (*.log)|*.log|Excel file (*.xls)|*.xls|Text files (*.txt)|*.txt|All files (*.*)|*.*",
-                FileName = fileName
-            };
+                                {
+                                    AddExtension = true,
+                                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                                    Title = Language.T("Save"),
+                                    Filter =
+                                        "Log file (*.log)|*.log|Excel file (*.xls)|*.xls|Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                                    FileName = fileName
+                                };
 
             if (sfdExport.ShowDialog() != DialogResult.OK) return;
             try
@@ -275,5 +264,10 @@ namespace Forex_Strategy_Trader
             }
         }
 
+        #region Nested type: UpdateJournalDelegate
+
+        private delegate void UpdateJournalDelegate(List<JournalMessage> newMessages);
+
+        #endregion
     }
 }

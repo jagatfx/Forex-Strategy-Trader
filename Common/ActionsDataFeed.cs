@@ -1,7 +1,7 @@
 ﻿// Action Data Feed
 // Part of Forex Strategy Trader
 // Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
+// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
@@ -316,8 +316,9 @@ namespace Forex_Strategy_Trader
                 if (isAccChanged)
                 {
                     string message = string.Format(
-                        Language.T("Account Balance") + " {0:F2}, " + Language.T("Equity") +
-                        " {1:F2}, " + Language.T("Profit") + ", {2:F2}, " +
+                        Language.T("Account Balance") + " {0:F2}, " +
+                        Language.T("Equity") + " {1:F2}, " +
+                        Language.T("Profit") + " {2:F2}, " +
                         Language.T("Free Margin") + " {3:F2}",
                         tea.AccountBalance, tea.AccountEquity, tea.AccountProfit,
                         tea.AccountFreeMargin);
@@ -884,7 +885,8 @@ namespace Forex_Strategy_Trader
                 icon = (Data.PositionType == 0 ? JournalIcons.PosBuy : JournalIcons.PosSell);
                 text = string.Format((Data.PositionType == 0 ? Language.T("Long") : Language.T("Short")) + " {0} " +
                                      LotOrLots(Data.PositionLots) + " " + Language.T("at") + " {1}, " +
-                                     Language.T("Stop Loss") + " {2}, " + Language.T("Take Profit") + " {3}, " +
+                                     Language.T("Stop Loss") + " {2}, " + 
+                                     Language.T("Take Profit") + " {3}, " +
                                      Language.T("Profit") + " {4} " + Data.AccountCurrency,
                                      Data.PositionLots,
                                      Data.PositionOpenPrice.ToString(format),

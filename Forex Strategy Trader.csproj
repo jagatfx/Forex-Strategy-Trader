@@ -65,10 +65,10 @@
   </Target>
   -->
   <ItemGroup>
-    <Compile Include="Common\Actions Data Feed.cs">
+    <Compile Include="Common\ActionsDataFeed.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Common\Actions OnClicks.cs">
+    <Compile Include="Common\ActionsOnClicks.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Common\Actions.cs">
@@ -85,8 +85,8 @@
     <Compile Include="Indicators\N Bars Exit.cs" />
     <Compile Include="Instruments\Bar Stats.cs" />
     <Compile Include="Common\Configs.cs" />
-    <Compile Include="Common\Data Common.cs" />
-    <Compile Include="Common\Data Market.cs" />
+    <Compile Include="Common\DataCommon.cs" />
+    <Compile Include="Common\DataMarket.cs" />
     <Compile Include="Dialogs\About Screen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -264,7 +264,7 @@
     <Compile Include="Dialogs\New Translation.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Common\Actions Trade.cs">
+    <Compile Include="Common\ActionsTrade.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="User interface\Controls Operation.cs">
