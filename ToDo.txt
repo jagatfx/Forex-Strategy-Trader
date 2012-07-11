@@ -1,2 +1,0 @@
-﻿- Add Absolute / Relative Permanent S/L and TP in trading logic;
-- Add compact mode 
