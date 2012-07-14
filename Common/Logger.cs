@@ -55,7 +55,10 @@ namespace Forex_Strategy_Trader
             try
             {
                 using (StreamWriter sw = _logFileInfo.AppendText())
+                {
                     sw.WriteLine(message);
+                    sw.Flush();
+                }
             }
             catch (Exception exception)
             {
