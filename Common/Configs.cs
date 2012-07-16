@@ -25,7 +25,7 @@ namespace Forex_Strategy_Trader
         static int    SIGMA_MODE_SEPARATED_CHARTDefault = 5;
 
         // Trade settings
-        static string longTradeLogicPriceDefault = "Bid";
+        static string longTradeLogicPriceDefault = "Close";
         static int    barCloseAdvanceDefault     = 3;
         static bool   autoSlippageDefault        = true;
         static int    slippageEntryOrdersDefault = 5;

@@ -272,7 +272,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         private void BtnDefaultClick(object sender, EventArgs e)
         {
-            CbxLongLogicPrice.SelectedIndex = 0;
+            CbxLongLogicPrice.Text = "Close";
             NUDCloseAdvance.Value = 3;
             NUDSlippageEntry.Value = 5;
             NUDSlippageExit.Value = 10;
