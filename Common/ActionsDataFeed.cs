@@ -17,7 +17,7 @@ namespace Forex_Strategy_Trader
     /// <summary>
     /// Class Actions : Controls
     /// </summary>
-    public partial class Actions
+    public sealed partial class Actions
     {
         private readonly object _lockerDataFeed = new object();
         private readonly object _lockerTickPing = new object();

@@ -16,7 +16,7 @@ namespace Forex_Strategy_Trader
     /// <summary>
     /// Class Actions : Controls
     /// </summary>
-    public partial class Actions : Controls
+    public sealed partial class Actions : Controls
     {
         /// <summary>
         /// The starting point of the application
@@ -100,7 +100,7 @@ namespace Forex_Strategy_Trader
 
             ChangeTabPage(Configs.LastTab);
 
-            var liveContent = new LiveContent(Data.SystemDir, MILiveContent, MIForex, PnlUsefulLinks, PnlForexBrokers);
+            LiveContent.CheckForUpdate(Data.SystemDir, MILiveContent, MIForex, PnlUsefulLinks, PnlForexBrokers);
 
             // Starting tips
             if (Configs.ShowStartingTip)

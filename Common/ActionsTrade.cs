@@ -13,7 +13,7 @@ namespace Forex_Strategy_Trader
     /// <summary>
     /// Class Actions : Controls
     /// </summary>
-    public partial class Actions
+    public sealed partial class Actions
     {
         private static int _nBarsExit;
         private StrategyPriceType _closeStrPriceType;
