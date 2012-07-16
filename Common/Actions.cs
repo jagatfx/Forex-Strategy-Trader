@@ -115,10 +115,12 @@ namespace Forex_Strategy_Trader
         private static void CheckIfStartedFromCmdLine(params string[] input)
         {
             if (input.Length != 3) return;
-            Data.IsAutoStart = true;
-            Data.ConnectionID = int.Parse(input[0]);
-            if (input[1] == "yes") Data.StartAutotradeWhenConnected = true;
+            int connectionID;
+            if (!int.TryParse(input[0], out connectionID)) return;
+            Data.ConnectionID = connectionID;
+            Data.StartAutotradeWhenConnected = input[1] == "yes";
             Configs.LastStrategy = input[2] + ".xml";
+            Data.IsAutoStart = true;
         }
 
         private static void SetAutostartSettings()
