@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Forex Software Ltd.")]
 [assembly: AssemblyProduct("Forex_Strategy_Trader.Properties")]
-[assembly: AssemblyCopyright("2011 (c) Miroslav Popov")]
+[assembly: AssemblyCopyright("2012 (c) Miroslav Popov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -29,5 +29,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.5.3.1")]
-[assembly: AssemblyFileVersion("1.5.3.1")]
+[assembly: AssemblyVersion("1.5.3.2")]
+[assembly: AssemblyFileVersion("1.5.3.2")]
