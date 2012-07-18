@@ -743,13 +743,13 @@ namespace Forex_Strategy_Trader
                         Data.ConsecutiveLosses = int.Parse(rowValue);
                         break;
                     case "aSL":
-                        Data.ActivatedStopLoss = double.Parse(rowValue);
+                        Data.ActivatedStopLoss = StringToDouble(rowValue);
                         break;
                     case "aTP":
-                        Data.ActivatedTakeProfit = double.Parse(rowValue);
+                        Data.ActivatedTakeProfit = StringToDouble(rowValue);
                         break;
                     case "al":
-                        Data.ClosedSLTPLots = double.Parse(rowValue);
+                        Data.ClosedSLTPLots = StringToDouble(rowValue);
                         break;
                 }
             }
@@ -1256,6 +1256,22 @@ namespace Forex_Strategy_Trader
             }
 
             SetBarDataText(sb.ToString());
+        }
+
+        /// <summary>
+        /// Converts a string to a double number.
+        /// </summary>
+        private double StringToDouble(string input)
+        {
+            string decimalPoint = NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
+
+            if (!input.Contains(decimalPoint))
+            {
+                input = input.Replace(".", decimalPoint);
+                input = input.Replace(",", decimalPoint);
+            }
+
+            return double.Parse(input);
         }
 
         #region Nested type: SetTradeStripDelegate
