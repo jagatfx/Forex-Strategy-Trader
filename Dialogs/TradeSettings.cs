@@ -137,7 +137,7 @@ namespace Forex_Strategy_Trader
             NUDMinChartBars.Parent = PnlSettings;
             NUDMinChartBars.BeginInit();
             NUDMinChartBars.Minimum = 300;
-            NUDMinChartBars.Maximum = 5000;
+            NUDMinChartBars.Maximum = 10000;
             NUDMinChartBars.Increment = 1;
             NUDMinChartBars.Value = Configs.MinChartBars;
             NUDMinChartBars.DecimalPlaces = 0;
