@@ -294,6 +294,9 @@
     <Compile Include="UserInterface\ControlsStrategy.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="UserInterface\FailedCloseOrder.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UserInterface\TickChart.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -1622,4 +1622,37 @@
     <main>Command Console</main>
     <alt>Конзола за команди</alt>
   </str>
+  <!-- Close order failed -->
+  <str>
+    <main>Close order failed!</main>
+    <alt>Ордер Затваря не е изпълнен!</alt>
+  </str>
+  <str>
+    <main>Activated resending of failed close orders.</main>
+    <alt>Активирано повторно изпращане на неизпълнен ордер Затваря.</alt>
+  </str>
+  <str>
+    <main>Deactivated resending of failed close orders.</main>
+    <alt>Деактивирано повторно изпращане на неизпълнен ордер Затваря.</alt>
+  </str>
+  <str>
+    <main>Warning</main>
+    <alt>Внимание</alt>
+  </str>
+  <str>
+    <main>FST will resend the close order at every ## seconds. See Journal records for more info.</main>
+    <alt>FST ще изпраща ордер Затваря на всеки ## секунди. Погледнете Журнала за повече информация.</alt>
+  </str>
+  <str>
+    <main>Close Position</main>
+    <alt>Затвори позицията</alt>
+  </str>
+  <str>
+    <main>Stop Sound</main>
+    <alt>Спри звука</alt>
+  </str>
+  <str>
+    <main>Close Warning Message</main>
+    <alt>Затвори предупреждението</alt>
+  </str>
 </lang>

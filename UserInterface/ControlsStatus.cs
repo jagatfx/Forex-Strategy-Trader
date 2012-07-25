@@ -7,6 +7,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Forex_Strategy_Trader.UserInterface;
 
 namespace Forex_Strategy_Trader
 {
@@ -16,16 +17,17 @@ namespace Forex_Strategy_Trader
     public partial class Controls
     {
         private Button BtnShowAccountInfo { get; set; }
-        private Button BtnShowBars{ get; set; }
-        private Button BtnShowMarketInfo{ get; set; }
-        private Label LblConnection{ get; set; }
-        private FancyPanel PnlConnection{ get; set; }
-        private FancyPanel PnlDataInfoBase{ get; set; }
-        private Panel PnlDataInfoButtons{ get; set; }
-        protected LinkPanel PnlForexBrokers{ get; private set; }
-        private InfoPanel PnlMarketInfo{ get; set; }
-        protected LinkPanel PnlUsefulLinks{ get; private set; }
-        private TextBox TbxDataInfo{ get; set; }
+        private Button BtnShowBars { get; set; }
+        private Button BtnShowMarketInfo { get; set; }
+        private Label LblConnection { get; set; }
+        private FancyPanel PnlWarning { get; set; }
+        private FancyPanel PnlConnection { get; set; }
+        private FancyPanel PnlDataInfoBase { get; set; }
+        private Panel PnlDataInfoButtons { get; set; }
+        protected LinkPanel PnlForexBrokers { get; private set; }
+        private InfoPanel PnlMarketInfo { get; set; }
+        protected LinkPanel PnlUsefulLinks { get; private set; }
+        private TextBox TbxDataInfo { get; set; }
 
         /// <summary>
         /// Sets the controls in tabPageStatus
@@ -37,6 +39,14 @@ namespace Forex_Strategy_Trader
             TabPageStatus.Text = Language.T("Status");
             TabPageStatus.ImageIndex = 0;
             TabPageStatus.Resize += TabPageStatusResize;
+
+            // Panel Warning
+            PnlWarning = new FancyPanel
+                             {
+                                 Height = 0,
+                                 Enabled = false,
+                                 Visible = false
+                             };
 
             // Panel Connection
             PnlConnection = new FancyPanel(Language.T("Connection Status")) {Parent = TabPageStatus};
@@ -90,6 +100,51 @@ namespace Forex_Strategy_Trader
             SetStatusColors();
         }
 
+        private void ActivateFailedCloseOrderWarning()
+        {
+            if (PnlWarning.Enabled)
+                return;
+
+            PnlWarning = new FailedCloseOrder(this) {Enabled = true, Visible = true, Parent = TabPageStatus};
+
+            TabPageStatusResize(TabPageStatus, new EventArgs());
+            ChangeTabPage(0);
+        }
+
+        protected void ActivateWarningMessage()
+        {
+            if (TabPageStatus.InvokeRequired)
+            {
+                TabPageStatus.BeginInvoke(new ActivateWarningMessageDelegate(ActivateWarningMessage));
+            }
+            else
+            {
+                ActivateFailedCloseOrderWarning();
+            }
+        }
+
+        public void DeactivateFailedCloseOrderWarning()
+        {
+            PnlWarning.Height = 0;
+            PnlWarning.Enabled = false;
+            PnlWarning.Visible = false;
+
+            TabPageStatusResize(TabPageStatus, new EventArgs());
+        }
+
+        protected void DeactivateWarningMessage()
+        {
+            if (TabPageStatus.InvokeRequired)
+            {
+                TabPageStatus.BeginInvoke(new DeactivateWarningMessageDelegate(DeactivateWarningMessage));
+            }
+            else
+            {
+                DeactivateFailedCloseOrderWarning();
+            }
+        }
+
+
         private void PnlDataInfoButtons_Paint(object sender, PaintEventArgs e)
         {
             var pnl = (Panel) sender;
@@ -107,25 +162,29 @@ namespace Forex_Strategy_Trader
             TabPageStatus.SuspendLayout();
 
             const int border = 2;
+            int width = TabPageStatus.ClientSize.Width;
+            int height = TabPageStatus.ClientSize.Height;
 
-            int iWidth = TabPageStatus.ClientSize.Width;
-            int iHeight = TabPageStatus.ClientSize.Height;
+            PnlWarning.Width = width;
+            PnlWarning.Location = new Point(0, 0);
+            int pnlWarningBottom = PnlWarning.Enabled ? PnlWarning.Bottom + Space : 0;
+
             PnlMarketInfo.Size = new Size(220, 150);
-            PnlMarketInfo.Location = new Point(iWidth - PnlMarketInfo.Width, 0);
+            PnlMarketInfo.Location = new Point(width - PnlMarketInfo.Width, pnlWarningBottom);
 
             PnlConnection.Size = new Size(PnlMarketInfo.Left - Space, 110);
-            PnlConnection.Location = new Point(0, 0);
+            PnlConnection.Location = new Point(0, pnlWarningBottom);
 
             LblConnection.Size = new Size(PnlConnection.Width - 2*Space - 2*border, 21);
             LblConnection.Location = new Point(border + Space, (int) PnlConnection.CaptionHeight + Space);
 
-            PnlDataInfoBase.Size = new Size(PnlConnection.Width, iHeight - PnlConnection.Bottom - Space);
+            PnlDataInfoBase.Size = new Size(PnlConnection.Width, height - PnlConnection.Bottom - Space);
             PnlDataInfoBase.Location = new Point(0, PnlConnection.Bottom + Space);
 
-            PnlUsefulLinks.Size = new Size(PnlMarketInfo.Width, (iHeight - PnlMarketInfo.Bottom - 2*Space)/2);
+            PnlUsefulLinks.Size = new Size(PnlMarketInfo.Width, (height - PnlMarketInfo.Bottom - 2*Space)/2);
             PnlUsefulLinks.Location = new Point(PnlMarketInfo.Left, PnlMarketInfo.Bottom + Space);
 
-            PnlForexBrokers.Size = new Size(PnlMarketInfo.Width, iHeight - PnlUsefulLinks.Bottom - Space);
+            PnlForexBrokers.Size = new Size(PnlMarketInfo.Width, height - PnlUsefulLinks.Bottom - Space);
             PnlForexBrokers.Location = new Point(PnlMarketInfo.Left, PnlUsefulLinks.Bottom + Space);
 
             const int buttonWith = 100;
@@ -230,6 +289,18 @@ namespace Forex_Strategy_Trader
                 PnlMarketInfo.Update(parameters, values, caption);
             }
         }
+
+        #region Nested type: ActivateWarningMessageDelegate
+
+        private delegate void ActivateWarningMessageDelegate();
+
+        #endregion
+
+        #region Nested type: DeactivateWarningMessageDelegate
+
+        private delegate void DeactivateWarningMessageDelegate();
+
+        #endregion
 
         #region Nested type: SetBarDataTextDelegate
 

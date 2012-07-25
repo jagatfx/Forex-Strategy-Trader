@@ -1622,4 +1622,37 @@
     <main>Command Console</main>
     <alt>Command Console</alt>
   </str>
+  <!-- Close order failed -->
+  <str>
+    <main>Close order failed!</main>
+    <alt>Close order failed!</alt>
+  </str>
+  <str>
+    <main>Activated resending of failed close orders.</main>
+    <alt>Activated resending of failed close orders.</alt>
+  </str>
+  <str>
+    <main>Deactivated resending of failed close orders.</main>
+    <alt>Deactivated resending of failed close orders.</alt>
+  </str>
+  <str>
+    <main>Warning</main>
+    <alt>Warning</alt>
+  </str>
+  <str>
+    <main>FST will resend the close order at every ## seconds. See Journal records for more info.</main>
+    <alt>FST will resend the close order at every ## seconds. See Journal records for more info.</alt>
+  </str>
+  <str>
+    <main>Close Position</main>
+    <alt>Close Position</alt>
+  </str>
+  <str>
+    <main>Stop Sound</main>
+    <alt>Stop Sound</alt>
+  </str>
+  <str>
+    <main>Close Warning Message</main>
+    <alt>Close Warning Message</alt>
+  </str>
 </lang>

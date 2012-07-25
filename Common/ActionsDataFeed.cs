@@ -237,6 +237,9 @@ namespace Forex_Strategy_Trader
                     // Sends OrderModify on SL/TP errors
                     if (IsWrongStopsExecution())
                         ResendWrongStops();
+
+                    // Check for failed close order.
+                    CheckForFailedCloseOrder(ping.PositionLots);
                 }
             }
         }
@@ -343,6 +346,9 @@ namespace Forex_Strategy_Trader
                 // Sends OrderModify on SL/TP errors
                 if (IsWrongStopsExecution())
                     ResendWrongStops();
+
+                // Check for failed close order.
+                CheckForFailedCloseOrder(tea.PositionLots);
             }
         }
 
@@ -823,6 +829,66 @@ namespace Forex_Strategy_Trader
                 Log(message);
                 _activationReportedAt = Data.ActivatedTakeProfit;
             }
+        }
+
+        private void CheckForFailedCloseOrder(double lots)
+        {
+            // Check for failed close order.
+            if (Data.IsSentCloseOrder && lots > Epsilon)
+            {
+                Data.CloseOrderTickCounter++;
+                // Wait for some ticks or pings to pass.
+                if (Data.CloseOrderTickCounter > 5)
+                {
+                    Data.IsFailedCloseOrder = true;
+                    Data.IsSentCloseOrder = false;
+                    Data.CloseOrderTickCounter = 0;
+
+                    ActivateFailedCloseOrder();
+                }
+            }
+
+            // Position was closed.
+            else if (Data.IsSentCloseOrder && lots < Epsilon)
+            {
+                Data.IsSentCloseOrder = false;
+            }
+
+            // Check for successful close.
+            else if (Data.IsFailedCloseOrder && lots < Epsilon)
+            {
+                Data.IsFailedCloseOrder = false;
+                Data.IsSentCloseOrder = false;
+                Data.CloseOrderTickCounter = 0;
+
+                RecoverFailedCloseOrder();
+            }
+        }
+
+        /// <summary>
+        /// Show warning message and start resending.
+        /// </summary>
+        private void ActivateFailedCloseOrder()
+        {
+            string message = Language.T("Activated resending of failed close orders.");
+            var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now, message);
+            AppendJournalMessage(jmsg);
+            Log(message);
+
+            ActivateWarningMessage();
+        }
+
+        /// <summary>
+        /// Close warning message and stop resending.
+        /// </summary>
+        private void RecoverFailedCloseOrder()
+        {
+            string message = Language.T("Deactivated resending of failed close orders.");
+            var jmsg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
+            AppendJournalMessage(jmsg);
+            Log(message);
+
+            DeactivateWarningMessage();
         }
 
         /// <summary>

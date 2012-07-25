@@ -283,9 +283,9 @@ namespace Forex_Strategy_Trader
         /// </summary>
         protected override void MenuTools_OnClick(object sender, EventArgs e)
         {
-            string sName = ((ToolStripMenuItem) sender).Name;
+            string menuItemName = ((ToolStripMenuItem) sender).Name;
 
-            switch (sName)
+            switch (menuItemName)
             {
                 case "Reset settings":
                     ResetSettings();
@@ -353,7 +353,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Manual operation execution.
         /// </summary>
-        protected override void BtnOperationClick(object sender, EventArgs e)
+        public override void BtnOperationClick(object sender, EventArgs e)
         {
             if (!Data.IsConnected)
             {

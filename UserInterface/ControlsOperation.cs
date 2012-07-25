@@ -346,7 +346,7 @@ namespace Forex_Strategy_Trader
         /// <summary>
         /// Execute operation
         /// </summary>
-        protected virtual void BtnOperationClick(object sender, EventArgs e)
+        public virtual void BtnOperationClick(object sender, EventArgs e)
         {
         }
 

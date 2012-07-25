@@ -823,6 +823,9 @@ namespace Forex_Strategy_Trader
             AppendJournalMessage(jmsg);
             Log(message);
 
+            if (!Data.IsFailedCloseOrder)
+                Data.IsSentCloseOrder = true;
+            Data.CloseOrderTickCounter = 0;
             bool responseOK = _bridge.OrderClose(ticket, lots, price, slippage);
 
             if (responseOK)
@@ -1028,15 +1031,13 @@ namespace Forex_Strategy_Trader
             if (_bridge.LastError == 0)
             {
                 message = Language.T("Operation execution") + ": " +
-                          Language.T("MetaTrader is not responding!").Replace("MetaTrader",
-                                                                              Data.TerminalName);
+                          Language.T("MetaTrader is not responding!").Replace("MetaTrader", Data.TerminalName);
                 journalMessage = new JournalMessage(JournalIcons.Warning, DateTime.Now, message);
             }
             else
             {
-                message = Language.T("MetaTrader failed to execute order! Returned").Replace(
-                    "MetaTrader", Data.TerminalName) + ": " +
-                          MT4_Errors.ErrorDescription(_bridge.LastError);
+                message = Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
+                    MT4_Errors.ErrorDescription(_bridge.LastError);
                 journalMessage = new JournalMessage(JournalIcons.Error, DateTime.Now, message);
             }
             AppendJournalMessage(journalMessage);

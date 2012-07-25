@@ -163,6 +163,11 @@ namespace Forex_Strategy_Trader
         public static int WrongTakeProf { get; set; }
         public static int WrongStopsRetry { get; set; }
 
+        // Failed Close Order
+        public static bool IsFailedCloseOrder { get; set; }
+        public static int CloseOrderTickCounter { get; set; }
+        public static bool IsSentCloseOrder { get; set; }
+
         public static void ResetBidAskClose()
         {
             OldBid = OldAsk = OldClose = 0;
