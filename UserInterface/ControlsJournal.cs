@@ -211,9 +211,6 @@ namespace Forex_Strategy_Trader
                 _messages.RemoveRange(0, _messages.Count - Configs.JournalLength);
 
             UpdateJournal(_messages);
-
-            if (Configs.WriteLogFile)
-                Data.Logger.WriteLogLine(message.Message);
         }
 
         /// <summary>

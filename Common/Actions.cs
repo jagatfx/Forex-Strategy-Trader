@@ -241,6 +241,12 @@ namespace Forex_Strategy_Trader
             }
         }
 
+        private void Log(string message)
+        {
+            if (Configs.WriteLogFile)
+                Data.Logger.WriteLogLine(message);
+        }
+
 // ---------------------------------------------------------- //
 
         /// <summary>
@@ -712,7 +718,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         private void SaveAsStrategy()
         {
-            //Creates a dialog form SaveFileDialog
+            // Creates a dialog form SaveFileDialog
             var savedlg = new SaveFileDialog
                               {
                                   InitialDirectory = Data.StrategyDir,
@@ -758,10 +764,12 @@ namespace Forex_Strategy_Trader
         private void AfterStrategyOpening()
         {
             StopTrade();
-            var msg = new JournalMessage(JournalIcons.Information, DateTime.Now,
-                                         Language.T("Strategy") + " \"" + Data.Strategy.StrategyName + "\" " +
-                                         Language.T("loaded successfully."));
-            AppendJournalMessage(msg);
+
+            string message = Language.T("Strategy") + " \"" + Data.Strategy.StrategyName + "\" " +
+                             Language.T("loaded successfully.");
+            var jmsg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
+            AppendJournalMessage(jmsg);
+            Log(message);
         }
 
         /// <summary>

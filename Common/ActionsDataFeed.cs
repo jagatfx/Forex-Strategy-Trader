@@ -86,9 +86,10 @@ namespace Forex_Strategy_Trader
                     _pingAttempt++;
                     if ((_pingAttempt == 1 || _pingAttempt%10 == 0) && JournalShowSystemMessages)
                     {
-                        var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                                                         Language.T("Unsuccessful ping") + " No " + _pingAttempt + ".");
+                        string message = Language.T("Unsuccessful ping") + " No " + _pingAttempt + ".";
+                        var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now, message);
                         AppendJournalMessage(jmsgsys);
+                        Log(message);
                     }
                     if (_pingAttempt == 30)
                     {
@@ -97,6 +98,7 @@ namespace Forex_Strategy_Trader
                         AppendJournalMessage(jmsgsys);
                         if (Configs.PlaySounds)
                             Data.SoundError.Play();
+                        Log(message);
                     }
                     if (_pingAttempt < 60)
                     {
@@ -118,10 +120,10 @@ namespace Forex_Strategy_Trader
 
                         if (JournalShowSystemMessages)
                         {
-                            var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                                                             ping.Symbol + " " + ping.Period.ToString() + " " +
-                                                             Language.T("Successful ping."));
+                            var msgsys = ping.Symbol + " " + ping.Period.ToString() + " " + Language.T("Successful ping.");
+                            var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now, msgsys);
                             AppendJournalMessage(jmsgsys);
+                            Log(msgsys);
                         }
                         StopTrade();
                         if (!UpdateDataFeedInfo(ping.Time, ping.Symbol, (DataPeriods) (int) ping.Period))
@@ -155,8 +157,7 @@ namespace Forex_Strategy_Trader
 
                             if (Configs.WriteLogFile)
                             {
-                                string fileNameHeader = ping.Symbol + "_" + ping.Period + "_" + 
-                                                        "ID" + Data.ConnectionID + "_";
+                                string fileNameHeader = ping.Symbol + "_" + ping.Period + "_" + "ID" + Data.ConnectionID + "_";
                                 Data.Logger.CreateLogFile(fileNameHeader);
                             }
                         }
@@ -167,6 +168,7 @@ namespace Forex_Strategy_Trader
                         string message = market + " " + connection;
                         var jmsg = new JournalMessage(JournalIcons.OK, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Log(message);
 
                         // Check for reconnection.
                         if (IsRestartTrade())
@@ -177,10 +179,10 @@ namespace Forex_Strategy_Trader
                         // After a wrong ping.
                         _pingAttempt = 0;
 
-                        var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                                                         ping.Symbol + " " + ping.Period.ToString() + " " +
-                                                         Language.T("Successful ping."));
+                        string message = ping.Symbol + " " + ping.Period.ToString() + " " + Language.T("Successful ping.");
+                        var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now, message);
                         AppendJournalMessage(jmsgsys);
+                        Log(message);
                     }
 
                     bool isNewPrice = Math.Abs(Data.Bid - ping.Bid) > Data.InstrProperties.Point/2;
@@ -223,6 +225,7 @@ namespace Forex_Strategy_Trader
                             ping.AccountBalance, ping.AccountEquity, ping.AccountProfit, ping.AccountFreeMargin);
                         var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Log(message);
                     }
 
                     if (Data.IsBalanceDataChganged)
@@ -247,10 +250,10 @@ namespace Forex_Strategy_Trader
             {
                 if (_pingAttempt > 0 && JournalShowSystemMessages)
                 {
-                    var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now,
-                                                     tea.Symbol + " " + tea.Period + " " +
-                                                     Language.T("Tick received after an unsuccessful ping."));
+                    string msgsys = tea.Symbol + " " + tea.Period + " " + Language.T("Tick received after an unsuccessful ping.");
+                    var jmsgsys = new JournalMessage(JournalIcons.System, DateTime.Now, msgsys);
                     AppendJournalMessage(jmsgsys);
+                    Log(msgsys);
                 }
                 _pingAttempt = 0;
 
@@ -268,10 +271,10 @@ namespace Forex_Strategy_Trader
                     if (Configs.PlaySounds)
                         Data.SoundDisconnect.Play();
 
-                    string message = tea.Symbol + " " + tea.Period + " " +
-                                     Language.T("Tick received from a different chart!");
+                    string message = tea.Symbol + " " + tea.Period + " " + Language.T("Tick received from a different chart!");
                     var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now, message);
                     AppendJournalMessage(jmsg);
+                    Log(message);
 
                     return;
                 }
@@ -328,6 +331,7 @@ namespace Forex_Strategy_Trader
                         tea.AccountFreeMargin);
                     var jmsg = new JournalMessage(JournalIcons.Currency, DateTime.Now, message);
                     AppendJournalMessage(jmsg);
+                    Log(message);
                 }
 
                 if (Data.IsBalanceDataChganged)
@@ -355,8 +359,10 @@ namespace Forex_Strategy_Trader
             Data.IsConnected = false;
             StopTrade();
 
-            var jmsg = new JournalMessage(JournalIcons.Blocked, DateTime.Now, Language.T("Not Connected"));
+            string message = Language.T("Not Connected");
+            var jmsg = new JournalMessage(JournalIcons.Blocked, DateTime.Now, message);
             AppendJournalMessage(jmsg);
+            Log(message);
 
             Data.Bid = 0;
             Data.Ask = 0;
@@ -411,6 +417,7 @@ namespace Forex_Strategy_Trader
                                                          symbol + " " + (PeriodType) (int) period + " " +
                                                          Language.T("Cannot update market info."));
                         AppendJournalMessage(jmsgsys);
+                        Log(jmsgsys.Message);
                     }
                     return false;
                 }
@@ -455,6 +462,7 @@ namespace Forex_Strategy_Trader
                                                          symbol + " " + (PeriodType) (int) period + " " +
                                                          Language.T("Cannot receive bars!"));
                         AppendJournalMessage(jmsgsys);
+                        Log(jmsgsys.Message);
                     }
                     return false;
                 }
@@ -463,10 +471,11 @@ namespace Forex_Strategy_Trader
                     if (JournalShowSystemMessages)
                     {
                         Data.SoundError.Play();
-                        var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
+                        var jmsgsys = new JournalMessage(JournalIcons.Error, DateTime.Now,
                                                       symbol + " " + (PeriodType) (int) period + " " +
                                                       Language.T("Cannot receive enough bars!"));
-                        AppendJournalMessage(jmsg);
+                        AppendJournalMessage(jmsgsys);
+                        Log(jmsgsys.Message);
                     }
                     return false;
                 }
@@ -476,6 +485,7 @@ namespace Forex_Strategy_Trader
                                                      symbol + " " + (PeriodType) (int) period + " " +
                                                      Language.T("Market data updated, bars downloaded."));
                     AppendJournalMessage(jmsgsys);
+                    Log(jmsgsys.Message);
                 }
 
                 // Account Information.
@@ -485,10 +495,11 @@ namespace Forex_Strategy_Trader
                     if (JournalShowSystemMessages)
                     {
                         Data.SoundError.Play();
-                        var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
+                        var jmsgsys = new JournalMessage(JournalIcons.Error, DateTime.Now,
                                                       symbol + " " + (PeriodType) (int) period + " " +
                                                       Language.T("Cannot receive account information!"));
-                        AppendJournalMessage(jmsg);
+                        AppendJournalMessage(jmsgsys);
+                        Log(jmsgsys.Message);
                     }
                     return false;
                 }
@@ -498,6 +509,7 @@ namespace Forex_Strategy_Trader
                                                      symbol + " " + (PeriodType) (int) period + " " +
                                                      Language.T("Account information received."));
                     AppendJournalMessage(jmsgsys);
+                    Log(jmsgsys.Message);
                 }
                 Data.AccountName = account.Name;
                 Data.IsDemoAccount = account.IsDemo;
@@ -527,29 +539,32 @@ namespace Forex_Strategy_Trader
                 {
                     _isSetRootDataError = true;
                     Data.SoundError.Play();
-                    var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
+                    var jmsgsys = new JournalMessage(JournalIcons.Error, DateTime.Now,
                                                   symbol + " " + period + " " +
                                                   Language.T("Cannot receive bars!"));
-                    AppendJournalMessage(jmsg);
+                    AppendJournalMessage(jmsgsys);
+                    Log(jmsgsys.Message);
                     return;
                 }
                 if (bars != null && (bars.Count < MaxBarsCount((int) period) && JournalShowSystemMessages))
                 {
                     _isSetRootDataError = true;
                     Data.SoundError.Play();
-                    var jmsg = new JournalMessage(JournalIcons.Error, DateTime.Now,
+                    var jmsgsys = new JournalMessage(JournalIcons.Error, DateTime.Now,
                                                   symbol + " " + period + " " +
                                                   Language.T("Cannot receive enough bars!"));
-                    AppendJournalMessage(jmsg);
+                    AppendJournalMessage(jmsgsys);
+                    Log(jmsgsys.Message);
                     return;
                 }
                 if (_isSetRootDataError && JournalShowSystemMessages)
                 {
                     _isSetRootDataError = false;
-                    var jmsg = new JournalMessage(JournalIcons.Information, DateTime.Now,
+                    var jmsgsys = new JournalMessage(JournalIcons.Information, DateTime.Now,
                                                   symbol + " " + period + " " +
                                                   Language.T("Enough bars received!"));
-                    AppendJournalMessage(jmsg);
+                    AppendJournalMessage(jmsgsys);
+                    Log(jmsgsys.Message);
                 }
 
                 if (bars != null)
@@ -626,21 +641,21 @@ namespace Forex_Strategy_Trader
                                 icon = JournalIcons.Warning;
                                 text = Language.T("A new tick arrived after a Bar Close event!");
                             }
-                            var jmsg = new JournalMessage(icon, DateTime.Now,
+                            var jmsgsys = new JournalMessage(icon, DateTime.Now,
                                                           symbol + " " + Data.PeriodMTStr + " " +
                                                           time.ToString("HH:mm:ss") + " " + text);
-                            AppendJournalMessage(jmsg);
+                            AppendJournalMessage(jmsgsys);
+                            Log(jmsgsys.Message);
                         }
 
                         if (isBarChanged && tickType == TickType.Regular)
                         {
                             if (JournalShowSystemMessages)
                             {
-                                var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now, symbol + " " +
-                                                                                                  Data.PeriodMTStr + " " +
-                                                                                                  time.ToString("HH:mm:ss") +
-                                                                                                  " A Bar Changed event!");
-                                AppendJournalMessage(jmsg);
+                                var jmsgsys = new JournalMessage(JournalIcons.Warning, DateTime.Now,
+                                    symbol + " " + Data.PeriodMTStr + " " + time.ToString("HH:mm:ss") + " A Bar Changed event!");
+                                AppendJournalMessage(jmsgsys);
+                                Log(jmsgsys.Message);
                             }
 
                             tickType = TickType.Open;
@@ -650,11 +665,10 @@ namespace Forex_Strategy_Trader
                         {
                             if (JournalShowSystemMessages)
                             {
-                                var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now, symbol + " " +
-                                                                                                  Data.PeriodMTStr + " " +
-                                                                                                  time.ToString("HH:mm:ss") +
-                                                                                                  " A secondary Bar Close event!");
-                                AppendJournalMessage(jmsg);
+                                var jmsgsys = new JournalMessage(JournalIcons.Warning, DateTime.Now,
+                                    symbol + " " + Data.PeriodMTStr + " " + time.ToString("HH:mm:ss") + " A secondary Bar Close event!");
+                                AppendJournalMessage(jmsgsys);
+                                Log(jmsgsys.Message);
                             }
                             tickType = TickType.OpenClose;
                         }
@@ -782,6 +796,7 @@ namespace Forex_Strategy_Trader
                     Language.T("Closed Lots") + " " + Data.ClosedSLTPLots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
                 AppendJournalMessage(msg);
+                Log(message);
                 _activationReportedAt = Data.ActivatedStopLoss;
             }
             else if (Data.ActivatedStopLoss > Epsilon)
@@ -793,6 +808,7 @@ namespace Forex_Strategy_Trader
                     Language.T("Closed Lots") + " " + Data.ClosedSLTPLots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
                 AppendJournalMessage(msg);
+                Log(message);
                 _activationReportedAt = Data.ActivatedStopLoss;
             }
             else if (Data.ActivatedTakeProfit > Epsilon)
@@ -804,6 +820,7 @@ namespace Forex_Strategy_Trader
                     Language.T("Closed Lots") + " " + Data.ClosedSLTPLots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
                 AppendJournalMessage(msg);
+                Log(message);
                 _activationReportedAt = Data.ActivatedTakeProfit;
             }
         }
@@ -822,6 +839,7 @@ namespace Forex_Strategy_Trader
             string message = Data.Symbol + " " + Data.PeriodMTStr + " " + Language.T("Automatic trade started.");
             var msg = new JournalMessage(JournalIcons.StartTrading, DateTime.Now, message);
             AppendJournalMessage(msg);
+            Log(message);
 
             _symbolReconnect = Data.Symbol;
             _periodReconnect = Data.Period;
@@ -848,6 +866,7 @@ namespace Forex_Strategy_Trader
             string message = Data.Symbol + " " + Data.PeriodMTStr + " " + Language.T("Automatic trade stopped.");
             var msg = new JournalMessage(JournalIcons.StopTrading, DateTime.Now, message);
             AppendJournalMessage(msg);
+            Log(message);
             SetTradeStrip();
         }
 
@@ -905,6 +924,7 @@ namespace Forex_Strategy_Trader
                 string message = string.Format(Data.Symbol + " " + Data.PeriodMTStr + " " + text);
                 var jmsg = new JournalMessage(icon, DateTime.Now, message);
                 AppendJournalMessage(jmsg);
+                Log(message);
             }
         }
 

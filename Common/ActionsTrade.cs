@@ -771,7 +771,7 @@ namespace Forex_Strategy_Trader
                                            takeProfit);
             var jmsg = new JournalMessage(icon, DateTime.Now, message);
             AppendJournalMessage(jmsg);
-            Data.Logger.WriteLogLine(message);
+            Log(message);
 
             string parameters = OrderParameters();
             int response = _bridge.OrderSend(symbol, type, lots, price, slippage, stoploss, takeprofit, parameters);
@@ -821,7 +821,7 @@ namespace Forex_Strategy_Trader
                                            lots, price.ToString(Data.FF));
             var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now,message);
             AppendJournalMessage(jmsg);
-            Data.Logger.WriteLogLine(message);
+            Log(message);
 
             bool responseOK = _bridge.OrderClose(ticket, lots, price, slippage);
 
@@ -994,7 +994,7 @@ namespace Forex_Strategy_Trader
                                            " {1}", stopLoss, takeProfit);
             var jmsg = new JournalMessage(JournalIcons.Warning, DateTime.Now, message);
             AppendJournalMessage(jmsg);
-            Data.Logger.WriteLogLine(message);
+            Log(message);
 
             string parameters = "TS1=" + 0 + ";BRE=" + 0;
 
@@ -1040,7 +1040,7 @@ namespace Forex_Strategy_Trader
                 journalMessage = new JournalMessage(JournalIcons.Error, DateTime.Now, message);
             }
             AppendJournalMessage(journalMessage);
-            Data.Logger.WriteLogLine(message);
+            Log(message);
         }
 
 

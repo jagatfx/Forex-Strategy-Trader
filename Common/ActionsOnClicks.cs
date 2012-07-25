@@ -401,6 +401,7 @@ namespace Forex_Strategy_Trader
                                                        takeprofit.ToString(Data.FF));
                         var jmsg = new JournalMessage(JournalIcons.OrderBuy, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Log(message);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
@@ -458,6 +459,7 @@ namespace Forex_Strategy_Trader
                                                        takeprofit.ToString(Data.FF));
                         var jmsg = new JournalMessage(JournalIcons.OrderSell, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Log(message);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
@@ -507,6 +509,7 @@ namespace Forex_Strategy_Trader
                                                        lots, price.ToString(Data.FF));
                         var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Log(message);
 
                         bool responseOK = _bridge.OrderClose(ticket, lots, price, slippage);
 
@@ -550,14 +553,15 @@ namespace Forex_Strategy_Trader
                                                 ? price + sign*Data.InstrProperties.Point*OperationTakeProfit
                                                 : 0;
 
-                        var jmsg = new JournalMessage(JournalIcons.Recalculate, DateTime.Now,
-                                                      string.Format(symbol + " " + Data.PeriodMTStr + " " +
-                                                                    Language.T("A modify order sent") + ": " +
-                                                                    Language.T("Stop Loss") + " {0}, " +
-                                                                    Language.T("Take Profit") + " {1}",
-                                                                    stoploss.ToString(Data.FF),
-                                                                    takeprofit.ToString(Data.FF)));
+                        string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                                                       Language.T("A modify order sent") + ": " +
+                                                       Language.T("Stop Loss") + " {0}, " +
+                                                       Language.T("Take Profit") + " {1}",
+                                                       stoploss.ToString(Data.FF),
+                                                       takeprofit.ToString(Data.FF));
+                        var jmsg = new JournalMessage(JournalIcons.Recalculate, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
+                        Log(message);
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
