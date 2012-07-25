@@ -51,7 +51,7 @@ namespace Forex_Strategy_Trader
             // ComboBox Long Logic Price
             CbxLongLogicPrice.Parent = PnlSettings;
             CbxLongLogicPrice.DropDownStyle = ComboBoxStyle.DropDownList;
-            CbxLongLogicPrice.Items.AddRange(new object[] {"Bid", "Ask", "Close"});
+            CbxLongLogicPrice.Items.AddRange(new object[] {"Bid", "Ask", "Chart"});
             CbxLongLogicPrice.Text = Configs.LongTradeLogicPrice;
 
             // Label close advance
@@ -272,7 +272,7 @@ namespace Forex_Strategy_Trader
         /// </summary>
         private void BtnDefaultClick(object sender, EventArgs e)
         {
-            CbxLongLogicPrice.Text = "Close";
+            CbxLongLogicPrice.Text = "Chart";
             NUDCloseAdvance.Value = 3;
             NUDSlippageEntry.Value = 5;
             NUDSlippageExit.Value = 10;

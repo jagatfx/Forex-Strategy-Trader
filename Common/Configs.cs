@@ -25,7 +25,7 @@ namespace Forex_Strategy_Trader
         static int    SIGMA_MODE_SEPARATED_CHARTDefault = 5;
 
         // Trade settings
-        static string longTradeLogicPriceDefault = "Close";
+        static string longTradeLogicPriceDefault = "Chart";
         static int    barCloseAdvanceDefault     = 3;
         static bool   autoSlippageDefault        = true;
         static int    slippageEntryOrdersDefault = 5;
@@ -133,16 +133,16 @@ namespace Forex_Strategy_Trader
 
 // ------------------------------------------------------------
         // Base Price for long trade
-        static string songTradeLogicPrice = longTradeLogicPriceDefault;
+        static string longTradeLogicPrice = longTradeLogicPriceDefault;
         /// <summary>
         /// Base Price for long trade
         /// </summary>
         public static string LongTradeLogicPrice
         {
-            get { return songTradeLogicPrice; }
+            get { return longTradeLogicPrice.Replace("Close", "Chart"); }
             set
             {
-                songTradeLogicPrice = value;
+                longTradeLogicPrice = value;
                 if (_isConfigLoaded)
                     _xmlConfig.SelectNodes("config/trade/longTradeLogicPrice").Item(0).InnerText = value.ToString();
             }
@@ -768,7 +768,7 @@ namespace Forex_Strategy_Trader
             iSIGMA_MODE_SEPARATED_CHART = int.Parse(_xmlConfig.SelectNodes("config/SIGMA_MODE_SEPARATED_CHART").Item(0).InnerText);
 
             // Trade settings
-            songTradeLogicPrice        = _xmlConfig.SelectNodes("config/trade/longTradeLogicPrice").Item(0).InnerText;
+            longTradeLogicPrice        = _xmlConfig.SelectNodes("config/trade/longTradeLogicPrice").Item(0).InnerText;
             barCloseAdvance            = int.Parse(_xmlConfig.SelectNodes("config/trade/barCloseAdvance").Item(0).InnerText);
             autoSlippage               = bool.Parse(_xmlConfig.SelectNodes("config/trade/autoSlippage").Item(0).InnerText);
             slippageEntryOrders        = int.Parse(_xmlConfig.SelectNodes("config/trade/slippageEntryOrders").Item(0).InnerText);

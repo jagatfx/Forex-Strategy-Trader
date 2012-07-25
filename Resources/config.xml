@@ -25,7 +25,7 @@
   <sendUsageStats>True</sendUsageStats>
   <writeLogFile>True</writeLogFile>
   <trade>
-    <longTradeLogicPrice>Close</longTradeLogicPrice>
+    <longTradeLogicPrice>Chart</longTradeLogicPrice>
     <barCloseAdvance>3</barCloseAdvance>
     <autoSlippage>True</autoSlippage>
     <slippageEntryOrders>5</slippageEntryOrders>
