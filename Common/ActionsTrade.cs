@@ -1037,7 +1037,7 @@ namespace Forex_Strategy_Trader
             else
             {
                 message = Language.T("MetaTrader failed to execute order! Returned").Replace("MetaTrader", Data.TerminalName) + ": " +
-                    MT4_Errors.ErrorDescription(_bridge.LastError);
+                    MT4Errors.ErrorDescription(_bridge.LastError);
                 journalMessage = new JournalMessage(JournalIcons.Error, DateTime.Now, message);
             }
             AppendJournalMessage(journalMessage);
