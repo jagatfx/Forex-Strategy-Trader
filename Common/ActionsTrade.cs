@@ -612,12 +612,10 @@ namespace Forex_Strategy_Trader
             switch (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndicatorName)
             {
                 case "Account Percent Stop":
-                    indStop =
-                        AccountPercentStopPips(Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[0].Value,
-                                               lots);
+                    indStop = AccountPercentStopPips(Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[0].Value, lots);
                     break;
                 case "ATR Stop":
-                    indStop = Data.Strategy.Slot[Data.Strategy.CloseSlot].Component[0].Value[Data.Bars - 1];
+                    indStop = Data.Strategy.Slot[Data.Strategy.CloseSlot].Component[0].Value[Data.Bars - 1] / Data.InstrProperties.Point;
                     break;
                 case "Stop Loss":
                 case "Stop Limit":
