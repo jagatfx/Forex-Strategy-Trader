@@ -86,7 +86,7 @@ namespace ForexStrategyBuilder
             LblCopyright.Font = new Font("Microsoft Sans Serif", 10F);
             LblCopyright.ForeColor = LayoutColors.ColorControlText;
             LblCopyright.BackColor = Color.Transparent;
-            LblCopyright.Text = "Copyright (c) 2012 Miroslav Popov" + Environment.NewLine +
+            LblCopyright.Text = "Copyright (c) 2013 Miroslav Popov" + Environment.NewLine +
                                 Language.T("Distributor") + " - Forex Software Ltd." + Environment.NewLine +
                                 Environment.NewLine +
                                 Language.T("This is a freeware program!");
