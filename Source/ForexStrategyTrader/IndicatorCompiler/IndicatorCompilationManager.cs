@@ -70,35 +70,49 @@ namespace ForexStrategyBuilder
         {
             errorMessages = string.Empty;
             Assembly assembly = Assembly.LoadFrom(dllPath);
-            Type[] types = assembly.GetTypes();
-            foreach (Type type in types)
+            try
             {
-                if (!typeof (IIndicator).IsAssignableFrom(type))
-                    continue;
+                Type[] types = assembly.GetTypes();
 
-                Indicator newIndicator;
-
-                try
+                foreach (Type type in types)
                 {
-                    newIndicator = Activator.CreateInstance(type) as Indicator;
+                    if (!typeof (IIndicator).IsAssignableFrom(type))
+                        continue;
+
+                    var newIndicator = Activator.CreateInstance(type) as Indicator;
+
+                    if (newIndicator == null)
+                    {
+                        errorMessages = "Cannot load: " + dllPath;
+                        return;
+                    }
+
+                    newIndicator.Initialize(SlotTypes.NotDefined);
+                    newIndicator.CustomIndicator = true;
+                    newIndicator.LoaddedFromDll = true;
+                    IntegrateIndicator(dllPath, out errorMessages, newIndicator);
                 }
-                catch (Exception exception)
+            }
+            catch (Exception exception)
+            {
+                errorMessages = "ERROR: Loading '" + Path.GetFileName(dllPath) + "': " + exception.Message;
+                if (exception.InnerException != null && !string.IsNullOrEmpty(exception.InnerException.Message))
                 {
-                    errorMessages = "ERROR: Loading '" + Path.GetFileName(dllPath) + "': " + exception.Message;
-                    return;
+                    errorMessages += " " + exception.InnerException.Message;
                 }
 
-                if (newIndicator == null)
+
+                if (exception is ReflectionTypeLoadException)
                 {
-                    errorMessages = "Cannot load: " + dllPath;
-                    return;
+                    var typeLoadException = exception as ReflectionTypeLoadException;
+                    var loaderExceptions = typeLoadException.LoaderExceptions;
+
+                    foreach (var loaderException in loaderExceptions)
+                    {
+                        errorMessages += Environment.NewLine + loaderException.Message;
+                    }
                 }
 
-                newIndicator.Initialize(SlotTypes.NotDefined);
-                newIndicator.CustomIndicator = true;
-                newIndicator.LoaddedFromDll = true;
-                IntegrateIndicator(dllPath, out errorMessages, newIndicator);
-                return;
             }
         }
 
