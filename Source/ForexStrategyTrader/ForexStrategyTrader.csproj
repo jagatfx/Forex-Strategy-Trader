@@ -1,0 +1,525 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{84A7CE18-590F-426B-A668-7FEDA4809F9F}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ForexStrategyBuilder</RootNamespace>
+    <AssemblyName>Forex Strategy Trader</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <StartupObject>
+    </StartupObject>
+    <ApplicationIcon>Img\Icon.ico</ApplicationIcon>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Output\Debug\</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Output\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ItemGroup>
+    <Compile Include="Common\ActionsDataFeed.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\ActionsOnClicks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\Actions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\DataPeriods.cs" />
+    <Compile Include="Common\Logger.cs" />
+    <Compile Include="Common\SlotSizeMinMidMax.cs" />
+    <Compile Include="Dialogs\CommandConsole.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="IndicatorCompiler\CustomIndicators.cs" />
+    <Compile Include="Indicators\IndicatorBaseCalc.cs" />
+    <Compile Include="Indicators\Store\AcceleratorOscillator.cs" />
+    <Compile Include="Indicators\Store\AccountPercentStop.cs" />
+    <Compile Include="Indicators\Store\AccumulationDistribution.cs" />
+    <Compile Include="Indicators\Store\ADX.cs" />
+    <Compile Include="Indicators\Store\Alligator.cs" />
+    <Compile Include="Indicators\Store\AroonHistogram.cs" />
+    <Compile Include="Indicators\Store\AtrMaOscillator.cs" />
+    <Compile Include="Indicators\Store\AtrStop.cs" />
+    <Compile Include="Indicators\Store\AverageTrueRange.cs" />
+    <Compile Include="Indicators\Store\AwesomeOscillator.cs" />
+    <Compile Include="Indicators\Store\BalanceOfPower.cs" />
+    <Compile Include="Indicators\Store\BarClosing.cs" />
+    <Compile Include="Indicators\Store\BarOpening.cs" />
+    <Compile Include="Indicators\Store\BarRange.cs" />
+    <Compile Include="Indicators\Store\BbpMaOscillator.cs" />
+    <Compile Include="Indicators\Store\BearsPower.cs" />
+    <Compile Include="Indicators\Store\BollingerBands.cs" />
+    <Compile Include="Indicators\Store\BullsBearsPower.cs" />
+    <Compile Include="Indicators\Store\BullsPower.cs" />
+    <Compile Include="Indicators\Store\CciMAOscillator.cs" />
+    <Compile Include="Indicators\Store\CloseAndReverse.cs" />
+    <Compile Include="Indicators\Store\CommodityChannelIndex.cs" />
+    <Compile Include="Indicators\Store\CumulativeSum.cs" />
+    <Compile Include="Indicators\Store\DataBarsFilter.cs" />
+    <Compile Include="Indicators\Store\DateFilter.cs" />
+    <Compile Include="Indicators\Store\DayClosing.cs" />
+    <Compile Include="Indicators\Store\DayClosing2.cs" />
+    <Compile Include="Indicators\Store\DayOpening.cs" />
+    <Compile Include="Indicators\Store\DaysOfWeek.cs" />
+    <Compile Include="Indicators\Store\DeMarker.cs" />
+    <Compile Include="Indicators\Store\DetrendedOscillator.cs" />
+    <Compile Include="Indicators\Store\DirectionalIndicators.cs" />
+    <Compile Include="Indicators\Store\DonchianChannel.cs" />
+    <Compile Include="Indicators\Store\EaseOfMovement.cs" />
+    <Compile Include="Indicators\Store\EnterOnce.cs" />
+    <Compile Include="Indicators\Store\EntryHour.cs" />
+    <Compile Include="Indicators\Store\EntryTime.cs" />
+    <Compile Include="Indicators\Store\Envelopes.cs" />
+    <Compile Include="Indicators\Store\ExitHour.cs" />
+    <Compile Include="Indicators\Store\FisherTransform.cs" />
+    <Compile Include="Indicators\Store\ForceIndex.cs" />
+    <Compile Include="Indicators\Store\Fractal.cs" />
+    <Compile Include="Indicators\Store\HeikenAshi.cs" />
+    <Compile Include="Indicators\Store\HourlyHighLow.cs" />
+    <Compile Include="Indicators\Store\IchimokuKinkoHyo.cs" />
+    <Compile Include="Indicators\Store\InsideBar.cs" />
+    <Compile Include="Indicators\Store\KeltnerChannel.cs" />
+    <Compile Include="Indicators\Store\LongOrShort.cs" />
+    <Compile Include="Indicators\Store\LotLimiter.cs" />
+    <Compile Include="Indicators\Store\MACD.cs" />
+    <Compile Include="Indicators\Store\MACDHistogram.cs" />
+    <Compile Include="Indicators\Store\MAOscillator.cs" />
+    <Compile Include="Indicators\Store\MarketFacilitationIndex.cs" />
+    <Compile Include="Indicators\Store\Momentum.cs" />
+    <Compile Include="Indicators\Store\MomentumMAOscillator.cs" />
+    <Compile Include="Indicators\Store\MoneyFlow.cs" />
+    <Compile Include="Indicators\Store\MoneyFlowIndex.cs" />
+    <Compile Include="Indicators\Store\MovingAverage.cs" />
+    <Compile Include="Indicators\Store\MovingAveragesCrossover.cs" />
+    <Compile Include="Indicators\Store\NarrowRange.cs" />
+    <Compile Include="Indicators\Store\NBarsExit.cs" />
+    <Compile Include="Indicators\Store\ObosMaOscillator.cs" />
+    <Compile Include="Indicators\Store\OnBalanceVolume.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfAtr.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfBbp.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfCci.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfMACD.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfMomentum.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfObos.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfRoc.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfRsi.cs" />
+    <Compile Include="Indicators\Store\OscillatorOfTrix.cs" />
+    <Compile Include="Indicators\Store\OverboughtOversoldIndex.cs" />
+    <Compile Include="Indicators\Store\ParabolicSar.cs" />
+    <Compile Include="Indicators\Store\PercentChange.cs" />
+    <Compile Include="Indicators\Store\PivotPoints.cs" />
+    <Compile Include="Indicators\Store\PreviousBarClosing.cs" />
+    <Compile Include="Indicators\Store\PreviousBarOpening.cs" />
+    <Compile Include="Indicators\Store\PreviousHighLow.cs" />
+    <Compile Include="Indicators\Store\PriceMove.cs" />
+    <Compile Include="Indicators\Store\PriceOscillator.cs" />
+    <Compile Include="Indicators\Store\RandomFilter.cs" />
+    <Compile Include="Indicators\Store\RateOfChange.cs" />
+    <Compile Include="Indicators\Store\RelativeVigorIndex.cs" />
+    <Compile Include="Indicators\Store\RocMaOscillator.cs" />
+    <Compile Include="Indicators\Store\RossHook.cs" />
+    <Compile Include="Indicators\Store\RoundNumber.cs" />
+    <Compile Include="Indicators\Store\RSI.cs" />
+    <Compile Include="Indicators\Store\RsiMaOscillator.cs" />
+    <Compile Include="Indicators\Store\StandardDeviation.cs" />
+    <Compile Include="Indicators\Store\StarcBands.cs" />
+    <Compile Include="Indicators\Store\SteadyBands.cs" />
+    <Compile Include="Indicators\Store\Stochastics.cs" />
+    <Compile Include="Indicators\Store\StopLimit.cs" />
+    <Compile Include="Indicators\Store\StopLoss.cs" />
+    <Compile Include="Indicators\Store\TakeProfit.cs" />
+    <Compile Include="Indicators\Store\TopBottomPrice.cs" />
+    <Compile Include="Indicators\Store\TrailingStop.cs" />
+    <Compile Include="Indicators\Store\TrailingStopLimit.cs" />
+    <Compile Include="Indicators\Store\TrixIndex.cs" />
+    <Compile Include="Indicators\Store\TrixMAOscillator.cs" />
+    <Compile Include="Indicators\Store\WeekClosing.cs" />
+    <Compile Include="Indicators\Store\WeekClosing2.cs" />
+    <Compile Include="Indicators\Store\WilliamsPercentRange.cs" />
+    <Compile Include="Infrastructure\Entities\DataSet.cs" />
+    <Compile Include="Infrastructure\Enums\DataPeriod.cs" />
+    <Compile Include="Infrastructure\Interfaces\IDataSet.cs" />
+    <Compile Include="Infrastructure\Interfaces\IIndicator.cs" />
+    <Compile Include="Instruments\BarStats.cs" />
+    <Compile Include="Common\Configs.cs" />
+    <Compile Include="Common\DataCommon.cs" />
+    <Compile Include="Common\DataMarket.cs" />
+    <Compile Include="Dialogs\AboutScreen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\Browser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\TradeSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Instruments\Operation.cs" />
+    <Compile Include="Library\Libraries.cs" />
+    <Compile Include="Library\LibrariesSettings.cs" />
+    <Compile Include="Library\LibRecord.cs" />
+    <Compile Include="MT4Bridge\MT4Errors.cs" />
+    <Compile Include="Strategy\PermanentProtectionType.cs" />
+    <Compile Include="Strategy\StrategySlotStatus.cs" />
+    <Compile Include="UserInterface\ChartData.cs" />
+    <Compile Include="UserInterface\Chart.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Dialogs\IndicatorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\StartingTips.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\StrategyDescription.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\StrategyProperties.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\StrategyPublish.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Indicators\CheckParam.cs" />
+    <Compile Include="Indicators\Enumerations.cs" />
+    <Compile Include="Indicators\IndicatorComp.cs" />
+    <Compile Include="Indicators\IndicatorParam.cs" />
+    <Compile Include="Indicators\Indicator Slot.cs" />
+    <Compile Include="Indicators\IndicatorManager.cs" />
+    <Compile Include="Indicators\Indicator.cs" />
+    <Compile Include="Indicators\ListParam.cs" />
+    <Compile Include="Indicators\Numeric Params.cs" />
+    <Compile Include="IndicatorCompiler\CSharpCompiler.cs" />
+    <Compile Include="IndicatorCompiler\CustomIndicatorsTestResult.cs" />
+    <Compile Include="IndicatorCompiler\IndicatorCompilationManager.cs" />
+    <Compile Include="IndicatorCompiler\IndicatorTester.cs" />
+    <Compile Include="Instruments\Bar.cs" />
+    <Compile Include="Instruments\DataParser.cs" />
+    <Compile Include="Instruments\InstrumentProperties.cs" />
+    <Compile Include="Instruments\Instrument.cs" />
+    <Compile Include="Tools\Language.cs" />
+    <Compile Include="Tools\LiveContent.cs" />
+    <Compile Include="Tools\Sortable Dictionary.cs" />
+    <Compile Include="MT4Bridge\BarsManager.cs" />
+    <Compile Include="MT4Bridge\Bridge.cs" />
+    <Compile Include="MT4Bridge\Classes.cs" />
+    <Compile Include="MT4Bridge\Client.cs" />
+    <Compile Include="MT4Bridge\NamedPipes\ClientPipe.cs" />
+    <Compile Include="MT4Bridge\NamedPipes\NamedPipe.cs" />
+    <Compile Include="MT4Bridge\NamedPipes\NamedPipeNative.cs" />
+    <Compile Include="MT4Bridge\NamedPipes\ServerPipe.cs" />
+    <Compile Include="MT4Bridge\Server.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Strategy\Strategy Reports.cs" />
+    <Compile Include="Strategy\StrategyXML.cs" />
+    <Compile Include="Strategy\Strategy.cs" />
+    <Compile Include="Dialogs\EditTranslation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\NewTranslation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\ActionsTrade.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\ControlsOperation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\ControlsAccount.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\ControlsJournal.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\Colors.cs" />
+    <Compile Include="UserInterface\ControlsBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\ControlsChart.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\ControlsTrade.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\ControlsStatus.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\ControlsStrategy.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\FailedCloseOrder.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserInterface\TickChart.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserInterface\FancyMessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\FancyPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserInterface\InfoPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserInterface\Journal.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserInterface\LinkPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserInterface\MenuAndStatusBar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\NUD.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserInterface\BalanceChart.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserInterface\StrategyLayout.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UserInterface\Workspace.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Tools\Utils.cs" />
+    <Compile Include="Utils\SerializableDictionary.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Img\numb-br.png" />
+    <EmbeddedResource Include="Img\numb-gr.png" />
+    <EmbeddedResource Include="Img\prompt.png" />
+    <EmbeddedResource Include="Img\chart_true_charts.png" />
+    <EmbeddedResource Include="Img\copy.png" />
+    <EmbeddedResource Include="Img\paste.png" />
+    <Content Include="Img\go_right.png" />
+    <Content Include="Resources\config.xml" />
+    <Content Include="Resources\fst-update.xml" />
+    <EmbeddedResource Include="Img\1day.png" />
+    <EmbeddedResource Include="Img\chat_icon.png" />
+    <EmbeddedResource Include="Img\check_ind.png" />
+    <EmbeddedResource Include="Img\clock.png" />
+    <EmbeddedResource Include="Img\close_blue.png" />
+    <EmbeddedResource Include="Img\close_button.png" />
+    <EmbeddedResource Include="Img\contribute.png" />
+    <EmbeddedResource Include="Img\custom_ind.png" />
+    <EmbeddedResource Include="Img\custom_indicators.png" />
+    <EmbeddedResource Include="Img\custom_ind_forum.png" />
+    <EmbeddedResource Include="Img\data_horizon.png" />
+    <EmbeddedResource Include="Img\down_arrow.png" />
+    <EmbeddedResource Include="Img\duplicate.png" />
+    <EmbeddedResource Include="Img\edit.png" />
+    <EmbeddedResource Include="Img\edit_translation.png" />
+    <EmbeddedResource Include="Img\exit.png" />
+    <EmbeddedResource Include="Img\export.png" />
+    <EmbeddedResource Include="Img\folder_open.png" />
+    <EmbeddedResource Include="Img\forex_brokers.png" />
+    <EmbeddedResource Include="Img\forum_icon.png" />
+    <EmbeddedResource Include="Img\fx_overview.png" />
+    <EmbeddedResource Include="Img\globe.png" />
+    <EmbeddedResource Include="Img\help.png" />
+    <EmbeddedResource Include="Img\hint.png" />
+    <EmbeddedResource Include="Img\Icon.ico" />
+    <EmbeddedResource Include="Img\info.png" />
+    <EmbeddedResource Include="Img\information.png" />
+    <EmbeddedResource Include="Img\instr_edit.png" />
+    <EmbeddedResource Include="Img\lang.png" />
+    <EmbeddedResource Include="Img\lang_tools.png" />
+    <EmbeddedResource Include="Img\Logo.png" />
+    <EmbeddedResource Include="Img\new_translation.png" />
+    <EmbeddedResource Include="Img\ord_buy.png" />
+    <EmbeddedResource Include="Img\ord_buy_cancel.png" />
+    <EmbeddedResource Include="Img\ord_sell.png" />
+    <EmbeddedResource Include="Img\ord_sell_cancel.png" />
+    <EmbeddedResource Include="Img\overview.png" />
+    <EmbeddedResource Include="Img\padlock_img.png" />
+    <EmbeddedResource Include="Img\palette.png" />
+    <EmbeddedResource Include="Img\pie.png" />
+    <EmbeddedResource Include="Img\pos_buy.png" />
+    <EmbeddedResource Include="Img\pos_close.png" />
+    <EmbeddedResource Include="Img\pos_sell.png" />
+    <EmbeddedResource Include="Img\pos_square.png" />
+    <EmbeddedResource Include="Img\publish_strategy.png" />
+    <EmbeddedResource Include="Img\question.png" />
+    <EmbeddedResource Include="Img\quick_start.png" />
+    <EmbeddedResource Include="Img\recalculate.png" />
+    <EmbeddedResource Include="Img\reload_data.png" />
+    <EmbeddedResource Include="Img\reload_ind.png" />
+    <EmbeddedResource Include="Img\safety_first.png" />
+    <EmbeddedResource Include="Img\save.png" />
+    <EmbeddedResource Include="Img\save_as.png" />
+    <EmbeddedResource Include="Img\tools.png" />
+    <EmbeddedResource Include="Img\undo.png" />
+    <EmbeddedResource Include="Img\up_arrow.png" />
+    <EmbeddedResource Include="Img\view_translation.png" />
+    <EmbeddedResource Include="Img\warning.png" />
+    <EmbeddedResource Include="Img\btn_operation_buy.png" />
+    <EmbeddedResource Include="Img\btn_operation_close.png" />
+    <EmbeddedResource Include="Img\btn_operation_sell.png" />
+    <EmbeddedResource Include="Img\chart_auto_scroll.png" />
+    <EmbeddedResource Include="Img\chart_cross.png" />
+    <EmbeddedResource Include="Img\chart_dinfo_down.png" />
+    <EmbeddedResource Include="Img\chart_dinfo_up.png" />
+    <EmbeddedResource Include="Img\chart_dyninfo.png" />
+    <EmbeddedResource Include="Img\chart_entry_points.png" />
+    <EmbeddedResource Include="Img\chart_grid.png" />
+    <EmbeddedResource Include="Img\chart_lots.png" />
+    <EmbeddedResource Include="Img\chart_pos_price.png" />
+    <EmbeddedResource Include="Img\chart_refresh.png" />
+    <EmbeddedResource Include="Img\chart_shift.png" />
+    <EmbeddedResource Include="Img\chart_volume.png" />
+    <EmbeddedResource Include="Img\chart_zoom_in.png" />
+    <EmbeddedResource Include="Img\chart_zoom_out.png" />
+    <EmbeddedResource Include="Img\clear.png" />
+    <EmbeddedResource Include="Img\connected.png" />
+    <EmbeddedResource Include="Img\connected_no_ticks.png" />
+    <EmbeddedResource Include="Img\connection_wrong_ping.png" />
+    <EmbeddedResource Include="Img\connection_wrong_pings.png" />
+    <EmbeddedResource Include="Img\currency.png" />
+    <EmbeddedResource Include="Img\expert_advisor.png" />
+    <EmbeddedResource Include="Img\journal_bar_close.png" />
+    <EmbeddedResource Include="Img\journal_bar_open.png" />
+    <EmbeddedResource Include="Img\journal_blocked.png" />
+    <EmbeddedResource Include="Img\journal_error.png" />
+    <EmbeddedResource Include="Img\journal_import.png" />
+    <EmbeddedResource Include="Img\journal_information.png" />
+    <EmbeddedResource Include="Img\journal_ok.png" />
+    <EmbeddedResource Include="Img\journal_start_trading.png" />
+    <EmbeddedResource Include="Img\journal_stop_trading.png" />
+    <EmbeddedResource Include="Img\journal_system.png" />
+    <EmbeddedResource Include="Img\journal_tick.png" />
+    <EmbeddedResource Include="Img\journal_warning.png" />
+    <EmbeddedResource Include="Img\not_connected.png" />
+    <EmbeddedResource Include="Img\ord_close.png" />
+    <EmbeddedResource Include="Img\pause.png" />
+    <EmbeddedResource Include="Img\play.png" />
+    <EmbeddedResource Include="Img\show_system_messages.png" />
+    <EmbeddedResource Include="Img\show_ticks.png" />
+    <EmbeddedResource Include="Img\stop.png" />
+    <EmbeddedResource Include="Img\strategy_description.png" />
+    <EmbeddedResource Include="Img\strategy_new.png" />
+    <EmbeddedResource Include="Img\strategy_open.png" />
+    <EmbeddedResource Include="Img\strategy_overview.png" />
+    <EmbeddedResource Include="Img\strategy_publish.png" />
+    <EmbeddedResource Include="Img\strategy_save.png" />
+    <EmbeddedResource Include="Img\strategy_save_as.png" />
+    <EmbeddedResource Include="Img\strategy_settings.png" />
+    <EmbeddedResource Include="Img\strategy_undo.png" />
+    <EmbeddedResource Include="Img\strategy_zoom_in.png" />
+    <EmbeddedResource Include="Img\strategy_zoom_out.png" />
+    <EmbeddedResource Include="Img\str_export_as_ci.png" />
+    <EmbeddedResource Include="Img\symbol_editor.png" />
+    <EmbeddedResource Include="Img\synchronize.png" />
+    <EmbeddedResource Include="Img\tab_account.png" />
+    <EmbeddedResource Include="Img\tab_chart.png" />
+    <EmbeddedResource Include="Img\tab_journal.png" />
+    <EmbeddedResource Include="Img\tab_operation.png" />
+    <EmbeddedResource Include="Img\tab_status.png" />
+    <EmbeddedResource Include="Img\tab_strategy.png" />
+    <Content Include="Resources\Bulgarian.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Resources\EURUSD1440.txt" />
+    <Content Include="Sounds\sound_error.wav" />
+    <Content Include="Sounds\sound_order_sent.wav" />
+    <Content Include="Sounds\sound_position_changed.wav" />
+    <EmbeddedResource Include="Sounds\sound_connect.wav" />
+    <EmbeddedResource Include="Sounds\sound_disconnect.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
+</Project>

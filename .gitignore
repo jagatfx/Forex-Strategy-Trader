@@ -1,23 +1,38 @@
 Thumbs.db
-/*ReSharper*
-/*DotSettings*
-/*.suo
-/*.sln.docstates
-/obj
-/bin/*.exe
-/bin/fst-padfile.xml
-/bin/Debug/*.exe
-/bin/Debug/*.config
-/bin/Debug/*.pdb
-/bin/Debug/*.manifest
-/bin/Debug/Logs/*.log
-/bin/Debug/System/config.xml
-/bin/Debug/System/fst-update.xml
-/bin/Forex\ Strategy\ Trader/*.exe
-!/bin/Forex\ Strategy\ Trader/FST\ Starter.exe
-/bin/Forex\ Strategy\ Trader/Logs/*.log
-/bin/Forex\ Strategy\ Trader/*.config
-/bin/Forex\ Strategy\ Trader/*.pdb
-/bin/Forex\ Strategy\ Trader/*.manifest
-/bin/Forex\ Strategy\ Trader/System/config.xml
-/bin/Forex\ Strategy\ Trader/System/fst-update.xml
+*ReSharper*
+*DotSettings*
+*.suo
+*.sln.docstates
+obj
+*.exe
+*.pfx
+*.iss
+*.user
+
+/Releases
+
+/Output/Debug/*.config
+/Output/Debug/*.pdb
+/Output/Debug/*.manifest
+/Output/Debug/*.dll
+
+/Output/Release/*.config
+/Output/Release/*.pdb
+/Output/Release/*.manifest
+/Output/Release/*.dll
+
+/Output/Release/User Files/Libraries/*.dll
+/Output/Release/User Files/Logs/*.log
+/Output/Release/User Files/Strategies/*.csv
+/Output/Release/User Files/System/config.xml
+/Output/Release/User Files/System/fst-update.xml
+/Output/Release/User Files/System/instruments.xml
+/Output/Release/User Files/System/Libraries.xml
+
+/Output/Debug/User Files/Libraries/*.dll
+/Output/Debug/User Files/Logs/*.log
+/Output/Debug/User Files/Strategies/*.csv
+/Output/Debug/User Files/System/config.xml
+/Output/Debug/User Files/System/fst-update.xml
+/Output/Debug/User Files/System/instruments.xml
+/Output/Debug/User Files/System/Libraries.xml
