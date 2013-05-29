@@ -80,7 +80,7 @@
     <Compile Include="Dialogs\CommandConsole.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="IndicatorCompiler\CustomIndicators.cs" />
+    <Compile Include="Indicators\Compilation\CustomIndicators.cs" />
     <Compile Include="Indicators\IndicatorBaseCalc.cs" />
     <Compile Include="Indicators\Store\AcceleratorOscillator.cs" />
     <Compile Include="Indicators\Store\AccountPercentStop.cs" />
@@ -188,6 +188,7 @@
     <Compile Include="Indicators\Store\WilliamsPercentRange.cs" />
     <Compile Include="Infrastructure\Entities\DataSet.cs" />
     <Compile Include="Infrastructure\Enums\DataPeriod.cs" />
+    <Compile Include="Infrastructure\Exceptions\MissingIndicatorException.cs" />
     <Compile Include="Infrastructure\Interfaces\IDataSet.cs" />
     <Compile Include="Infrastructure\Interfaces\IIndicator.cs" />
     <Compile Include="Instruments\BarStats.cs" />
@@ -238,10 +239,10 @@
     <Compile Include="Indicators\Indicator.cs" />
     <Compile Include="Indicators\ListParam.cs" />
     <Compile Include="Indicators\Numeric Params.cs" />
-    <Compile Include="IndicatorCompiler\CSharpCompiler.cs" />
-    <Compile Include="IndicatorCompiler\CustomIndicatorsTestResult.cs" />
-    <Compile Include="IndicatorCompiler\IndicatorCompilationManager.cs" />
-    <Compile Include="IndicatorCompiler\IndicatorTester.cs" />
+    <Compile Include="Indicators\Compilation\CSharpCompiler.cs" />
+    <Compile Include="Indicators\Compilation\CustomIndicatorsTestResult.cs" />
+    <Compile Include="Indicators\Compilation\IndicatorCompilationManager.cs" />
+    <Compile Include="Indicators\Compilation\IndicatorTester.cs" />
     <Compile Include="Instruments\Bar.cs" />
     <Compile Include="Instruments\DataParser.cs" />
     <Compile Include="Instruments\InstrumentProperties.cs" />

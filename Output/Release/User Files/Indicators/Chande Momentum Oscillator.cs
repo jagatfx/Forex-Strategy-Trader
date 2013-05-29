@@ -14,7 +14,7 @@ using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
 using ForexStrategyBuilder.Infrastructure.Interfaces;
 
-namespace ForexStrategyBuilder.Indicators
+namespace ForexStrategyBuilder.Indicators.Store
 {
     public class ChandeMomentumOscillator : Indicator
     {

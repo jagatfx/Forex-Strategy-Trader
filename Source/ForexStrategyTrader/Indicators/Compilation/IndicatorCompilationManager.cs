@@ -1,5 +1,5 @@
 ﻿//==============================================================
-// Forex Strategy Trader
+// Forex Strategy Builder
 // Copyright © Miroslav Popov. All rights reserved.
 //==============================================================
 // THIS CODE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
@@ -37,6 +37,7 @@ namespace ForexStrategyBuilder
             foreach (Assembly assembly in GetReferencedAndInitialAssembly(Assembly.GetEntryAssembly()))
             {
                 compiler.AddReferencedAssembly(assembly);
+                Console.WriteLine("############# " + assembly.FullName);
             }
         }
 
@@ -70,49 +71,35 @@ namespace ForexStrategyBuilder
         {
             errorMessages = string.Empty;
             Assembly assembly = Assembly.LoadFrom(dllPath);
-            try
+            Type[] types = assembly.GetTypes();
+            foreach (Type type in types)
             {
-                Type[] types = assembly.GetTypes();
+                if (!typeof(IIndicator).IsAssignableFrom(type))
+                    continue;
 
-                foreach (Type type in types)
+                Indicator newIndicator;
+
+                try
                 {
-                    if (!typeof (IIndicator).IsAssignableFrom(type))
-                        continue;
-
-                    var newIndicator = Activator.CreateInstance(type) as Indicator;
-
-                    if (newIndicator == null)
-                    {
-                        errorMessages = "Cannot load: " + dllPath;
-                        return;
-                    }
-
-                    newIndicator.Initialize(SlotTypes.NotDefined);
-                    newIndicator.CustomIndicator = true;
-                    newIndicator.LoaddedFromDll = true;
-                    IntegrateIndicator(dllPath, out errorMessages, newIndicator);
+                    newIndicator = Activator.CreateInstance(type) as Indicator;
                 }
-            }
-            catch (Exception exception)
-            {
-                errorMessages = "ERROR: Loading '" + Path.GetFileName(dllPath) + "': " + exception.Message;
-                if (exception.InnerException != null && !string.IsNullOrEmpty(exception.InnerException.Message))
+                catch (Exception exception)
                 {
-                    errorMessages += " " + exception.InnerException.Message;
+                    errorMessages = "ERROR: Loading '" + Path.GetFileName(dllPath) + "': " + exception.Message;
+                    return;
                 }
 
-
-                if (exception is ReflectionTypeLoadException)
+                if (newIndicator == null)
                 {
-                    var typeLoadException = exception as ReflectionTypeLoadException;
-                    var loaderExceptions = typeLoadException.LoaderExceptions;
-
-                    foreach (var loaderException in loaderExceptions)
-                    {
-                        errorMessages += Environment.NewLine + loaderException.Message;
-                    }
+                    errorMessages = "Cannot load: " + dllPath;
+                    return;
                 }
 
+                newIndicator.Initialize(SlotTypes.NotDefined);
+                newIndicator.CustomIndicator = true;
+                newIndicator.LoaddedFromDll = true;
+                IntegrateIndicator(dllPath, out errorMessages, newIndicator);
+                return;
             }
         }
 
@@ -131,6 +118,9 @@ namespace ForexStrategyBuilder
                 errorMessages = errorLoadSourceFile;
                 return null;
             }
+
+            if (!ValidateSourceCode(sourcePath, sourceCode, out errorMessages))
+                return null;
 
             Dictionary<string, int> dictCompilationErrors;
             Assembly assembly = compiler.CompileSource(sourceCode, out dictCompilationErrors);
@@ -165,6 +155,24 @@ namespace ForexStrategyBuilder
                 return ExportIndicatorAsDll(sourcePath, sourceCode);
 
             return null;
+        }
+
+        private bool ValidateSourceCode(string sourcePath, string sourceCode, out string errorMessages)
+        {
+            errorMessages = string.Empty;
+
+            bool isEntities = sourceCode.Contains("ForexStrategyBuilder.Infrastructure.Entities");
+            bool isEnums = sourceCode.Contains("ForexStrategyBuilder.Infrastructure.Enums");
+            bool isInterfaces = sourceCode.Contains("ForexStrategyBuilder.Infrastructure.Interfaces");
+            bool isStore = sourceCode.Contains("ForexStrategyBuilder.Indicators.Store");
+
+            if (isEntities && isEnums && isInterfaces && isStore)
+                return true;
+
+            errorMessages = "ERROR: Obsolete format of source code in file [" +
+                            Path.GetFileName(sourcePath) + "]." + Environment.NewLine +
+                            "Get a newer version from Code Repository.";
+            return false;
         }
 
         /// <summary>
@@ -218,10 +226,10 @@ namespace ForexStrategyBuilder
 
             var sourceInfo = new FileInfo(sourcePath);
             var record = new LibRecord
-                {
-                    SourceFileName = name,
-                    SourceLastWriteTime = sourceInfo.LastWriteTime,
-                };
+            {
+                SourceFileName = name,
+                SourceLastWriteTime = sourceInfo.LastWriteTime,
+            };
 
             return record;
         }
@@ -266,7 +274,7 @@ namespace ForexStrategyBuilder
             Type[] assemblyTypes = assembly.GetTypes();
             foreach (Type typeAssembly in assemblyTypes)
             {
-                if (typeAssembly.IsSubclassOf(typeof (Indicator)))
+                if (typeAssembly.IsSubclassOf(typeof(Indicator)))
                 {
                     ConstructorInfo[] aConstructorInfo = typeAssembly.GetConstructors();
 
@@ -281,7 +289,7 @@ namespace ForexStrategyBuilder
                         errorMessage = string.Empty;
                         try
                         {
-                            return (Indicator) constructorInfo.Invoke(null);
+                            return (Indicator)constructorInfo.Invoke(null);
                         }
                         catch (Exception exc)
                         {

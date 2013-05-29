@@ -86,7 +86,7 @@ namespace ForexStrategyBuilder.Indicators
         /// <summary>
         ///     Gets the names of all indicators.
         /// </summary>
-        public static IEnumerable<string> AllIndicatorsNames
+        public static List<string> AllIndicatorsNames
         {
             get { return new List<string>(AllIndicators.Keys); }
         }
