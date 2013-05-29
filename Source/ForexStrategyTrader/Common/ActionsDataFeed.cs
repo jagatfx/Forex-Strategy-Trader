@@ -911,6 +911,16 @@ namespace ForexStrategyBuilder
         /// </summary>
         private void StartTrade()
         {
+            if (Data.Strategy.FirstBar > Data.Bars)
+            {
+                string errorMessage = string.Format("The strategy requires {0} bars, but there are {1} bars loaded.",
+                                                    Data.Strategy.FirstBar, Data.Bars);
+                errorMessage += Environment.NewLine +
+                                Language.T("Check \"Trade settings -> Minimum number of bars in the chart\" option.");
+                MessageBox.Show(errorMessage, Language.T("Strategy"));
+                return;
+            }
+
             isTrading = true;
 
             // Resets trade global variables.
@@ -1097,7 +1107,7 @@ namespace ForexStrategyBuilder
         /// <summary>
         ///     ID changed.
         /// </summary>
-        protected override void TstbxConnectionIDKeyPress(object sender, KeyPressEventArgs e)
+        protected override void TstbxConnectionIdKeyPress(object sender, KeyPressEventArgs e)
         {
             TsbtnConnectionGo.Enabled = true;
             if (e.KeyChar == (char) Keys.Return)
@@ -1144,7 +1154,7 @@ namespace ForexStrategyBuilder
         /// <summary>
         ///     Button Change ID clicked.
         /// </summary>
-        protected override void TsbtChangeIDClick(object sender, EventArgs e)
+        protected override void TsbtChangeIdClick(object sender, EventArgs e)
         {
             Disconnect();
             DeinitDataFeed();

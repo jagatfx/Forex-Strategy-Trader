@@ -46,7 +46,7 @@ namespace ForexStrategyBuilder
                                         BorderStyle = BorderStyle.FixedSingle,
                                         Visible = Configs.MultipleInstances
                                     };
-            TstbxConnectionID.KeyPress += TstbxConnectionIDKeyPress;
+            TstbxConnectionID.KeyPress += TstbxConnectionIdKeyPress;
             TsTradeControl.Items.Add(TstbxConnectionID);
 
             TsbtnConnectionGo = new ToolStripButton
@@ -67,7 +67,7 @@ namespace ForexStrategyBuilder
                                     Width = 100,
                                     Enabled = true
                                 };
-            TsbtnChangeID.Click += TsbtChangeIDClick;
+            TsbtnChangeID.Click += TsbtChangeIdClick;
             TsbtnChangeID.Visible = false;
             TsTradeControl.Items.Add(TsbtnChangeID);
 
@@ -104,14 +104,14 @@ namespace ForexStrategyBuilder
             }
         }
 
-        protected virtual void TstbxConnectionIDKeyPress(object sender, KeyPressEventArgs e)
+        protected virtual void TstbxConnectionIdKeyPress(object sender, KeyPressEventArgs e)
         {
         }
 
         /// <summary>
         /// Button Change ID clicked.
         /// </summary>
-        protected virtual void TsbtChangeIDClick(object sender, EventArgs e)
+        protected virtual void TsbtChangeIdClick(object sender, EventArgs e)
         {
         }
 

@@ -292,8 +292,8 @@ namespace ForexStrategyBuilder
 
         public static Logger Logger { get; private set; }
 
-        public static double VDpiScale { get; set; }
-        public static double HDpiScale { get; set; }
+        public static double VDpiScale { get; private set; }
+        public static double HDpiScale { get; private set; }
 
         /// <summary>
         ///     Initial settings.
