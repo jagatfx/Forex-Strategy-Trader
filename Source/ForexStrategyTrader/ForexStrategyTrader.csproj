@@ -339,6 +339,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Tools\Utils.cs" />
+    <Compile Include="Utils\DIBSection.cs" />
     <Compile Include="Utils\SerializableDictionary.cs" />
   </ItemGroup>
   <ItemGroup>

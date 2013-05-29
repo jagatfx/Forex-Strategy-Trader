@@ -1,14 +1,19 @@
-// Balance_Chart Class
-// Part of Forex Strategy Trader
-// Website http://forexsb.com/
-// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
-// This code or any part of it cannot be used in other applications without a permission.
+//==============================================================
+// Forex Strategy Builder
+// Copyright © Miroslav Popov. All rights reserved.
+//==============================================================
+// THIS CODE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
+// EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE.
+//==============================================================
 
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Windows.Forms;
+using ForexStrategyBuilder.Utils;
 
 namespace ForexStrategyBuilder
 {
@@ -20,188 +25,193 @@ namespace ForexStrategyBuilder
     }
 
     /// <summary>
-    /// Draws a balance chart
+    ///     Draws a balance chart
     /// </summary>
     public sealed class BalanceChart : Panel
     {
         private const int Border = 2;
         private const int Space = 5;
-        private readonly float _captionHeight;
-        private readonly string _chartTitle;
-        private readonly Font _font;
-        private readonly StringFormat _stringFormatCaption;
-        private PointF[] _apntBalance;
-        private PointF[] _apntEquity;
-        private double[] _balanceData;
-        private float _balanceY;
-        private Brush _brushFore;
-        private Rectangle _chartArea;
-        private int _chartPoints;
-        private int _cntLabels;
-        private float _deltaLabels;
-        private double[] _equityData;
-        private float _equityY;
-        private int _labelWidth;
-        private int _maxBalance;
-        private int _maxEquity;
-        private int _maxValue;
-        private int _minBalance;
-        private int _minEquity;
-        private int _minValue;
-        private float _netBalance;
-        private float _netEquity;
-        private Pen _penBorder;
-        private Pen _penGrid;
-        private RectangleF _rectfCaption;
-        private float _scaleX;
-        private float _scaleY;
-        private DateTime _startTime;
-        private int _stepLabels;
-        private int _xLeft;
-        private int _xRight;
-        private int _yBottom;
-        private int _yTop;
+        private readonly float captionHeight;
+        private readonly string chartTitle;
+        private readonly Font font;
+        private readonly StringFormat stringFormatCaption;
+        private PointF[] apntBalance;
+        private PointF[] apntEquity;
+        private double[] balanceData;
+        private float balanceY;
+        private Brush brushFore;
+        private Rectangle chartArea;
+        private int chartPoints;
+        private int cntLabels;
+        private float deltaLabels;
+        private double[] equityData;
+        private float equityY;
+        private int labelWidth;
+        private int maxBalance;
+        private int maxEquity;
+        private int maxValue;
+        private int minBalance;
+        private int minEquity;
+        private int minValue;
+        private float netBalance;
+        private float netEquity;
+        private Pen penBorder;
+        private Pen penGrid;
+        private RectangleF rectfCaption;
+        private float scaleX;
+        private float scaleY;
+        private DateTime startTime;
+        private int stepLabels;
+        private int xLeft;
+        private int xRight;
+        private int yBottom;
+        private int yTop;
 
         /// <summary>
-        /// Default constructor.
+        ///     Default constructor.
         /// </summary>
         public BalanceChart()
         {
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.Opaque,
+                     true);
+
             SetColors();
 
             // Chart Title
-            _chartTitle = Language.T("Balance / Equity Chart");
-            _font = new Font(Font.FontFamily, 9);
-            _captionHeight = Math.Max(_font.Height, 18);
-            _rectfCaption = new RectangleF(0, 0, ClientSize.Width, _captionHeight);
-            _stringFormatCaption = new StringFormat
-                                       {
-                                           Alignment = StringAlignment.Center,
-                                           LineAlignment = StringAlignment.Center,
-                                           Trimming = StringTrimming.EllipsisCharacter,
-                                           FormatFlags = StringFormatFlags.NoWrap
-                                       };
+            chartTitle = Language.T("Balance / Equity Chart");
+            font = new Font(Font.FontFamily, 9);
+            captionHeight = Math.Max(font.Height, 18);
+            rectfCaption = new RectangleF(0, 0, ClientSize.Width, captionHeight);
+            stringFormatCaption = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center,
+                    Trimming = StringTrimming.EllipsisCharacter,
+                    FormatFlags = StringFormatFlags.NoWrap
+                };
 
-            _penGrid.DashStyle = DashStyle.Dash;
-            _penGrid.DashPattern = new float[] {4, 2};
+            penGrid.DashStyle = DashStyle.Dash;
+            penGrid.DashPattern = new float[] {4, 2};
         }
 
         /// <summary>
-        /// Sets data to be displayed.
+        ///     Sets data to be displayed.
         /// </summary>
         public void UpdateChartData(BalanceChartUnit[] data, int points)
         {
             if (data == null || points < 1)
                 return;
 
-            _balanceData = new double[points];
-            _equityData = new double[points];
+            balanceData = new double[points];
+            equityData = new double[points];
             for (int p = 0; p < points; p++)
             {
-                _balanceData[p] = data[p].Balance;
-                _equityData[p] = data[p].Equity;
+                balanceData[p] = data[p].Balance;
+                equityData[p] = data[p].Equity;
             }
 
-            _maxBalance = int.MinValue;
-            _minBalance = int.MaxValue;
-            _maxEquity = int.MinValue;
-            _minEquity = int.MaxValue;
+            maxBalance = int.MinValue;
+            minBalance = int.MaxValue;
+            maxEquity = int.MinValue;
+            minEquity = int.MaxValue;
 
-            foreach (double balance in _balanceData)
+            foreach (double balance in balanceData)
             {
-                if (balance > _maxBalance) _maxBalance = (int) balance;
-                if (balance < _minBalance) _minBalance = (int) balance;
+                if (balance > maxBalance) maxBalance = (int) balance;
+                if (balance < minBalance) minBalance = (int) balance;
             }
 
-            foreach (double equity in _equityData)
+            foreach (double equity in equityData)
             {
-                if (equity > _maxEquity) _maxEquity = (int) equity;
-                if (equity < _minEquity) _minEquity = (int) equity;
+                if (equity > maxEquity) maxEquity = (int) equity;
+                if (equity < minEquity) minEquity = (int) equity;
             }
 
-            _startTime = data[0].Time;
+            startTime = data[0].Time;
 
             InitChart();
         }
 
         /// <summary>
-        /// Refreshes the chart.
+        ///     Refreshes the chart.
         /// </summary>
         public void RefreshChart()
         {
-            Invalidate(_chartArea);
+            Invalidate(chartArea);
         }
 
         /// <summary>
-        /// Sets the chart params
+        ///     Sets the chart params
         /// </summary>
         private void InitChart()
         {
-            if (_balanceData == null || _balanceData.Length < 1)
+            if (balanceData == null || balanceData.Length < 1)
                 return;
 
-            _chartPoints = Math.Max(_balanceData.Length, _equityData.Length);
+            chartPoints = Math.Max(balanceData.Length, equityData.Length);
 
-            if (_chartPoints == 0) return;
+            if (chartPoints == 0) return;
 
-            _maxValue = Math.Max(_maxBalance, _maxEquity) + 1;
-            _minValue = Math.Min(_minBalance, _minEquity) - 1;
-            _minValue = (int) (Math.Floor(_minValue/10f)*10);
+            maxValue = Math.Max(maxBalance, maxEquity) + 1;
+            minValue = Math.Min(minBalance, minEquity) - 1;
+            minValue = (int) (Math.Floor(minValue/10f)*10);
 
-            _yTop = (int) _captionHeight + 2*Space + 1;
-            _yBottom = ClientSize.Height - Space - Border - Font.Height;
+            yTop = (int) captionHeight + 2*Space + 1;
+            yBottom = ClientSize.Height - Space - Border - Font.Height;
 
             Graphics g = CreateGraphics();
-            _labelWidth =
+            labelWidth =
                 (int)
-                Math.Max(g.MeasureString(_minValue.ToString("F2"), Font).Width,
-                         g.MeasureString(_maxValue.ToString("F2"), Font).Width);
+                Math.Max(g.MeasureString(minValue.ToString("F2"), Font).Width,
+                         g.MeasureString(maxValue.ToString("F2"), Font).Width);
             g.Dispose();
 
-            _labelWidth = Math.Max(_labelWidth, 30);
-            _xLeft = Border + Space;
-            _xRight = ClientSize.Width - Border - Space - _labelWidth - 6;
-            _scaleX = (_xRight - 2*Space - Border - 10)/(float) (_chartPoints - 1);
+            labelWidth = Math.Max(labelWidth, 30);
+            xLeft = Border + Space;
+            xRight = ClientSize.Width - Border - Space - labelWidth - 6;
+            scaleX = (xRight - 2*Space - Border - 10)/(float) (chartPoints - 1);
 
-            _cntLabels = Math.Max((_yBottom - _yTop)/40, 1);
-            _deltaLabels = (float) Math.Max(Math.Round((_maxValue - _minValue)/(float) _cntLabels), 10);
-            _stepLabels = (int) Math.Ceiling(_deltaLabels/10)*10;
-            _cntLabels = (int) Math.Ceiling((_maxValue - _minValue)/(float) _stepLabels);
-            _maxValue = _minValue + _cntLabels*_stepLabels;
-            _scaleY = (_yBottom - _yTop)/(_cntLabels*(float) _stepLabels);
+            cntLabels = Math.Max((yBottom - yTop)/40, 1);
+            deltaLabels = (float) Math.Max(Math.Round((maxValue - minValue)/(float) cntLabels), 10);
+            stepLabels = (int) Math.Ceiling(deltaLabels/10)*10;
+            cntLabels = (int) Math.Ceiling((maxValue - minValue)/(float) stepLabels);
+            maxValue = minValue + cntLabels*stepLabels;
+            scaleY = (yBottom - yTop)/(cntLabels*(float) stepLabels);
 
-            _apntBalance = new PointF[_chartPoints];
-            _apntEquity = new PointF[_chartPoints];
+            apntBalance = new PointF[chartPoints];
+            apntEquity = new PointF[chartPoints];
 
             int index = 0;
-            foreach (double balance in _balanceData)
+            foreach (double balance in balanceData)
             {
-                _apntBalance[index].X = _xLeft + index*_scaleX;
-                _apntBalance[index].Y = (float) (_yBottom - (balance - _minValue)*_scaleY);
+                apntBalance[index].X = xLeft + index*scaleX;
+                apntBalance[index].Y = (float) (yBottom - (balance - minValue)*scaleY);
                 index++;
             }
 
             index = 0;
-            foreach (double equity in _equityData)
+            foreach (double equity in equityData)
             {
-                _apntEquity[index].X = _xLeft + index*_scaleX;
-                _apntEquity[index].Y = (float) (_yBottom - (equity - _minValue)*_scaleY);
+                apntEquity[index].X = xLeft + index*scaleX;
+                apntEquity[index].Y = (float) (yBottom - (equity - minValue)*scaleY);
                 index++;
             }
 
-            _netBalance = (float) _balanceData[_balanceData.Length - 1];
-            _balanceY = _yBottom - (_netBalance - _minValue)*_scaleY;
+            netBalance = (float) balanceData[balanceData.Length - 1];
+            balanceY = yBottom - (netBalance - minValue)*scaleY;
 
-            _netEquity = (float) _equityData[_equityData.Length - 1];
-            _equityY = _yBottom - (_netEquity - _minValue)*_scaleY;
+            netEquity = (float) equityData[equityData.Length - 1];
+            equityY = yBottom - (netEquity - minValue)*scaleY;
         }
 
         /// <summary>
-        /// Paints the chart
+        ///     Paints the chart
         /// </summary>
         protected override void OnPaint(PaintEventArgs e)
         {
-            Graphics g = e.Graphics;
+            var bitmap = new Bitmap(ClientSize.Width, ClientSize.Height);
+            Graphics g = Graphics.FromImage(bitmap);
+
             try
             {
                 g.Clear(LayoutColors.ColorChartBack);
@@ -212,92 +222,99 @@ namespace ForexStrategyBuilder
             }
 
             // Caption bar
-            Data.GradientPaint(g, _rectfCaption, LayoutColors.ColorCaptionBack, LayoutColors.DepthCaption);
-            g.DrawString(_chartTitle, Font, new SolidBrush(LayoutColors.ColorCaptionText), _rectfCaption,
-                         _stringFormatCaption);
+            Data.GradientPaint(g, rectfCaption, LayoutColors.ColorCaptionBack, LayoutColors.DepthCaption);
+            g.DrawString(chartTitle, Font, new SolidBrush(LayoutColors.ColorCaptionText), rectfCaption,
+                         stringFormatCaption);
 
             // Border
-            g.DrawLine(_penBorder, 1, _captionHeight, 1, ClientSize.Height);
-            g.DrawLine(_penBorder, ClientSize.Width - Border + 1, _captionHeight, ClientSize.Width - Border + 1,
+            g.DrawLine(penBorder, 1, captionHeight, 1, ClientSize.Height);
+            g.DrawLine(penBorder, ClientSize.Width - Border + 1, captionHeight, ClientSize.Width - Border + 1,
                        ClientSize.Height);
-            g.DrawLine(_penBorder, 0, ClientSize.Height - Border + 1, ClientSize.Width, ClientSize.Height - Border + 1);
+            g.DrawLine(penBorder, 0, ClientSize.Height - Border + 1, ClientSize.Width, ClientSize.Height - Border + 1);
 
-            if (_balanceData == null || _balanceData.Length < 1 ||
-                _equityData == null || _equityData.Length < 1)
+            if (balanceData == null || balanceData.Length < 1 ||
+                equityData == null || equityData.Length < 1)
+            {
+                DIBSection.DrawOnPaint(e.Graphics, bitmap, Width, Height);
                 return;
+            }
 
             // Grid and Price labels
-            for (int iLabel = _minValue; iLabel <= _maxValue; iLabel += _stepLabels)
+            for (int iLabel = minValue; iLabel <= maxValue; iLabel += stepLabels)
             {
-                var iLabelY = (int) (_yBottom - (iLabel - _minValue)*_scaleY);
-                g.DrawString(iLabel.ToString(".00"), Font, _brushFore, _xRight, iLabelY - Font.Height/2 - 1);
-                g.DrawLine(_penGrid, _xLeft, iLabelY, _xRight, iLabelY);
+                var iLabelY = (int) (yBottom - (iLabel - minValue)*scaleY);
+                g.DrawString(iLabel.ToString(".00"), Font, brushFore, xRight, iLabelY - Font.Height/2 - 1);
+                g.DrawLine(penGrid, xLeft, iLabelY, xRight, iLabelY);
             }
 
             // Equity and Balance lines
-            g.DrawLines(new Pen(LayoutColors.ColorChartEquityLine), _apntEquity);
-            g.DrawLines(new Pen(LayoutColors.ColorChartBalanceLine), _apntBalance);
+            g.DrawLines(new Pen(LayoutColors.ColorChartEquityLine), apntEquity);
+            g.DrawLines(new Pen(LayoutColors.ColorChartBalanceLine), apntBalance);
 
             // Coordinate axes
-            g.DrawLine(new Pen(LayoutColors.ColorChartFore), _xLeft - 1, _yTop - Space, _xLeft - 1,
-                       _yBottom + 1 + Font.Height);
+            g.DrawLine(new Pen(LayoutColors.ColorChartFore), xLeft - 1, yTop - Space, xLeft - 1,
+                       yBottom + 1 + Font.Height);
 
             // Equity price label.
-            var pntEquity = new Point(_xRight - Space + 2, (int) (_equityY - _font.Height/2.0 - 1));
-            var sizeEquity = new Size(_labelWidth + Space, _font.Height + 2);
-            string equity = (_netEquity.ToString("F2"));
+            var pntEquity = new Point(xRight - Space + 2, (int) (equityY - font.Height/2.0 - 1));
+            var sizeEquity = new Size(labelWidth + Space, font.Height + 2);
+            string equity = (netEquity.ToString("F2"));
+            var halfEquity = (int) (sizeEquity.Height/2.0);
             var apEquity = new[]
-                               {
-                                   new PointF(_xRight - Space - 8, _equityY),
-                                   new PointF(_xRight - Space, _equityY - sizeEquity.Height/2),
-                                   new PointF(_xRight - Space + sizeEquity.Width + 5, _equityY - sizeEquity.Height/2),
-                                   new PointF(_xRight - Space + sizeEquity.Width + 5, _equityY + sizeEquity.Height/2),
-                                   new PointF(_xRight - Space, _equityY + sizeEquity.Height/2),
-                               };
+                {
+                    new PointF(xRight - Space - 8, equityY),
+                    new PointF(xRight - Space, equityY - halfEquity),
+                    new PointF(xRight - Space + sizeEquity.Width + 5, equityY - halfEquity),
+                    new PointF(xRight - Space + sizeEquity.Width + 5, equityY + halfEquity),
+                    new PointF(xRight - Space, equityY + halfEquity)
+                };
             g.FillPolygon(new SolidBrush(LayoutColors.ColorChartEquityLine), apEquity);
-            g.DrawString(equity, _font, new SolidBrush(LayoutColors.ColorChartBack), pntEquity);
+            g.DrawString(equity, font, new SolidBrush(LayoutColors.ColorChartBack), pntEquity);
 
             // Balance price label.
-            var pntBalance = new Point(_xRight - Space + 2, (int) (_balanceY - _font.Height/2.0 - 1));
-            var sizeBalance = new Size(_labelWidth + Space, _font.Height + 2);
-            string balance = (_netBalance.ToString("F2"));
+            var pntBalance = new Point(xRight - Space + 2, (int) (balanceY - font.Height/2.0 - 1));
+            var sizeBalance = new Size(labelWidth + Space, font.Height + 2);
+            var halfBalance = (int) (sizeBalance.Height/2.0);
+            string balance = (netBalance.ToString("F2"));
             var apBalance = new[]
-                                {
-                                    new PointF(_xRight - Space - 8, _balanceY),
-                                    new PointF(_xRight - Space, _balanceY - sizeBalance.Height/2),
-                                    new PointF(_xRight - Space + sizeBalance.Width + 5, _balanceY - sizeBalance.Height/2),
-                                    new PointF(_xRight - Space + sizeBalance.Width + 5, _balanceY + sizeBalance.Height/2),
-                                    new PointF(_xRight - Space, _balanceY + sizeBalance.Height/2),
-                                };
+                {
+                    new PointF(xRight - Space - 8, balanceY),
+                    new PointF(xRight - Space, balanceY - halfBalance),
+                    new PointF(xRight - Space + sizeBalance.Width + 5, balanceY - halfBalance),
+                    new PointF(xRight - Space + sizeBalance.Width + 5, balanceY + halfBalance),
+                    new PointF(xRight - Space, balanceY + halfBalance)
+                };
             g.FillPolygon(new SolidBrush(LayoutColors.ColorChartBalanceLine), apBalance);
-            g.DrawString(balance, _font, new SolidBrush(LayoutColors.ColorChartBack), pntBalance);
+            g.DrawString(balance, font, new SolidBrush(LayoutColors.ColorChartBack), pntBalance);
 
             // Chart Text
-            string chartText = _startTime.ToString(CultureInfo.InvariantCulture);
-            g.DrawString(chartText, _font, new SolidBrush(LayoutColors.ColorChartFore), _xLeft, _yBottom);
+            string chartText = startTime.ToString(CultureInfo.InvariantCulture);
+            g.DrawString(chartText, font, new SolidBrush(LayoutColors.ColorChartFore), xLeft, yBottom);
+
+            DIBSection.DrawOnPaint(e.Graphics, bitmap, Width, Height);
         }
 
         /// <summary>
-        /// Invalidates the chart after resizing
+        ///     Invalidates the chart after resizing
         /// </summary>
         protected override void OnResize(EventArgs eventargs)
         {
-            _rectfCaption = new RectangleF(0, 0, ClientSize.Width, _captionHeight);
-            _chartArea = new Rectangle(Border, (int) _captionHeight, ClientSize.Width - 2*Border,
-                                       ClientSize.Height - Border - (int) _captionHeight);
+            rectfCaption = new RectangleF(0, 0, ClientSize.Width, captionHeight);
+            chartArea = new Rectangle(Border, (int) captionHeight, ClientSize.Width - 2*Border,
+                                      ClientSize.Height - Border - (int) captionHeight);
 
             InitChart();
             Invalidate();
         }
 
         /// <summary>
-        /// Sets the panel colors
+        ///     Sets the panel colors
         /// </summary>
         public void SetColors()
         {
-            _brushFore = new SolidBrush(LayoutColors.ColorChartFore);
-            _penGrid = new Pen(LayoutColors.ColorChartGrid);
-            _penBorder = new Pen(Data.ColorChanage(LayoutColors.ColorCaptionBack, -LayoutColors.DepthCaption), Border);
+            brushFore = new SolidBrush(LayoutColors.ColorChartFore);
+            penGrid = new Pen(LayoutColors.ColorChartGrid);
+            penBorder = new Pen(Data.ColorChanage(LayoutColors.ColorCaptionBack, -LayoutColors.DepthCaption), Border);
         }
     }
 }

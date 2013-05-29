@@ -41,7 +41,7 @@ namespace ForexStrategyBuilder
     };
 
 
-    public static class Utils
+    public static class PeriodUtils
     {
 
         public static TimeSpan PeriodTimeSpan(MT4Bridge.PeriodType period)
