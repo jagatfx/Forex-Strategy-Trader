@@ -10,17 +10,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using System.Xml;
+using ForexStrategyBuilder.Infrastructure.Exceptions;
 using MT4Bridge;
 
 namespace ForexStrategyBuilder
 {
     /// <summary>
-    /// Class Actions : Controls
+    ///     Class Actions : Controls
     /// </summary>
     public sealed partial class Actions
     {
         /// <summary>
-        /// Opens the averaging parameters dialog.
+        ///     Opens the averaging parameters dialog.
         /// </summary>
         protected override void PnlAveragingClick(object sender, EventArgs e)
         {
@@ -28,7 +29,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Opens the indicator parameters dialog.
+        ///     Opens the indicator parameters dialog.
         /// </summary>
         protected override void PnlSlotMouseUp(object sender, MouseEventArgs e)
         {
@@ -39,7 +40,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Strategy panel menu items clicked
+        ///     Strategy panel menu items clicked
         /// </summary>
         protected override void SlotContextMenuClick(object sender, EventArgs e)
         {
@@ -66,7 +67,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// MenuChangeTabs_OnClick
+        ///     MenuChangeTabs_OnClick
         /// </summary>
         protected override void MenuChangeTabs_OnClick(object sender, EventArgs e)
         {
@@ -79,7 +80,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Performs actions after the button add open filter was clicked.
+        ///     Performs actions after the button add open filter was clicked.
         /// </summary>
         protected override void BtnAddOpenFilterClick(object sender, EventArgs e)
         {
@@ -87,7 +88,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Performs actions after the button add close filter was clicked.
+        ///     Performs actions after the button add close filter was clicked.
         /// </summary>
         protected override void BtnAddCloseFilterClick(object sender, EventArgs e)
         {
@@ -95,7 +96,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Remove the corresponding indicator slot.
+        ///     Remove the corresponding indicator slot.
         /// </summary>
         protected override void BtnRemoveSlotClick(object sender, EventArgs e)
         {
@@ -104,7 +105,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Load a color scheme.
+        ///     Load a color scheme.
         /// </summary>
         protected override void MenuLoadColor_OnClick(object sender, EventArgs e)
         {
@@ -123,7 +124,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Gradient View Changed
+        ///     Gradient View Changed
         /// </summary>
         protected override void MenuGradientView_OnClick(object sender, EventArgs e)
         {
@@ -134,7 +135,7 @@ namespace ForexStrategyBuilder
 
 
         /// <summary>
-        /// Strategy IO
+        ///     Strategy IO
         /// </summary>
         protected override void BtnStrategyIoClick(object sender, EventArgs e)
         {
@@ -158,7 +159,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Loads the default strategy.
+        ///     Loads the default strategy.
         /// </summary>
         protected override void MenuStrategyNew_OnClick(object sender, EventArgs e)
         {
@@ -166,7 +167,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Opens the dialog form OpenFileDialog.
+        ///     Opens the dialog form OpenFileDialog.
         /// </summary>
         protected override void MenuFileOpen_OnClick(object sender, EventArgs e)
         {
@@ -174,7 +175,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Saves the strategy.
+        ///     Saves the strategy.
         /// </summary>
         protected override void MenuFileSave_OnClick(object sender, EventArgs e)
         {
@@ -182,7 +183,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Opens the dialog form SaveFileDialog.
+        ///     Opens the dialog form SaveFileDialog.
         /// </summary>
         protected override void MenuFileSaveAs_OnClick(object sender, EventArgs e)
         {
@@ -190,7 +191,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Undoes the strategy.
+        ///     Undoes the strategy.
         /// </summary>
         protected override void MenuStrategyUndo_OnClick(object sender, EventArgs e)
         {
@@ -198,7 +199,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Copies the strategy to clipboard.
+        ///     Copies the strategy to clipboard.
         /// </summary>
         protected override void MenuStrategyCopy_OnClick(object sender, EventArgs e)
         {
@@ -207,7 +208,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Pastes a strategy from clipboard.
+        ///     Pastes a strategy from clipboard.
         /// </summary>
         protected override void MenuStrategyPaste_OnClick(object sender, EventArgs e)
         {
@@ -219,13 +220,21 @@ namespace ForexStrategyBuilder
                 return;
 
             var xmlDoc = new XmlDocument();
-            var strategyXML = new StrategyXML();
+            var strategyXml = new StrategyXML();
             Strategy tempStrategy;
 
             try
             {
                 xmlDoc.InnerXml = Clipboard.GetText();
-                tempStrategy = strategyXML.ParseXmlStrategy(xmlDoc);
+                tempStrategy = strategyXml.ParseXmlStrategy(xmlDoc);
+            }
+            catch (MissingIndicatorException exception)
+            {
+                string message = string.Format(
+                    "{2}{1}{0}{1}Please find this indicator in Repository or in Custom Indicators forum.",
+                    exception.Message, Environment.NewLine, "Cannot load the strategy.");
+                MessageBox.Show(message, "Load strategy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
             catch (Exception exception)
             {
@@ -253,7 +262,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Loads a dropped strategy.
+        ///     Loads a dropped strategy.
         /// </summary>
         protected override void LoadDroppedStrategy(string filePath)
         {
@@ -262,7 +271,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Opens the strategy settings dialogue.
+        ///     Opens the strategy settings dialogue.
         /// </summary>
         protected override void MenuStrategyAUPBV_OnClick(object sender, EventArgs e)
         {
@@ -270,7 +279,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Export the strategy in BBCode format - ready to post in the forum
+        ///     Export the strategy in BBCode format - ready to post in the forum
         /// </summary>
         protected override void MenuStrategyBBcode_OnClick(object sender, EventArgs e)
         {
@@ -279,7 +288,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Tools menu
+        ///     Tools menu
         /// </summary>
         protected override void MenuTools_OnClick(object sender, EventArgs e)
         {
@@ -336,7 +345,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Installs MT Expert and Library files.
+        ///     Installs MT Expert and Library files.
         /// </summary>
         private void InstallMTFiles()
         {
@@ -351,7 +360,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Manual operation execution.
+        ///     Manual operation execution.
         /// </summary>
         public override void BtnOperationClick(object sender, EventArgs e)
         {
@@ -406,7 +415,7 @@ namespace ForexStrategyBuilder
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
                         int response = bridge.OrderSend(symbol, type, lots, price, slippage, stopLossPips,
-                                                         OperationTakeProfit, parameters);
+                                                        OperationTakeProfit, parameters);
 
                         if (response >= 0)
                         {
@@ -464,7 +473,7 @@ namespace ForexStrategyBuilder
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
                         int response = bridge.OrderSend(symbol, type, lots, price, slippage, stopLossPips,
-                                                         OperationTakeProfit, parameters);
+                                                        OperationTakeProfit, parameters);
 
                         if (response >= 0)
                         {
@@ -511,9 +520,9 @@ namespace ForexStrategyBuilder
                         AppendJournalMessage(jmsg);
                         Log(message);
 
-                        bool responseOK = bridge.OrderClose(ticket, lots, price, slippage);
+                        bool responseOk = bridge.OrderClose(ticket, lots, price, slippage);
 
-                        if (responseOK)
+                        if (responseOk)
                             Data.AddBarStats(OperationType.Close, lots, price);
                         else
                             ReportOperationError();
@@ -565,10 +574,10 @@ namespace ForexStrategyBuilder
 
                         string parameters = "TS1=" + OperationTrailingStop + ";BRE=" + OperationBreakEven;
 
-                        bool responseOK = bridge.OrderModify(ticket, price, stopLossPips, OperationTakeProfit,
-                                                              parameters);
+                        bool responseOk = bridge.OrderModify(ticket, price, stopLossPips, OperationTakeProfit,
+                                                             parameters);
 
-                        if (responseOK)
+                        if (responseOk)
                         {
                             Data.AddBarStats(OperationType.Modify, lots, price);
                             Data.WrongStopLoss = 0;
@@ -587,7 +596,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Use logical groups menu item.
+        ///     Use logical groups menu item.
         /// </summary>
         protected override void MenuUseLogicalGroups_OnClick(object sender, EventArgs e)
         {
@@ -636,7 +645,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Menu MenuOpeningLogicSlots_OnClick
+        ///     Menu MenuOpeningLogicSlots_OnClick
         /// </summary>
         protected override void MenuOpeningLogicSlots_OnClick(object sender, EventArgs e)
         {
@@ -650,7 +659,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Menu MenuClosingLogicSlots_OnClick
+        ///     Menu MenuClosingLogicSlots_OnClick
         /// </summary>
         protected override void MenuClosingLogicSlots_OnClick(object sender, EventArgs e)
         {
@@ -664,7 +673,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Reset settings
+        ///     Reset settings
         /// </summary>
         private void ResetSettings()
         {
@@ -677,7 +686,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Reset data and stats.
+        ///     Reset data and stats.
         /// </summary>
         private void ResetTrader()
         {
@@ -699,7 +708,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Starts the Calculator.
+        ///     Starts the Calculator.
         /// </summary>
         private void ShowCommandConsole()
         {
@@ -708,7 +717,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Makes new language file.
+        ///     Makes new language file.
         /// </summary>
         private void MakeNewTranslation()
         {
@@ -717,7 +726,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Edit translation.
+        ///     Edit translation.
         /// </summary>
         private void EditTranslation()
         {

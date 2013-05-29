@@ -12,6 +12,7 @@ using ForexStrategyBuilder.Indicators;
 using ForexStrategyBuilder.Indicators.Store;
 using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
+using ForexStrategyBuilder.Infrastructure.Exceptions;
 
 namespace ForexStrategyBuilder
 {
@@ -664,7 +665,26 @@ namespace ForexStrategyBuilder
             }
 
             var strategyXML = new StrategyXML();
-            Data.Strategy = strategyXML.ParseXmlStrategy(xmlDocStrategy);
+
+
+            try
+            {
+                Data.Strategy = strategyXML.ParseXmlStrategy(xmlDocStrategy);
+            }
+            catch (MissingIndicatorException exception)
+            {
+                string message = string.Format(
+                    "Cannot load \"{2}\" strategy. {1} {0} {1} Please find this indicator in Repository or in Custom Indicators forum.",
+                    exception.Message, Environment.NewLine, Path.GetFileNameWithoutExtension(filename));
+                MessageBox.Show(message, "Load strategy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message);
+                return false;
+            }
+
 
             return true;
         }
