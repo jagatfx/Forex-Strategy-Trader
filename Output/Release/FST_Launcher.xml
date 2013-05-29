@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Settings>
+  <FSTPath>.\Forex Strategy Trader.exe</FSTPath>
+  <Arguments></Arguments>
+  <BackColor>#007049</BackColor>
+  <ForeColor>#E3DEEB</ForeColor>
+  <ShutDownTime>15</ShutDownTime>
+  <PathSettings>FST_Launcher.xml</PathSettings>
+</Settings>

@@ -21,6 +21,8 @@ namespace ForexStrategyBuilder
 {
     public sealed partial class Actions : Controls
     {
+        private static int splashScreenId;
+
         /// <summary>
         ///     The default constructor
         /// </summary>
@@ -38,7 +40,7 @@ namespace ForexStrategyBuilder
             PrepareCustomIndicators();
 
             // Load a strategy
-            UpdateSplashScreeStatus("Loading strategy...");
+            UpdateStatusLabel("- loading strategy...");
             string strategyPath = Data.StrategyPath;
             if (Configs.LastStrategy != "" && (Configs.RememberLastStr || Data.ConnectionId > 0))
             {
@@ -71,7 +73,7 @@ namespace ForexStrategyBuilder
                 startingTips.Show();
             }
 
-            UpdateSplashScreeStatus("Loading user interface...");
+            UpdateStatusLabel("- loading user interface...");
         }
 
         /// <summary>
@@ -80,7 +82,7 @@ namespace ForexStrategyBuilder
         [STAThread]
         public static void Main(params string[] input)
         {
-            UpdateSplashScreeStatus("Loading...");
+            splashScreenId = WinApi.GetWindowId(null, "FST Launcher");
             Data.Start();
             Configs.LoadConfigs();
 
@@ -110,11 +112,16 @@ namespace ForexStrategyBuilder
             Application.Run(new Actions());
         }
 
+        private static void RemoveSplashScreen()
+        {
+            WinApi.CloseWindow(splashScreenId);
+        }
+
         private void PrepareCustomIndicators()
         {
             if (Configs.LoadCustomIndicators)
             {
-                UpdateSplashScreeStatus("Loading custom indicators...");
+                UpdateStatusLabel("- loading custom indicators...");
                 CustomIndicators.LoadCustomIndicators();
 
                 if (Configs.ShowCustomIndicators)
@@ -173,46 +180,11 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        ///     Removes the splash screen.
-        /// </summary>
-        private static void RemoveSplashScreen()
-        {
-            string sLockFile = GetLockFile();
-            if (!string.IsNullOrEmpty(sLockFile))
-                File.Delete(sLockFile);
-        }
-
-        /// <summary>
         ///     Updates the splash screen label.
         /// </summary>
-        private static void UpdateSplashScreeStatus(string comment)
+        private static void UpdateStatusLabel(string comment)
         {
-            try
-            {
-                string lockFile = GetLockFile();
-                if (string.IsNullOrEmpty(lockFile)) return;
-                TextWriter tw = new StreamWriter(lockFile, false);
-                tw.WriteLine(comment);
-                tw.Close();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-        }
-
-        /// <summary>
-        ///     The lockfile name will be passed automatically by Splash.exe as a
-        ///     command line argument -lockfile="c:\temp\C1679A85-A4FA-48a2-BF77-E74F73E08768.lock"
-        /// </summary>
-        /// <returns>Lock file path</returns>
-        private static string GetLockFile()
-        {
-            foreach (string arg in Environment.GetCommandLineArgs())
-                if (arg.StartsWith("-lockfile="))
-                    return arg.Replace("-lockfile=", String.Empty);
-
-            return string.Empty;
+            WinApi.SendWindowsStringMessage(splashScreenId, 0, comment);
         }
 
         /// <summary>
