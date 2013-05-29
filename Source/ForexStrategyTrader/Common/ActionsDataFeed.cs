@@ -171,7 +171,7 @@ namespace ForexStrategyBuilder
                         string market = string.Format("{0} {1}", ping.Symbol, ping.Period);
                         SetConnMarketText(market);
                         string message = market + " " + connection;
-                        var jmsg = new JournalMessage(JournalIcons.OK, DateTime.Now, message);
+                        var jmsg = new JournalMessage(JournalIcons.Ok, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
                         Log(message);
 

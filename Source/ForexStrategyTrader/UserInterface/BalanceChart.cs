@@ -1,5 +1,5 @@
 //==============================================================
-// Forex Strategy Builder
+// Forex Strategy Trader
 // Copyright © Miroslav Popov. All rights reserved.
 //==============================================================
 // THIS CODE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,

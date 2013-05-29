@@ -1,14 +1,19 @@
-﻿// Forex Strategy Trader
-// Part of Forex Strategy Trader
-// Website http://forexsb.com/
-// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
-// This code or any part of it cannot be used in other applications without a permission.
+﻿//==============================================================
+// Forex Strategy Trader
+// Copyright © Miroslav Popov. All rights reserved.
+//==============================================================
+// THIS CODE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
+// EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE.
+//==============================================================
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using ForexStrategyBuilder.Properties;
+using ForexStrategyBuilder.Utils;
 
 namespace ForexStrategyBuilder
 {
@@ -18,7 +23,7 @@ namespace ForexStrategyBuilder
         System,
         Warning,
         Error,
-        OK,
+        Ok,
         Currency,
         Blocked,
         Globe,
@@ -55,23 +60,23 @@ namespace ForexStrategyBuilder
         private const float IconWidth = 16;
         private const float MaxMessageWidth = 400;
         private const int Space = 2;
-        private Brush _brushParams;
-        private Color _colorBackroundEvenRows;
-        private Color _colorBackroundOddRows;
-        private Font _fontMessage;
-        private HScrollBar _hScrollBar;
-        private float _height;
-        private List<JournalMessage> _messages;
-        private float _requiredHeight;
-        private float _rowHeight;
-        private int _rows;
-        private float _timeWidth;
-        private VScrollBar _vScrollBar;
-        private int _visibleRows;
-        private float _width;
+        private Brush brushParams;
+        private Color colorBackroundEvenRows;
+        private Color colorBackroundOddRows;
+        private Font fontMessage;
+        private HScrollBar hScrollBar;
+        private List<JournalMessage> messages;
+        private float pnlHeight;
+        private float pnlWidth;
+        private float requiredHeight;
+        private float rowHeight;
+        private int rows;
+        private float timeWidth;
+        private VScrollBar vScrollBar;
+        private int visibleRows;
 
         /// <summary>
-        /// Default Constructor
+        ///     Default Constructor
         /// </summary>
         public Journal()
         {
@@ -80,60 +85,62 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Initialize Parameters
+        ///     Initialize Parameters
         /// </summary>
         private void InitializeParameters()
         {
-            _messages = new List<JournalMessage>();
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.Opaque,
+                     true);
+
+            messages = new List<JournalMessage>();
 
             // Data row
-            _fontMessage = new Font(Font.FontFamily, 9);
-            _rowHeight = Math.Max(_fontMessage.Height + 4, 18F);
+            fontMessage = new Font(Font.FontFamily, 9);
+            rowHeight = Math.Max(fontMessage.Height + 4, 18F);
 
             Graphics g = CreateGraphics();
-            _timeWidth = g.MeasureString(DateTime.Now.ToString(Data.DF + " HH:mm:ss"), _fontMessage).Width;
+            timeWidth = g.MeasureString(DateTime.Now.ToString(Data.DF + " HH:mm:ss"), fontMessage).Width;
             g.Dispose();
 
-            _hScrollBar = new HScrollBar
-                              {
-                                  Parent = this,
-                                  Dock = DockStyle.Bottom,
-                                  Enabled = false,
-                                  Visible = false,
-                                  SmallChange = 10,
-                                  LargeChange = 30
-                              };
-            _hScrollBar.Scroll += ScrollBarScroll;
+            hScrollBar = new HScrollBar
+                {
+                    Parent = this,
+                    Dock = DockStyle.Bottom,
+                    Enabled = false,
+                    Visible = false,
+                    SmallChange = 10,
+                    LargeChange = 30
+                };
+            hScrollBar.Scroll += ScrollBarScroll;
 
-            _vScrollBar = new VScrollBar
-                              {
-                                  Parent = this,
-                                  Dock = DockStyle.Right,
-                                  TabStop = true,
-                                  Enabled = false,
-                                  Visible = false,
-                                  SmallChange = 1,
-                                  LargeChange = 3,
-                                  Maximum = 20
-                              };
-            _vScrollBar.Scroll += ScrollBarScroll;
+            vScrollBar = new VScrollBar
+                {
+                    Parent = this,
+                    Dock = DockStyle.Right,
+                    TabStop = true,
+                    Enabled = false,
+                    Visible = false,
+                    SmallChange = 1,
+                    LargeChange = 3,
+                    Maximum = 20
+                };
+            vScrollBar.Scroll += ScrollBarScroll;
         }
 
         /// <summary>
-        /// Sets the panel colors
+        ///     Sets the panel colors
         /// </summary>
         public void SetColors()
         {
-            _colorBackroundEvenRows = LayoutColors.ColorEvenRowBack;
-            _colorBackroundOddRows = LayoutColors.ColorOddRowBack;
-            _brushParams = new SolidBrush(LayoutColors.ColorControlText);
+            colorBackroundEvenRows = LayoutColors.ColorEvenRowBack;
+            colorBackroundOddRows = LayoutColors.ColorOddRowBack;
+            brushParams = new SolidBrush(LayoutColors.ColorControlText);
         }
 
         /// <summary>
-        /// Gets image for the icon type.
+        ///     Gets image for the icon type.
         /// </summary>
         /// <param name="icon"></param>
-        /// <returns></returns>
         private Image GetImage(JournalIcons icon)
         {
             Image image;
@@ -151,7 +158,7 @@ namespace ForexStrategyBuilder
                 case JournalIcons.Error:
                     image = Resources.journal_error;
                     break;
-                case JournalIcons.OK:
+                case JournalIcons.Ok:
                     image = Resources.journal_ok;
                     break;
                 case JournalIcons.Currency:
@@ -205,71 +212,75 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Update message list.
+        ///     Update message list.
         /// </summary>
         public void UpdateMessages(List<JournalMessage> newMessages)
         {
-            _messages = newMessages;
+            messages = newMessages;
 
-            _rows = _messages.Count;
-            _requiredHeight = _rows*_rowHeight;
+            rows = messages.Count;
+            requiredHeight = rows*rowHeight;
 
             CalculateScrollBarStatus();
             Invalidate();
         }
 
         /// <summary>
-        /// Clears all the messages.
+        ///     Clears all the messages.
         /// </summary>
         public void ClearMessages()
         {
-            _messages = new List<JournalMessage>();
+            messages = new List<JournalMessage>();
 
-            _rows = _messages.Count;
-            _requiredHeight = _rows*_rowHeight;
+            rows = messages.Count;
+            requiredHeight = rows*rowHeight;
 
             CalculateScrollBarStatus();
             Invalidate();
         }
 
         /// <summary>
-        /// Selects the vertical scroll bar.
+        ///     Selects the vertical scroll bar.
         /// </summary>
         public void SelectVScrollBar()
         {
-            _vScrollBar.Select();
+            vScrollBar.Select();
         }
 
         /// <summary>
-        /// On Paint
+        ///     On Paint
         /// </summary>
         protected override void OnPaint(PaintEventArgs e)
         {
-            Graphics g = e.Graphics;
-            for (int row = 0; row*_rowHeight < _height; row++)
+            var bitmap = new Bitmap(ClientSize.Width, ClientSize.Height);
+            Graphics g = Graphics.FromImage(bitmap);
+
+            for (int row = 0; row*rowHeight < pnlHeight; row++)
             {
-                float vertPos = row*_rowHeight;
+                float vertPos = row*rowHeight;
 
                 // Row background
-                var rectRow = new RectangleF(Space, vertPos, _width, _rowHeight);
+                var rectRow = new RectangleF(0, vertPos, pnlWidth, rowHeight);
                 g.FillRectangle(
                     Math.Abs(row%2f) > 0.001
-                        ? new SolidBrush(_colorBackroundEvenRows)
-                        : new SolidBrush(_colorBackroundOddRows), rectRow);
+                        ? new SolidBrush(colorBackroundEvenRows)
+                        : new SolidBrush(colorBackroundOddRows), rectRow);
 
-                if (row + _vScrollBar.Value >= _rows)
+                if (row + vScrollBar.Value >= rows)
                     continue;
 
                 var pointMessage = new PointF(IconWidth + 2*Space, vertPos);
-                int index = _rows - row - _vScrollBar.Value - 1;
-                g.DrawImage(GetImage(_messages[index].Icon), Space, vertPos, IconWidth, IconHeight);
-                string text = _messages[index].Time.ToString(Data.DF + " HH:mm:ss") + "   " + _messages[index].Message;
-                g.DrawString(text, _fontMessage, _brushParams, pointMessage);
+                int index = rows - row - vScrollBar.Value - 1;
+                g.DrawImage(GetImage(messages[index].Icon), Space, vertPos, IconWidth, IconHeight);
+                string text = messages[index].Time.ToString(Data.DF + " HH:mm:ss") + "   " + messages[index].Message;
+                g.DrawString(text, fontMessage, brushParams, pointMessage);
             }
+
+            DIBSection.DrawOnPaint(e.Graphics, bitmap, Width, Height);
         }
 
         /// <summary>
-        /// On Resize
+        ///     On Resize
         /// </summary>
         protected override void OnResize(EventArgs eventargs)
         {
@@ -280,15 +291,15 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Scroll Bars status
+        ///     Scroll Bars status
         /// </summary>
         private void CalculateScrollBarStatus()
         {
-            _width = ClientSize.Width;
-            _height = ClientSize.Height;
+            pnlWidth = ClientSize.Width;
+            pnlHeight = ClientSize.Height;
 
-            bool mustHorisontal = _width < IconWidth + _timeWidth + MaxMessageWidth + 2*Space;
-            bool mustVertical = _height < _requiredHeight;
+            bool mustHorisontal = pnlWidth < IconWidth + timeWidth + MaxMessageWidth + 2*Space;
+            bool mustVertical = pnlHeight < requiredHeight;
             bool isHorisontal;
             bool isVertical;
 
@@ -300,14 +311,14 @@ namespace ForexStrategyBuilder
             else if (mustHorisontal)
             {
                 isHorisontal = true;
-                _height = ClientSize.Height - _hScrollBar.Height;
-                isVertical = _height < _requiredHeight;
+                pnlHeight = ClientSize.Height - hScrollBar.Height;
+                isVertical = pnlHeight < requiredHeight;
             }
             else if (mustVertical)
             {
                 isVertical = true;
-                _width = ClientSize.Width - _vScrollBar.Width - 2*Space;
-                isHorisontal = _width < IconWidth + _timeWidth + MaxMessageWidth + 2*Space;
+                pnlWidth = ClientSize.Width - vScrollBar.Width - 2*Space;
+                isHorisontal = pnlWidth < IconWidth + timeWidth + MaxMessageWidth + 2*Space;
             }
             else
             {
@@ -316,31 +327,31 @@ namespace ForexStrategyBuilder
             }
 
             if (isHorisontal)
-                _height = ClientSize.Height - _hScrollBar.Height;
+                pnlHeight = ClientSize.Height - hScrollBar.Height;
 
             if (isVertical)
-                _width = ClientSize.Width - _vScrollBar.Width - 2*Space;
+                pnlWidth = ClientSize.Width - vScrollBar.Width - 2*Space;
 
-            _vScrollBar.Enabled = isVertical;
-            _vScrollBar.Visible = isVertical;
-            _hScrollBar.Enabled = isHorisontal;
-            _hScrollBar.Visible = isHorisontal;
+            vScrollBar.Enabled = isVertical;
+            vScrollBar.Visible = isVertical;
+            hScrollBar.Enabled = isHorisontal;
+            hScrollBar.Visible = isHorisontal;
 
-            _hScrollBar.Value = 0;
+            hScrollBar.Value = 0;
             if (isHorisontal)
             {
-                var poinShort = (int) (IconWidth + _timeWidth + MaxMessageWidth + 2*Space - _width);
-                _hScrollBar.Maximum = poinShort + _hScrollBar.LargeChange - Space;
+                var poinShort = (int) (IconWidth + timeWidth + MaxMessageWidth + 2*Space - pnlWidth);
+                hScrollBar.Maximum = poinShort + hScrollBar.LargeChange - Space;
             }
 
-            _visibleRows = (int) Math.Min((_height/_rowHeight), _rows);
+            visibleRows = (int) Math.Min((pnlHeight/rowHeight), rows);
 
-            _vScrollBar.Value = 0;
-            _vScrollBar.Maximum = _rows - _visibleRows + _vScrollBar.LargeChange - 1;
+            vScrollBar.Value = 0;
+            vScrollBar.Maximum = rows - visibleRows + vScrollBar.LargeChange - 1;
         }
 
         /// <summary>
-        /// ScrollBar_Scroll
+        ///     ScrollBar_Scroll
         /// </summary>
         private void ScrollBarScroll(object sender, ScrollEventArgs e)
         {
