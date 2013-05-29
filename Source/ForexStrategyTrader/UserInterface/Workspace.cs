@@ -24,8 +24,8 @@ namespace ForexStrategyBuilder
             // Graphical measures
             Graphics g = CreateGraphics();
             SizeF sizeString = g.MeasureString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890", Font);
-            Data.HorizontalDLU = (sizeString.Width/62)/4;
-            Data.VerticalDLU = sizeString.Height/8;
+            Data.HorizontalDlu = (sizeString.Width/62)/4;
+            Data.VerticalDlu = sizeString.Height/8;
             g.Dispose();
 
             TsTradeControl = new ToolStrip();

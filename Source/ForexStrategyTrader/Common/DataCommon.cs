@@ -1,8 +1,12 @@
-﻿// Data class
-// Part of Forex Strategy Trader
-// Website http://forexsb.com/
-// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
-// This code or any part of it cannot be used in other applications without a permission.
+﻿//==============================================================
+// Forex Strategy Trader
+// Copyright © Miroslav Popov. All rights reserved.
+//==============================================================
+// THIS CODE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
+// EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE.
+//==============================================================
 
 using System;
 using System.Collections.Generic;
@@ -17,29 +21,27 @@ using System.Windows.Forms;
 using ForexStrategyBuilder.Infrastructure.Enums;
 using ForexStrategyBuilder.Infrastructure.Interfaces;
 using ForexStrategyBuilder.Properties;
+using ForexStrategyBuilder.Utils;
 using MT4Bridge;
 
 namespace ForexStrategyBuilder
 {
     /// <summary>
-    ///  Base class containing the data.
+    ///     Base class containing the data.
     /// </summary>
     public static partial class Data
     {
         private static string[] asStrategyIndicators;
 
-        /// <summary>
-        /// The default constructor.
-        /// </summary>
         static Data()
         {
             IndicatorsForBacktestOnly = new[]
-                                            {
-                                                "Random Filter",
-                                                "Date Filter",
-                                                "Data Bars Filter",
-                                                "Lot Limiter"
-                                            };
+                {
+                    "Random Filter",
+                    "Date Filter",
+                    "Data Bars Filter",
+                    "Lot Limiter"
+                };
             PositionOpenTime = DateTime.MinValue;
             PositionType = -1;
             BalanceData = new BalanceChartUnit[BalanceLenght];
@@ -47,8 +49,8 @@ namespace ForexStrategyBuilder
             ExpertVersion = "unknown";
             TerminalName = "MetaTrader";
             PointChar = '.';
-            DFS = "dd.MM";
-            DF = "dd.MM.yy";
+            Dfs = "dd.MM";
+            Df = "dd.MM.yy";
             AutoUsePrvBarValue = true;
             SourceFolder = @"Indicators\";
             LibraryDir = @"Libraries\";
@@ -95,27 +97,27 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Gets the program name.
+        ///     Gets the program name.
         /// </summary>
         public static string ProgramName { get; private set; }
 
         /// <summary>
-        /// Gets the program version.
+        ///     Gets the program version.
         /// </summary>
         public static string ProgramVersion { get; private set; }
 
         /// <summary>
-        /// Gets the program Beta state.
+        ///     Gets the program Beta state.
         /// </summary>
         public static bool IsProgramBeta { get; private set; }
 
         /// <summary>
-        /// Gets the program ID
+        ///     Gets the program ID
         /// </summary>
         public static int ProgramId { get; private set; }
 
         /// <summary>
-        /// Gets the program current working directory.
+        ///     Gets the program current working directory.
         /// </summary>
         public static string ProgramDir { get; private set; }
 
@@ -125,22 +127,22 @@ namespace ForexStrategyBuilder
         public static string UserFilesDir { get; private set; }
 
         /// <summary>
-        /// Gets the path to System Dir.
+        ///     Gets the path to System Dir.
         /// </summary>
         public static string SystemDir { get; private set; }
 
         /// <summary>
-        /// Gets the path to LanguageDir Dir.
+        ///     Gets the path to LanguageDir Dir.
         /// </summary>
         public static string LanguageDir { get; private set; }
 
         /// <summary>
-        /// Gets the path to Color Scheme Dir.
+        ///     Gets the path to Color Scheme Dir.
         /// </summary>
         public static string ColorDir { get; private set; }
 
         /// <summary>
-        /// Gets the path to Default Strategy Dir.
+        ///     Gets the path to Default Strategy Dir.
         /// </summary>
         public static string DefaultStrategyDir { get; private set; }
 
@@ -150,17 +152,17 @@ namespace ForexStrategyBuilder
         public static string LibraryDir { get; private set; }
 
         /// <summary>
-        /// Gets or sets the path to dir Strategy.
+        ///     Gets or sets the path to dir Strategy.
         /// </summary>
         public static string StrategyDir { get; set; }
 
         /// <summary>
-        /// Gets or sets the strategy name with extension.
+        ///     Gets or sets the strategy name with extension.
         /// </summary>
         public static string StrategyName { get; set; }
 
         /// <summary>
-        /// Gets the current strategy full path. 
+        ///     Gets the current strategy full path.
         /// </summary>
         public static string StrategyPath
         {
@@ -171,17 +173,17 @@ namespace ForexStrategyBuilder
         public static int FirstBar { get; set; }
 
         /// <summary>
-        /// Gets or sets the custom indicators folder
+        ///     Gets or sets the custom indicators folder
         /// </summary>
         public static string SourceFolder { get; private set; }
 
         /// <summary>
-        /// Gets or sets the strategy name for Configs.LastStrategy
+        ///     Gets or sets the strategy name for Configs.LastStrategy
         /// </summary>
         public static string LoadedSavedStrategy { get; set; }
 
         /// <summary>
-        /// Gets the application's icon.
+        ///     Gets the application's icon.
         /// </summary>
         public static Icon Icon
         {
@@ -189,90 +191,89 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// The current strategy.
+        ///     The current strategy.
         /// </summary>
         public static Strategy Strategy { get; set; }
 
         /// <summary>
-        /// The current strategy undo
+        ///     The current strategy undo
         /// </summary>
         public static Stack<Strategy> StackStrategy { get; private set; }
 
         /// <summary>
-        /// Debug mode
+        ///     Debug mode
         /// </summary>
         public static bool Debug { get; set; }
 
         /// <summary>
-        /// Sets or gets value of the AutoUsePrvBarValue
+        ///     Sets or gets value of the AutoUsePrvBarValue
         /// </summary>
         public static bool AutoUsePrvBarValue { get; set; }
 
         /// <summary>
-        /// Gets the number format.
+        ///     Gets the number format.
         /// </summary>
-        public static string FF
+        public static string Ff
         {
             get { return "F" + InstrProperties.Digits.ToString(CultureInfo.InvariantCulture); }
         }
 
         /// <summary>
-        /// Gets the date format.
+        ///     Gets the date format.
         /// </summary>
-        public static string DF { get; private set; }
+        public static string Df { get; private set; }
 
         /// <summary>
-        /// Gets the short date format.
+        ///     Gets the short date format.
         /// </summary>
-        public static string DFS { get; private set; }
+        public static string Dfs { get; private set; }
 
         /// <summary>
-        /// Gets the point character
+        ///     Gets the point character
         /// </summary>
         public static char PointChar { get; private set; }
 
         /// <summary>
-        /// Relative font height
+        ///     Relative font height
         /// </summary>
-        public static float VerticalDLU { get; set; }
+        public static float VerticalDlu { get; set; }
 
         /// <summary>
-        /// Relative font width
+        ///     Relative font width
         /// </summary>
-        public static float HorizontalDLU { get; set; }
+        public static float HorizontalDlu { get; set; }
 
         /// <summary>
-        /// Gets connect sound
+        ///     Gets connect sound
         /// </summary>
         public static SoundPlayer SoundConnect { get; private set; }
 
         /// <summary>
-        /// Gets disconnect sound
+        ///     Gets disconnect sound
         /// </summary>
         public static SoundPlayer SoundDisconnect { get; private set; }
 
         /// <summary>
-        /// Gets error sound
+        ///     Gets error sound
         /// </summary>
         public static SoundPlayer SoundError { get; private set; }
 
         /// <summary>
-        /// Gets order sent sound
+        ///     Gets order sent sound
         /// </summary>
         public static SoundPlayer SoundOrderSent { get; private set; }
 
         /// <summary>
-        /// Gets position changed sound
+        ///     Gets position changed sound
         /// </summary>
         private static SoundPlayer SoundPositionChanged { get; set; }
 
         /// <summary>
-        /// Gets indicators that are for back testing only.
+        ///     Gets indicators that are for back testing only.
         /// </summary>
         public static string[] IndicatorsForBacktestOnly { get; private set; }
 
         public static IDataSet DataSet { get; set; }
-
 
         public static bool IsData { get; set; }
 
@@ -281,7 +282,7 @@ namespace ForexStrategyBuilder
             get { return DataPeriodToString(Period); }
         }
 
-        public static string PeriodMTStr
+        public static string PeriodMtStr
         {
             get { return ((PeriodType) (int) Period).ToString(); }
         }
@@ -290,32 +291,41 @@ namespace ForexStrategyBuilder
         public static bool StartAutotradeWhenConnected { get; set; }
 
         public static Logger Logger { get; private set; }
+
+        public static double VDpiScale { get; set; }
+        public static double HDpiScale { get; set; }
+
         /// <summary>
-        /// Initial settings.
+        ///     Initial settings.
         /// </summary>
         public static void Start()
         {
             // Sets the date format.
             if (DateTimeFormatInfo.CurrentInfo != null)
             {
-                DF = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
-                if (DF == "dd/MM yyyy") DF = "dd/MM/yyyy"; // Fixes the Uzbek (Latin) issue
-                DF = DF.Replace(" ", ""); // Fixes the Sloven issue
-                char[] acDS = DateTimeFormatInfo.CurrentInfo.DateSeparator.ToCharArray();
-                string[] asSS = DF.Split(acDS, 3);
-                asSS[0] = asSS[0].Substring(0, 1) + asSS[0].Substring(0, 1);
-                asSS[1] = asSS[1].Substring(0, 1) + asSS[1].Substring(0, 1);
-                asSS[2] = asSS[2].Substring(0, 1) + asSS[2].Substring(0, 1);
-                DF = asSS[0] + acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[1] +
-                             acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[2];
+                Df = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                if (Df == "dd/MM yyyy") Df = "dd/MM/yyyy"; // Fixes the Uzbek (Latin) issue
+                Df = Df.Replace(" ", ""); // Fixes the Sloven issue
+                char[] acDs = DateTimeFormatInfo.CurrentInfo.DateSeparator.ToCharArray();
+                string[] asSs = Df.Split(acDs, 3);
+                asSs[0] = asSs[0].Substring(0, 1) + asSs[0].Substring(0, 1);
+                asSs[1] = asSs[1].Substring(0, 1) + asSs[1].Substring(0, 1);
+                asSs[2] = asSs[2].Substring(0, 1) + asSs[2].Substring(0, 1);
+                Df = asSs[0] + acDs[0].ToString(CultureInfo.InvariantCulture) + asSs[1] +
+                     acDs[0].ToString(CultureInfo.InvariantCulture) + asSs[2];
 
-                if (asSS[0].ToUpper() == "YY")
-                    DFS = asSS[1] + acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[2];
-                else if (asSS[1].ToUpper() == "YY")
-                    DFS = asSS[0] + acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[2];
+                if (asSs[0].ToUpper() == "YY")
+                    Dfs = asSs[1] + acDs[0].ToString(CultureInfo.InvariantCulture) + asSs[2];
+                else if (asSs[1].ToUpper() == "YY")
+                    Dfs = asSs[0] + acDs[0].ToString(CultureInfo.InvariantCulture) + asSs[2];
                 else
-                    DFS = asSS[0] + acDS[0].ToString(CultureInfo.InvariantCulture) + asSS[1];
+                    Dfs = asSs[0] + acDs[0].ToString(CultureInfo.InvariantCulture) + asSs[1];
             }
+
+            var presentationUtils = new PresentationUtils();
+            Size dpi = presentationUtils.GetScreenDpi();
+            VDpiScale = dpi.Height/96.0;
+            HDpiScale = dpi.Width/96.0;
 
             // Point character
             CultureInfo culInf = CultureInfo.CurrentCulture;
@@ -355,7 +365,7 @@ namespace ForexStrategyBuilder
         // The names of the strategy indicators
 
         /// <summary>
-        /// Sets the indicator names
+        ///     Sets the indicator names
         /// </summary>
         public static void SetStrategyIndicators()
         {
@@ -365,7 +375,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// It tells if the strategy description is relevant.
+        ///     It tells if the strategy description is relevant.
         /// </summary>
         public static bool IsStrDescriptionRelevant()
         {
@@ -382,7 +392,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the time when trading starts.
+        ///     Sets the time when trading starts.
         /// </summary>
         public static void SetStartTradingTime()
         {
@@ -393,7 +403,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the total trading time stats.
+        ///     Sets the total trading time stats.
         /// </summary>
         public static void SetStopTradingTime()
         {
@@ -407,7 +417,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Collects usage statistics and sends them if it's allowed.
+        ///     Collects usage statistics and sends them if it's allowed.
         /// </summary>
         public static void SendStats()
         {
@@ -448,7 +458,7 @@ namespace ForexStrategyBuilder
 
 
         /// <summary>
-        /// Converts a data period from DataPeriods type to string.
+        ///     Converts a data period from DataPeriods type to string.
         /// </summary>
         public static string DataPeriodToString(DataPeriod dataPeriod)
         {
@@ -476,7 +486,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Color change
+        ///     Color change
         /// </summary>
         /// <param name="colorBase">The base color</param>
         /// <param name="iDepth">Color change</param>
@@ -494,7 +504,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Paints a rectangle with gradient.
+        ///     Paints a rectangle with gradient.
         /// </summary>
         public static void GradientPaint(Graphics g, RectangleF rect, Color color, int depth)
         {

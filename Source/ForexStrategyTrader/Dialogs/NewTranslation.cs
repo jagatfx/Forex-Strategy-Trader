@@ -113,10 +113,10 @@ namespace ForexStrategyBuilder
         {
             base.OnResize(e);
 
-            var buttonHeight = (int)(Data.VerticalDLU * 15.5);
-            var buttonWidth = (int)(Data.HorizontalDLU * 60);
-            var btnVertSpace = (int)(Data.VerticalDLU * 5.5);
-            var btnHrzSpace = (int)(Data.HorizontalDLU * 3);
+            var buttonHeight = (int)(Data.VerticalDlu * 15.5);
+            var buttonWidth = (int)(Data.HorizontalDlu * 60);
+            var btnVertSpace = (int)(Data.VerticalDlu * 5.5);
+            var btnHrzSpace = (int)(Data.HorizontalDlu * 3);
             int border = btnHrzSpace;
             const int width = 195; // Right side controls
 

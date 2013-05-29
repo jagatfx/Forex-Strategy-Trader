@@ -12,7 +12,7 @@ using ForexStrategyBuilder.UserInterface;
 namespace ForexStrategyBuilder
 {
     /// <summary>
-    /// Class Controls : Menu_and_StatusBar
+    ///     Class Controls : Menu_and_StatusBar
     /// </summary>
     public partial class Controls
     {
@@ -30,7 +30,7 @@ namespace ForexStrategyBuilder
         private TextBox TbxDataInfo { get; set; }
 
         /// <summary>
-        /// Sets the controls in tabPageStatus
+        ///     Sets the controls in tabPageStatus
         /// </summary>
         private void InitializePageStatus()
         {
@@ -42,41 +42,41 @@ namespace ForexStrategyBuilder
 
             // Panel Warning
             PnlWarning = new FancyPanel
-                             {
-                                 Height = 0,
-                                 Enabled = false,
-                                 Visible = false
-                             };
+                {
+                    Height = 0,
+                    Enabled = false,
+                    Visible = false
+                };
 
             // Panel Connection
             PnlConnection = new FancyPanel(Language.T("Connection Status")) {Parent = TabPageStatus};
 
             // lblConnection
             LblConnection = new Label
-                                {
-                                    Name = "lblConnection",
-                                    Parent = PnlConnection,
-                                    Text = Language.T("Not Connected. You have to connect to a MetaTrader terminal."),
-                                    TextAlign = ContentAlignment.MiddleLeft
-                                };
+                {
+                    Name = "lblConnection",
+                    Parent = PnlConnection,
+                    Text = Language.T("Not Connected. You have to connect to a MetaTrader terminal."),
+                    TextAlign = ContentAlignment.MiddleLeft
+                };
 
             // Panel Data Info
             PnlDataInfoBase = new FancyPanel(Language.T("Data Info")) {Parent = TabPageStatus};
             PnlDataInfoBase.Padding = new Padding(2, (int) PnlDataInfoBase.CaptionHeight, 2, 2);
 
             TbxDataInfo = new TextBox
-                              {
-                                  Parent = PnlDataInfoBase,
-                                  BorderStyle = BorderStyle.None,
-                                  Dock = DockStyle.Fill,
-                                  TabStop = false,
-                                  Multiline = true,
-                                  AcceptsReturn = true,
-                                  AcceptsTab = true,
-                                  WordWrap = false,
-                                  ScrollBars = ScrollBars.Vertical,
-                                  Font = new Font("Courier New", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((204)))
-                              };
+                {
+                    Parent = PnlDataInfoBase,
+                    BorderStyle = BorderStyle.None,
+                    Dock = DockStyle.Fill,
+                    TabStop = false,
+                    Multiline = true,
+                    AcceptsReturn = true,
+                    AcceptsTab = true,
+                    WordWrap = false,
+                    ScrollBars = ScrollBars.Vertical,
+                    Font = new Font("Courier New", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((204)))
+                };
 
             PnlDataInfoButtons = new Panel {Parent = PnlDataInfoBase, Dock = DockStyle.Top};
             PnlDataInfoButtons.Paint += PnlDataInfoButtons_Paint;
@@ -155,7 +155,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets controls size and position after resizing.
+        ///     Sets controls size and position after resizing.
         /// </summary>
         private void TabPageStatusResize(object sender, EventArgs e)
         {
@@ -169,7 +169,9 @@ namespace ForexStrategyBuilder
             PnlWarning.Location = new Point(0, 0);
             int pnlWarningBottom = PnlWarning.Enabled ? PnlWarning.Bottom + Space : 0;
 
-            PnlMarketInfo.Size = new Size(220, 150);
+            var miWidth = (int) (220*Data.HDpiScale);
+            var miHeight = (int) (150*Data.VDpiScale);
+            PnlMarketInfo.Size = new Size(miWidth, miHeight);
             PnlMarketInfo.Location = new Point(width - PnlMarketInfo.Width, pnlWarningBottom);
 
             PnlConnection.Size = new Size(PnlMarketInfo.Left - Space, 110);
@@ -202,7 +204,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// sets colors of controls in Status page.
+        ///     sets colors of controls in Status page.
         /// </summary>
         private void SetStatusColors()
         {
@@ -234,7 +236,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the lblConnection.Text
+        ///     Sets the lblConnection.Text
         /// </summary>
         protected void SetLblConnectionText(string text)
         {
@@ -249,7 +251,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the tbxBarData.Text
+        ///     Sets the tbxBarData.Text
         /// </summary>
         protected void SetBarDataText(string text)
         {
@@ -264,7 +266,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the tbxBarData.Text
+        ///     Sets the tbxBarData.Text
         /// </summary>
         protected void UpdateStatusPageMarketInfo(string[] values)
         {
@@ -277,15 +279,15 @@ namespace ForexStrategyBuilder
             {
                 string caption = Language.T("Market Information");
                 var parameters = new[]
-                                     {
-                                         Language.T("Symbol"),
-                                         Language.T("Period"),
-                                         Language.T("Lot size"),
-                                         Language.T("Point"),
-                                         Language.T("Spread"),
-                                         Language.T("Swap long"),
-                                         Language.T("Swap short")
-                                     };
+                    {
+                        Language.T("Symbol"),
+                        Language.T("Period"),
+                        Language.T("Lot size"),
+                        Language.T("Point"),
+                        Language.T("Spread"),
+                        Language.T("Swap long"),
+                        Language.T("Swap short")
+                    };
                 PnlMarketInfo.Update(parameters, values, caption);
             }
         }

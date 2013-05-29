@@ -746,7 +746,7 @@ namespace ForexStrategyBuilder
                  label += deltaGrid)
             {
                 var labelY = (int) (yBottom - (label - minPrice)*yScale);
-                g.DrawString(label.ToString(Data.FF), font, brushFore, xRight, labelY - Font.Height/2 - 1);
+                g.DrawString(label.ToString(Data.Ff), font, brushFore, xRight, labelY - Font.Height/2 - 1);
                 if (isGridShown || Math.Abs(label - minPrice) < 0.00001)
                     g.DrawLine(penGrid, spcLeft, labelY, xRight, labelY);
                 else
@@ -759,7 +759,7 @@ namespace ForexStrategyBuilder
                 int xVertLine = (vertLineBar - firstBar)*barPixels + spcLeft + barPixels/2 - 1;
                 if (isGridShown)
                     g.DrawLine(penGrid, xVertLine, yTop, xVertLine, yBottom + 2);
-                string date = String.Format("{0} {1}", chartData.Time[vertLineBar].ToString(Data.DFS),
+                string date = String.Format("{0} {1}", chartData.Time[vertLineBar].ToString(Data.Dfs),
                                             chartData.Time[vertLineBar].ToString("HH:mm"));
                 g.DrawString(date, font, brushFore, xVertLine - szDate.Width/2, yBottomText);
             }
@@ -1206,7 +1206,7 @@ namespace ForexStrategyBuilder
             // Bid price label.
             var yBid = (int) (yBottom - (chartData.Bid - minPrice)*yScale);
             var pBid = new Point(xRight, yBid - szPrice.Height/2);
-            string sBid = (chartData.Bid.ToString(Data.FF));
+            string sBid = (chartData.Bid.ToString(Data.Ff));
             int xBidRight = xRight + szPrice.Width + 1;
             var apBid = new[]
                 {
@@ -1223,7 +1223,7 @@ namespace ForexStrategyBuilder
             {
                 var yPos = (int) (yBottom - (chartData.PositionOpenPrice - minPrice)*yScale);
                 var pPos = new Point(xRight, yPos - szPrice.Height/2);
-                string sPos = (chartData.PositionOpenPrice.ToString(Data.FF));
+                string sPos = (chartData.PositionOpenPrice.ToString(Data.Ff));
                 var brushText = new SolidBrush(LayoutColors.ColorChartBack);
 
                 if (chartData.PositionOpenPrice > minPrice && chartData.PositionOpenPrice < maxPrice)
@@ -1274,7 +1274,7 @@ namespace ForexStrategyBuilder
                     {
                         var yClose = (int) (yBottom - (dClosePrice - minPrice)*yScale);
                         var pClose = new Point(xRight, yClose - szPrice.Height/2);
-                        string sClose = (dClosePrice.ToString(Data.FF) + " X");
+                        string sClose = (dClosePrice.ToString(Data.Ff) + " X");
                         var apClose = new[]
                             {
                                 new PointF(xRight - 6, yClose),
@@ -1294,7 +1294,7 @@ namespace ForexStrategyBuilder
                     {
                         var yLimit = (int) (yBottom - (chartData.PositionTakeProfit - minPrice)*yScale);
                         var pLimit = new Point(xRight, yLimit - szPrice.Height/2);
-                        string sLimit = (chartData.PositionTakeProfit.ToString(Data.FF) + " TP");
+                        string sLimit = (chartData.PositionTakeProfit.ToString(Data.Ff) + " TP");
                         var apLimit = new[]
                             {
                                 new PointF(xRight - 6, yLimit),
@@ -1315,7 +1315,7 @@ namespace ForexStrategyBuilder
                     {
                         var yStop = (int) (yBottom - (chartData.PositionStopLoss - minPrice)*yScale);
                         var pStop = new Point(xRight, yStop - szPrice.Height/2);
-                        string sStop = (chartData.PositionStopLoss.ToString(Data.FF) + " SL");
+                        string sStop = (chartData.PositionStopLoss.ToString(Data.Ff) + " SL");
                         var apStop = new[]
                             {
                                 new PointF(xRight - 6, yStop),
@@ -1366,7 +1366,7 @@ namespace ForexStrategyBuilder
                 {
                     g.FillRectangle(brushLabelBkgrd, rec);
                     g.DrawRectangle(penCross, rec);
-                    string sDate = chartData.Time[bar].ToString(Data.DF) + " " + chartData.Time[bar].ToString("HH:mm");
+                    string sDate = chartData.Time[bar].ToString(Data.Df) + " " + chartData.Time[bar].ToString("HH:mm");
                     g.DrawString(sDate, font, brushLabelFore, point);
                 }
 
@@ -1381,7 +1381,7 @@ namespace ForexStrategyBuilder
                     // Price Window
                     g.FillRectangle(brushLabelBkgrd, rec);
                     g.DrawRectangle(penCross, rec);
-                    string sPrice = ((yBottom - mouseY)/yScale + minPrice).ToString(Data.FF);
+                    string sPrice = ((yBottom - mouseY)/yScale + minPrice).ToString(Data.Ff);
                     g.DrawString(sPrice, font, brushLabelFore, point);
                 }
             }
@@ -1941,7 +1941,7 @@ namespace ForexStrategyBuilder
 
             int row = 0;
             asInfoValue = new String[200];
-            asInfoValue[row++] = chartData.Time[bar].ToString(Data.DF);
+            asInfoValue[row++] = chartData.Time[bar].ToString(Data.Df);
             asInfoValue[row++] = chartData.Time[bar].ToString("HH:mm");
             if (isDebug)
             {
@@ -1952,10 +1952,10 @@ namespace ForexStrategyBuilder
             }
             else
             {
-                asInfoValue[row++] = chartData.Open[bar].ToString(Data.FF);
-                asInfoValue[row++] = chartData.High[bar].ToString(Data.FF);
-                asInfoValue[row++] = chartData.Low[bar].ToString(Data.FF);
-                asInfoValue[row++] = chartData.Close[bar].ToString(Data.FF);
+                asInfoValue[row++] = chartData.Open[bar].ToString(Data.Ff);
+                asInfoValue[row++] = chartData.High[bar].ToString(Data.Ff);
+                asInfoValue[row++] = chartData.Low[bar].ToString(Data.Ff);
+                asInfoValue[row++] = chartData.Close[bar].ToString(Data.Ff);
             }
             asInfoValue[row++] = chartData.Volume[bar].ToString(CultureInfo.InvariantCulture);
 
@@ -1966,7 +1966,7 @@ namespace ForexStrategyBuilder
                 asInfoValue[row++] = Language.T(chartData.BarStatistics[baropen].PositionDir.ToString());
                 asInfoValue[row++] =
                     chartData.BarStatistics[baropen].PositionLots.ToString(CultureInfo.InvariantCulture);
-                asInfoValue[row++] = chartData.BarStatistics[baropen].PositionPrice.ToString(Data.FF);
+                asInfoValue[row++] = chartData.BarStatistics[baropen].PositionPrice.ToString(Data.Ff);
             }
             else
             {

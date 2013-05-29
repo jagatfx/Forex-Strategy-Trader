@@ -194,8 +194,8 @@ namespace ForexStrategyBuilder
                     bool isNewPrice = Math.Abs(Data.Bid - ping.Bid) > Data.InstrProperties.Point/2;
                     DateTime dtPingServerTime = tickServerTime.Add(DateTime.Now - tickLocalTime);
 
-                    string sBid = ping.Bid.ToString(Data.FF);
-                    string sAsk = ping.Ask.ToString(Data.FF);
+                    string sBid = ping.Bid.ToString(Data.Ff);
+                    string sAsk = ping.Ask.ToString(Data.Ff);
                     SetLblBidAskText(sBid + " / " + sAsk);
 
                     Data.Bid = ping.Bid;
@@ -314,8 +314,8 @@ namespace ForexStrategyBuilder
                 const bool updateData = true;
                 SetDataAndCalculate(tea.Symbol, tea.Period, tea.Time, bNewPrice, updateData);
 
-                string bidText = tea.Bid.ToString(Data.FF);
-                string askText = tea.Ask.ToString(Data.FF);
+                string bidText = tea.Bid.ToString(Data.Ff);
+                string askText = tea.Ask.ToString(Data.Ff);
                 SetLblBidAskText(bidText + " / " + askText);
 
                 // Tick data label
@@ -658,7 +658,7 @@ namespace ForexStrategyBuilder
                                 text = Language.T("A new tick arrived after a Bar Close event!");
                             }
                             var jmsgsys = new JournalMessage(icon, DateTime.Now,
-                                                             symbol + " " + Data.PeriodMTStr + " " +
+                                                             symbol + " " + Data.PeriodMtStr + " " +
                                                              time.ToString("HH:mm:ss") + " " + text);
                             AppendJournalMessage(jmsgsys);
                             Log(jmsgsys.Message);
@@ -669,7 +669,7 @@ namespace ForexStrategyBuilder
                             if (JournalShowSystemMessages)
                             {
                                 var jmsgsys = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                                                                 symbol + " " + Data.PeriodMTStr + " " +
+                                                                 symbol + " " + Data.PeriodMtStr + " " +
                                                                  time.ToString("HH:mm:ss") + " A Bar Changed event!");
                                 AppendJournalMessage(jmsgsys);
                                 Log(jmsgsys.Message);
@@ -683,7 +683,7 @@ namespace ForexStrategyBuilder
                             if (JournalShowSystemMessages)
                             {
                                 var jmsgsys = new JournalMessage(JournalIcons.Warning, DateTime.Now,
-                                                                 symbol + " " + Data.PeriodMTStr + " " +
+                                                                 symbol + " " + Data.PeriodMtStr + " " +
                                                                  time.ToString("HH:mm:ss") +
                                                                  " A secondary Bar Close event!");
                                 AppendJournalMessage(jmsgsys);
@@ -809,8 +809,8 @@ namespace ForexStrategyBuilder
             {
                 // Expert was not sure which one was activated, so reported both.
                 Data.AddBarStats(OperationType.Close, Data.Closed_SL_TP_Lots, Data.ActivatedStopLoss);
-                string message = Data.Symbol + " " + Data.PeriodMTStr + " " +
-                                 Language.T("Position closed at") + " " + Data.ActivatedStopLoss.ToString(Data.FF) +
+                string message = Data.Symbol + " " + Data.PeriodMtStr + " " +
+                                 Language.T("Position closed at") + " " + Data.ActivatedStopLoss.ToString(Data.Ff) +
                                  ", " +
                                  Language.T("Closed Lots") + " " + Data.Closed_SL_TP_Lots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
@@ -822,8 +822,8 @@ namespace ForexStrategyBuilder
             {
                 // Activated Stop Loss
                 Data.AddBarStats(OperationType.Close, Data.Closed_SL_TP_Lots, Data.ActivatedStopLoss);
-                string message = Data.Symbol + " " + Data.PeriodMTStr + " " +
-                                 Language.T("Activated Stop Loss at") + " " + Data.ActivatedStopLoss.ToString(Data.FF) +
+                string message = Data.Symbol + " " + Data.PeriodMtStr + " " +
+                                 Language.T("Activated Stop Loss at") + " " + Data.ActivatedStopLoss.ToString(Data.Ff) +
                                  ", " +
                                  Language.T("Closed Lots") + " " + Data.Closed_SL_TP_Lots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
@@ -835,9 +835,9 @@ namespace ForexStrategyBuilder
             {
                 // Activated Take Profit
                 Data.AddBarStats(OperationType.Close, Data.Closed_SL_TP_Lots, Data.ActivatedTakeProfit);
-                string message = Data.Symbol + " " + Data.PeriodMTStr + " " +
+                string message = Data.Symbol + " " + Data.PeriodMtStr + " " +
                                  Language.T("Activated Take Profit at") + " " +
-                                 Data.ActivatedTakeProfit.ToString(Data.FF) + ", " +
+                                 Data.ActivatedTakeProfit.ToString(Data.Ff) + ", " +
                                  Language.T("Closed Lots") + " " + Data.Closed_SL_TP_Lots.ToString("F2");
                 var msg = new JournalMessage(JournalIcons.Information, DateTime.Now, message);
                 AppendJournalMessage(msg);
@@ -917,7 +917,7 @@ namespace ForexStrategyBuilder
             InitTrade();
 
             Data.SetStartTradingTime();
-            string message = Data.Symbol + " " + Data.PeriodMTStr + " " + Language.T("Automatic trade started.");
+            string message = Data.Symbol + " " + Data.PeriodMtStr + " " + Language.T("Automatic trade started.");
             var msg = new JournalMessage(JournalIcons.StartTrading, DateTime.Now, message);
             AppendJournalMessage(msg);
             Log(message);
@@ -944,7 +944,7 @@ namespace ForexStrategyBuilder
 
             Data.SetStopTradingTime();
 
-            string message = Data.Symbol + " " + Data.PeriodMTStr + " " + Language.T("Automatic trade stopped.");
+            string message = Data.Symbol + " " + Data.PeriodMtStr + " " + Language.T("Automatic trade stopped.");
             var msg = new JournalMessage(JournalIcons.StopTrading, DateTime.Now, message);
             AppendJournalMessage(msg);
             Log(message);
@@ -979,7 +979,7 @@ namespace ForexStrategyBuilder
                 return;
             }
 
-            string format = Data.FF;
+            string format = Data.Ff;
             string text = Language.T("Square");
             var icon = JournalIcons.PosSquare;
             Image img = Resources.pos_square;
@@ -1002,7 +1002,7 @@ namespace ForexStrategyBuilder
 
             if (showInJournal)
             {
-                string message = string.Format(Data.Symbol + " " + Data.PeriodMTStr + " " + text);
+                string message = string.Format(Data.Symbol + " " + Data.PeriodMtStr + " " + text);
                 var jmsg = new JournalMessage(icon, DateTime.Now, message);
                 AppendJournalMessage(jmsg);
                 Log(message);
@@ -1015,7 +1015,7 @@ namespace ForexStrategyBuilder
         private void SetTradeStrip()
         {
             string connectText = Data.IsConnected
-                                     ? Language.T("Connected to") + " " + Data.Symbol + " " + Data.PeriodMTStr
+                                     ? Language.T("Connected to") + " " + Data.Symbol + " " + Data.PeriodMtStr
                                      : Language.T("Not Connected");
 
             SetTradeStripThreadSafely(connectText, Data.IsConnected, isTrading);
@@ -1345,7 +1345,7 @@ namespace ForexStrategyBuilder
             var sb = new StringBuilder(Data.Bars + 2);
 
             sb.AppendLine("                  " +
-                          Data.Symbol + " " + Data.PeriodMTStr + " " +
+                          Data.Symbol + " " + Data.PeriodMtStr + " " +
                           Data.Time[Data.Bars - 1].ToString(CultureInfo.InvariantCulture));
             sb.AppendLine(string.Format("  {0,-5} {1,-16} {2,-8} {3,-8} {4,-8} {5,-8} {6}",
                                         "No", "Bar open time", "Open", "High", "Low", "Close", "Volume"));
@@ -1353,7 +1353,7 @@ namespace ForexStrategyBuilder
             for (int i = 0; i < Data.Bars; i++)
             {
                 sb.AppendLine(string.Format("  {0,-5} {1,-16} {2,-8} {3,-8} {4,-8} {5,-8} {6}",
-                                            i + 1, Data.Time[i].ToString(Data.DF) + " " + Data.Time[i].ToString("HH:mm"),
+                                            i + 1, Data.Time[i].ToString(Data.Df) + " " + Data.Time[i].ToString("HH:mm"),
                                             Data.Open[i], Data.High[i], Data.Low[i], Data.Close[i], Data.Volume[i]));
             }
 

@@ -188,6 +188,7 @@
     <Compile Include="Indicators\Store\WilliamsPercentRange.cs" />
     <Compile Include="Infrastructure\Entities\DataSet.cs" />
     <Compile Include="Infrastructure\Enums\DataPeriod.cs" />
+    <Compile Include="Infrastructure\Enums\DeviceCap.cs" />
     <Compile Include="Infrastructure\Exceptions\MissingIndicatorException.cs" />
     <Compile Include="Infrastructure\Interfaces\IDataSet.cs" />
     <Compile Include="Infrastructure\Interfaces\IIndicator.cs" />
@@ -340,6 +341,7 @@
     </Compile>
     <Compile Include="Tools\Utils.cs" />
     <Compile Include="Utils\DIBSection.cs" />
+    <Compile Include="Utils\PresentationUtils.cs" />
     <Compile Include="Utils\SerializableDictionary.cs" />
   </ItemGroup>
   <ItemGroup>

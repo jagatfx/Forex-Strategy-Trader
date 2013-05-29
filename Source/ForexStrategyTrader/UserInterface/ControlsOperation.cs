@@ -11,9 +11,6 @@ using ForexStrategyBuilder.Properties;
 
 namespace ForexStrategyBuilder
 {
-    /// <summary>
-    /// Class Controls : Menu_and_StatusBar
-    /// </summary>
     public partial class Controls
     {
         private Button BtnBuy { get; set; }
@@ -28,42 +25,42 @@ namespace ForexStrategyBuilder
         private Label LblSymbol { get; set; }
         private Label LblTakeProfit { get; set; }
         private Label LblTrailingStop { get; set; }
-        private NumericUpDown NUDBreakEven { get; set; }
-        private NumericUpDown NUDLots { get; set; }
-        private NumericUpDown NUDStopLoss { get; set; }
-        private NumericUpDown NUDTakeProfit { get; set; }
-        private NumericUpDown NUDTrailingStop { get; set; }
+        private NumericUpDown NudBreakEven { get; set; }
+        private NumericUpDown NudLots { get; set; }
+        private NumericUpDown NudStopLoss { get; set; }
+        private NumericUpDown NudTakeProfit { get; set; }
+        private NumericUpDown NudTrailingStop { get; set; }
         private Panel PnlHolder { get; set; }
         private FancyPanel PnlManualTrade { get; set; }
         private TickChart TickChart { get; set; }
 
         protected double OperationLots
         {
-            get { return (double) NUDLots.Value; }
+            get { return (double) NudLots.Value; }
         }
 
         protected int OperationStopLoss
         {
-            get { return (int) NUDStopLoss.Value; }
+            get { return (int) NudStopLoss.Value; }
         }
 
         protected int OperationTakeProfit
         {
-            get { return (int) NUDTakeProfit.Value; }
+            get { return (int) NudTakeProfit.Value; }
         }
 
         protected int OperationBreakEven
         {
-            get { return (int) NUDBreakEven.Value; }
+            get { return (int) NudBreakEven.Value; }
         }
 
         protected int OperationTrailingStop
         {
-            get { return (int) NUDTrailingStop.Value; }
+            get { return (int) NudTrailingStop.Value; }
         }
 
         /// <summary>
-        /// Initializes Operation tab page.
+        ///     Initializes Operation tab page.
         /// </summary>
         private void InitializePageOperation()
         {
@@ -73,251 +70,262 @@ namespace ForexStrategyBuilder
             TabPageOperation.BackColor = LayoutColors.ColorFormBack;
 
             PnlManualTrade = new FancyPanel(Language.T("Manual Operation Execution"))
-                                 {Parent = TabPageOperation, Dock = DockStyle.Fill};
+                {Parent = TabPageOperation, Dock = DockStyle.Fill};
             PnlManualTrade.Resize += PnlManualTradeResize;
 
-            PnlHolder = new Panel {Parent = PnlManualTrade, BackColor = Color.Transparent, Size = new Size(750, 350)};
-
-            LblBidAsk = new Label
-                            {
-                                Parent = PnlHolder,
-                                Text = "Bid / Ask",
-                                BackColor = Color.Transparent,
-                                ForeColor = LayoutColors.ColorControlText,
-                                Font = new Font(Font.FontFamily, 18, FontStyle.Bold),
-                                Width = 295,
-                                TextAlign = ContentAlignment.MiddleCenter,
-                                Location = new Point(190, 35)
-                            };
+            PnlHolder = new Panel { Parent = PnlManualTrade, BackColor = Color.Transparent, Size = new Size((int)(750 * Data.HDpiScale), 350) };
 
             LblSymbol = new Label
-                            {
-                                Parent = PnlHolder,
-                                Text = "Symbol",
-                                BackColor = Color.Transparent,
-                                ForeColor = LayoutColors.ColorControlText,
-                                Font = new Font(Font.FontFamily, 18, FontStyle.Bold)
-                            };
+                {
+                    Parent = PnlHolder,
+                    Text = "Symbol",
+                    BackColor = Color.Transparent,
+                    ForeColor = LayoutColors.ColorControlText,
+                    Font = new Font(Font.FontFamily, 18, FontStyle.Bold)
+                };
             LblSymbol.Height = LblSymbol.Font.Height;
-            LblSymbol.Width = 180;
+            LblSymbol.Width = (int) (180*Data.HDpiScale);
             LblSymbol.TextAlign = ContentAlignment.MiddleRight;
             LblSymbol.Location = new Point(5, 35);
 
+            LblBidAsk = new Label
+                {
+                    Parent = PnlHolder,
+                    Text = "Bid / Ask",
+                    BackColor = Color.Transparent,
+                    ForeColor = LayoutColors.ColorControlText,
+                    Font = new Font(Font.FontFamily, 18, FontStyle.Bold),
+                    Width = 295,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    Location = new Point(LblSymbol.Right + Space, 35)
+                };
+            LblBidAsk.Height = LblBidAsk.Font.Height;
+
             LblLots = new Label
-                          {
-                              Parent = PnlHolder,
-                              Text = Language.T("Lots"),
-                              Font = new Font(Font.FontFamily, 11),
-                              BackColor = Color.Transparent,
-                              ForeColor = LayoutColors.ColorControlText,
-                              Width = 90
-                          };
+                {
+                    Parent = PnlHolder,
+                    Text = Language.T("Lots"),
+                    Font = new Font(Font.FontFamily, 11),
+                    BackColor = Color.Transparent,
+                    ForeColor = LayoutColors.ColorControlText,
+                    Width = (int) (90*Data.HDpiScale)
+                };
             LblLots.Height = LblLots.Font.Height;
             LblLots.TextAlign = ContentAlignment.MiddleRight;
             LblLots.Location = new Point(5, 81);
-
+            var lblWidth = (int) (100*Data.HDpiScale);
             LblStopLoss = new Label
-                              {
-                                  Parent = PnlHolder,
-                                  Text = Language.T("Stop Loss"),
-                                  Font = new Font(Font.FontFamily, 11),
-                                  BackColor = Color.Transparent,
-                                  ForeColor = LayoutColors.ColorControlText,
-                                  Location = new Point(5, 121),
-                                  Width = 90,
-                                  TextAlign = ContentAlignment.MiddleRight
-                              };
+                {
+                    Parent = PnlHolder,
+                    Text = Language.T("Stop Loss"),
+                    Font = new Font(Font.FontFamily, 11),
+                    BackColor = Color.Transparent,
+                    ForeColor = LayoutColors.ColorControlText,
+                    Location = new Point(5, 121),
+                    Width = lblWidth,
+                    TextAlign = ContentAlignment.MiddleRight
+                };
 
             LblTakeProfit = new Label
-                                {
-                                    Parent = PnlHolder,
-                                    Font = new Font(Font.FontFamily, 11),
-                                    Text = Language.T("Take Profit"),
-                                    BackColor = Color.Transparent,
-                                    ForeColor = LayoutColors.ColorControlText,
-                                    Location = new Point(5, 151),
-                                    Width = 90,
-                                    TextAlign = ContentAlignment.MiddleRight
-                                };
+                {
+                    Parent = PnlHolder,
+                    Font = new Font(Font.FontFamily, 11),
+                    Text = Language.T("Take Profit"),
+                    BackColor = Color.Transparent,
+                    ForeColor = LayoutColors.ColorControlText,
+                    Location = new Point(5, 151),
+                    Width = lblWidth,
+                    TextAlign = ContentAlignment.MiddleRight
+                };
 
             LblBreakEven = new Label
-                               {
-                                   Parent = PnlHolder,
-                                   Font = new Font(Font.FontFamily, 11),
-                                   Text = Language.T("Break Even"),
-                                   BackColor = Color.Transparent,
-                                   ForeColor = LayoutColors.ColorControlText,
-                                   Location = new Point(5, 191),
-                                   Width = 90,
-                                   TextAlign = ContentAlignment.MiddleRight
-                               };
+                {
+                    Parent = PnlHolder,
+                    Font = new Font(Font.FontFamily, 11),
+                    Text = Language.T("Break Even"),
+                    BackColor = Color.Transparent,
+                    ForeColor = LayoutColors.ColorControlText,
+                    Location = new Point(5, 191),
+                    Width = lblWidth,
+                    TextAlign = ContentAlignment.MiddleRight
+                };
 
             LblTrailingStop = new Label
-                                  {
-                                      Parent = PnlHolder,
-                                      Font = new Font(Font.FontFamily, 11),
-                                      Text = Language.T("Trailing Stop"),
-                                      BackColor = Color.Transparent,
-                                      ForeColor = LayoutColors.ColorControlText,
-                                      Location = new Point(5, 221),
-                                      Width = 90,
-                                      TextAlign = ContentAlignment.MiddleRight
-                                  };
+                {
+                    Parent = PnlHolder,
+                    Font = new Font(Font.FontFamily, 11),
+                    Text = Language.T("Trailing Stop"),
+                    BackColor = Color.Transparent,
+                    ForeColor = LayoutColors.ColorControlText,
+                    Location = new Point(5, 221),
+                    Width = lblWidth,
+                    TextAlign = ContentAlignment.MiddleRight
+                };
 
-            NUDLots = new NumericUpDown
-                          {
-                              Parent = PnlHolder,
-                              Font = new Font(Font.FontFamily, 11),
-                              TextAlign = HorizontalAlignment.Center,
-                              Width = 80,
-                              Location = new Point(100, 81)
-                          };
-            NUDLots.BeginInit();
-            NUDLots.Minimum = 0.1M;
-            NUDLots.Maximum = 100;
-            NUDLots.Increment = 0.1M;
-            NUDLots.Value = 1;
-            NUDLots.DecimalPlaces = 1;
-            NUDLots.EndInit();
 
-            NUDStopLoss = new NumericUpDown
-                              {
-                                  Parent = PnlHolder,
-                                  Font = new Font(Font.FontFamily, 11),
-                                  TextAlign = HorizontalAlignment.Center,
-                                  Width = 80,
-                                  Location = new Point(100, 121)
-                              };
-            NUDStopLoss.BeginInit();
-            NUDStopLoss.Minimum = 0;
-            NUDStopLoss.Maximum = 5000;
-            NUDStopLoss.Increment = 1;
-            NUDStopLoss.Value = 0;
-            NUDStopLoss.DecimalPlaces = 0;
-            NUDStopLoss.EndInit();
-            NUDStopLoss.ValueChanged += ParameterValueChanged;
+            int nudLeft = LblTrailingStop.Right + Space;
 
-            ColorParameter = NUDStopLoss.ForeColor;
+            NudLots = new NumericUpDown
+                {
+                    Parent = PnlHolder,
+                    Font = new Font(Font.FontFamily, 11),
+                    TextAlign = HorizontalAlignment.Center,
+                    Width = 80,
+                    Location = new Point(nudLeft, 81)
+                };
+            NudLots.BeginInit();
+            NudLots.Minimum = 0.1M;
+            NudLots.Maximum = 100;
+            NudLots.Increment = 0.1M;
+            NudLots.Value = 1;
+            NudLots.DecimalPlaces = 1;
+            NudLots.EndInit();
 
-            NUDTakeProfit = new NumericUpDown
-                                {
-                                    Parent = PnlHolder,
-                                    Font = new Font(Font.FontFamily, 11),
-                                    TextAlign = HorizontalAlignment.Center,
-                                    Width = 80,
-                                    Location = new Point(100, 151)
-                                };
-            NUDTakeProfit.BeginInit();
-            NUDTakeProfit.Minimum = 0;
-            NUDTakeProfit.Maximum = 5000;
-            NUDTakeProfit.Increment = 1;
-            NUDTakeProfit.Value = 0;
-            NUDTakeProfit.DecimalPlaces = 0;
-            NUDTakeProfit.EndInit();
-            NUDTakeProfit.ValueChanged += ParameterValueChanged;
+            NudStopLoss = new NumericUpDown
+                {
+                    Parent = PnlHolder,
+                    Font = new Font(Font.FontFamily, 11),
+                    TextAlign = HorizontalAlignment.Center,
+                    Width = 80,
+                    Location = new Point(nudLeft, 121)
+                };
+            NudStopLoss.BeginInit();
+            NudStopLoss.Minimum = 0;
+            NudStopLoss.Maximum = 5000;
+            NudStopLoss.Increment = 1;
+            NudStopLoss.Value = 0;
+            NudStopLoss.DecimalPlaces = 0;
+            NudStopLoss.EndInit();
+            NudStopLoss.ValueChanged += ParameterValueChanged;
 
-            NUDBreakEven = new NumericUpDown
-                               {
-                                   Parent = PnlHolder,
-                                   Font = new Font(Font.FontFamily, 11),
-                                   TextAlign = HorizontalAlignment.Center,
-                                   Width = 80,
-                                   Location = new Point(100, 191)
-                               };
-            NUDBreakEven.BeginInit();
-            NUDBreakEven.Minimum = 0;
-            NUDBreakEven.Maximum = 5000;
-            NUDBreakEven.Increment = 1;
-            NUDBreakEven.Value = 0;
-            NUDBreakEven.DecimalPlaces = 0;
-            NUDBreakEven.EndInit();
-            NUDBreakEven.ValueChanged += ParameterValueChanged;
+            ColorParameter = NudStopLoss.ForeColor;
 
-            NUDTrailingStop = new NumericUpDown
-                                  {
-                                      Parent = PnlHolder,
-                                      Font = new Font(Font.FontFamily, 11),
-                                      TextAlign = HorizontalAlignment.Center,
-                                      Width = 80,
-                                      Location = new Point(100, 221)
-                                  };
-            NUDTrailingStop.BeginInit();
-            NUDTrailingStop.Minimum = 0;
-            NUDTrailingStop.Maximum = 5000;
-            NUDTrailingStop.Increment = 1;
-            NUDTrailingStop.Value = 0;
-            NUDTrailingStop.DecimalPlaces = 0;
-            NUDTrailingStop.EndInit();
-            NUDTrailingStop.ValueChanged += ParameterValueChanged;
+            NudTakeProfit = new NumericUpDown
+                {
+                    Parent = PnlHolder,
+                    Font = new Font(Font.FontFamily, 11),
+                    TextAlign = HorizontalAlignment.Center,
+                    Width = 80,
+                    Location = new Point(nudLeft, 151)
+                };
+            NudTakeProfit.BeginInit();
+            NudTakeProfit.Minimum = 0;
+            NudTakeProfit.Maximum = 5000;
+            NudTakeProfit.Increment = 1;
+            NudTakeProfit.Value = 0;
+            NudTakeProfit.DecimalPlaces = 0;
+            NudTakeProfit.EndInit();
+            NudTakeProfit.ValueChanged += ParameterValueChanged;
+
+            NudBreakEven = new NumericUpDown
+                {
+                    Parent = PnlHolder,
+                    Font = new Font(Font.FontFamily, 11),
+                    TextAlign = HorizontalAlignment.Center,
+                    Width = 80,
+                    Location = new Point(nudLeft, 191)
+                };
+            NudBreakEven.BeginInit();
+            NudBreakEven.Minimum = 0;
+            NudBreakEven.Maximum = 5000;
+            NudBreakEven.Increment = 1;
+            NudBreakEven.Value = 0;
+            NudBreakEven.DecimalPlaces = 0;
+            NudBreakEven.EndInit();
+            NudBreakEven.ValueChanged += ParameterValueChanged;
+
+            NudTrailingStop = new NumericUpDown
+                {
+                    Parent = PnlHolder,
+                    Font = new Font(Font.FontFamily, 11),
+                    TextAlign = HorizontalAlignment.Center,
+                    Width = 80,
+                    Location = new Point(nudLeft, 221)
+                };
+            NudTrailingStop.BeginInit();
+            NudTrailingStop.Minimum = 0;
+            NudTrailingStop.Maximum = 5000;
+            NudTrailingStop.Increment = 1;
+            NudTrailingStop.Value = 0;
+            NudTrailingStop.DecimalPlaces = 0;
+            NudTrailingStop.EndInit();
+            NudTrailingStop.ValueChanged += ParameterValueChanged;
+
+            int btnLeft = NudTrailingStop.Right + 2 * Space;
 
             BtnSell = new Button
-                          {
-                              Name = "btnSell",
-                              Parent = PnlHolder,
-                              Image = Resources.btn_operation_sell,
-                              ImageAlign = ContentAlignment.MiddleLeft,
-                              Text = Language.T("Sell"),
-                              Width = 145,
-                              Height = 40,
-                              Font = new Font(Font.FontFamily, 16),
-                              ForeColor = Color.Crimson,
-                              Location = new Point(190, 80),
-                              UseVisualStyleBackColor = true
-                          };
+                {
+                    Name = "btnSell",
+                    Parent = PnlHolder,
+                    Image = Resources.btn_operation_sell,
+                    ImageAlign = ContentAlignment.MiddleLeft,
+                    Text = Language.T("Sell"),
+                    Width = 145,
+                    Height = 40,
+                    Font = new Font(Font.FontFamily, 16),
+                    ForeColor = Color.Crimson,
+                    Location = new Point(btnLeft, 80),
+                    UseVisualStyleBackColor = true
+                };
             BtnSell.Click += BtnOperationClick;
 
             BtnBuy = new Button
-                         {
-                             Name = "btnBuy",
-                             Parent = PnlHolder,
-                             Image = Resources.btn_operation_buy,
-                             ImageAlign = ContentAlignment.MiddleLeft,
-                             Text = Language.T("Buy"),
-                             Width = 145,
-                             Height = 40,
-                             Font = new Font(Font.FontFamily, 16),
-                             ForeColor = Color.Green,
-                             Location = new Point(340, 80),
-                             UseVisualStyleBackColor = true
-                         };
+                {
+                    Name = "btnBuy",
+                    Parent = PnlHolder,
+                    Image = Resources.btn_operation_buy,
+                    ImageAlign = ContentAlignment.MiddleLeft,
+                    Text = Language.T("Buy"),
+                    Width = 145,
+                    Height = 40,
+                    Font = new Font(Font.FontFamily, 16),
+                    ForeColor = Color.Green,
+                    Location = new Point(BtnSell.Right + Space, 80),
+                    UseVisualStyleBackColor = true
+                };
             BtnBuy.Click += BtnOperationClick;
 
             BtnClose = new Button
-                           {
-                               Name = "btnClose",
-                               Parent = PnlHolder,
-                               Image = Resources.btn_operation_close,
-                               ImageAlign = ContentAlignment.MiddleLeft,
-                               Text = Language.T("Close"),
-                               Width = 295,
-                               Height = 40,
-                               Font = new Font(Font.FontFamily, 16, FontStyle.Bold),
-                               ForeColor = Color.DarkOrange,
-                               Location = new Point(190, 126),
-                               UseVisualStyleBackColor = true
-                           };
+                {
+                    Name = "btnClose",
+                    Parent = PnlHolder,
+                    Image = Resources.btn_operation_close,
+                    ImageAlign = ContentAlignment.MiddleLeft,
+                    Text = Language.T("Close"),
+                    Width = 295,
+                    Height = 40,
+                    Font = new Font(Font.FontFamily, 16, FontStyle.Bold),
+                    ForeColor = Color.DarkOrange,
+                    Location = new Point(btnLeft, 126),
+                    UseVisualStyleBackColor = true
+                };
             BtnClose.Click += BtnOperationClick;
 
             BtnModify = new Button
-                            {
-                                Name = "btnModify",
-                                Parent = PnlHolder,
-                                Image = Resources.recalculate,
-                                ImageAlign = ContentAlignment.MiddleLeft,
-                                Text = Language.T("Modify Stop Loss and Take Profit"),
-                                ForeColor = Color.Navy,
-                                Width = 295,
-                                Location = new Point(190, 172),
-                                UseVisualStyleBackColor = true
-                            };
+                {
+                    Name = "btnModify",
+                    Parent = PnlHolder,
+                    Image = Resources.recalculate,
+                    ImageAlign = ContentAlignment.MiddleLeft,
+                    Text = Language.T("Modify Stop Loss and Take Profit"),
+                    ForeColor = Color.Navy,
+                    Width = 295,
+                    Location = new Point(btnLeft, 172),
+                    UseVisualStyleBackColor = true
+                };
             BtnModify.Click += BtnOperationClick;
 
+            int chartLeft = BtnModify.Right + 2 * Space;
             TickChart = new TickChart(Language.T("Tick Chart"))
-                            {Parent = PnlHolder, Size = new Size(250, 200), Location = new Point(495, 81)};
+                {
+                    Parent = PnlHolder,
+                    Size = new Size(250, 200),
+                    Location = new Point(chartLeft, 81)
+                };
         }
 
         /// <summary>
-        /// Sets the controls position on resizing.
+        ///     Sets the controls position on resizing.
         /// </summary>
         private void PnlManualTradeResize(object sender, EventArgs e)
         {
@@ -331,27 +339,27 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the lot parameters.
+        ///     Sets the lot parameters.
         /// </summary>
         protected void SetNumUpDownLots(double minlot, double lotstep, double maxlot)
         {
-            NUDLots.BeginInit();
-            NUDLots.Minimum = (decimal) minlot;
-            NUDLots.Increment = (decimal) lotstep;
-            NUDLots.Maximum = (decimal) maxlot;
-            NUDLots.DecimalPlaces = lotstep < 0.1 ? 2 : lotstep < 1 ? 1 : 0;
-            NUDLots.EndInit();
+            NudLots.BeginInit();
+            NudLots.Minimum = (decimal) minlot;
+            NudLots.Increment = (decimal) lotstep;
+            NudLots.Maximum = (decimal) maxlot;
+            NudLots.DecimalPlaces = lotstep < 0.1 ? 2 : lotstep < 1 ? 1 : 0;
+            NudLots.EndInit();
         }
 
         /// <summary>
-        /// Execute operation
+        ///     Execute operation
         /// </summary>
         public virtual void BtnOperationClick(object sender, EventArgs e)
         {
         }
 
         /// <summary>
-        /// Validates the Stop or Limit parameters.
+        ///     Validates the Stop or Limit parameters.
         /// </summary>
         private void ParameterValueChanged(object sender, EventArgs e)
         {
@@ -363,7 +371,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the colors of tab page Operation.
+        ///     Sets the colors of tab page Operation.
         /// </summary>
         private void SetOperationColors()
         {
@@ -380,7 +388,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the lblBidAsk.Text
+        ///     Sets the lblBidAsk.Text
         /// </summary>
         protected void SetLblBidAskText(string text)
         {
@@ -395,7 +403,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the lblSymbol.Text
+        ///     Sets the lblSymbol.Text
         /// </summary>
         protected void SetLblSymbolText(string text)
         {
@@ -410,7 +418,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Updates the Tick Chart.
+        ///     Updates the Tick Chart.
         /// </summary>
         protected void UpdateTickChart(double point, double[] tickList)
         {

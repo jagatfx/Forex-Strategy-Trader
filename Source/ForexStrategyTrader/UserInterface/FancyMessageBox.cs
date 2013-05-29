@@ -95,10 +95,10 @@ namespace ForexStrategyBuilder
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            var iButtonHeight = (int) (Data.VerticalDLU*15.5);
-            var iButtonWidth = (int) (Data.HorizontalDLU*60);
-            var iBtnVertSpace = (int) (Data.VerticalDLU*5.5);
-            var iBtnHrzSpace = (int) (Data.HorizontalDLU*3);
+            var iButtonHeight = (int) (Data.VerticalDlu*15.5);
+            var iButtonWidth = (int) (Data.HorizontalDlu*60);
+            var iBtnVertSpace = (int) (Data.VerticalDlu*5.5);
+            var iBtnHrzSpace = (int) (Data.HorizontalDlu*3);
             int iBorder = iBtnHrzSpace;
 
             PnlControl.Height = iButtonHeight + 2*iBtnVertSpace;

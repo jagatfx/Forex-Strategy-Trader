@@ -449,8 +449,8 @@ namespace ForexStrategyBuilder
             CbxUseMartingale.CheckedChanged += ParamChanged;
             NUDMartingaleMultiplier.ValueChanged += ParamChanged;
 
-            var buttonWidth = (int) (Data.HorizontalDLU*60);
-            var btnHrzSpace = (int) (Data.HorizontalDLU*3);
+            var buttonWidth = (int) (Data.HorizontalDlu*60);
+            var btnHrzSpace = (int) (Data.HorizontalDlu*3);
 
             ClientSize = new Size(3*buttonWidth + 4*btnHrzSpace, 504);
 
@@ -464,9 +464,9 @@ namespace ForexStrategyBuilder
         {
             base.OnResize(e);
 
-            var buttonHeight = (int) (Data.VerticalDLU*15.5);
-            var btnVertSpace = (int) (Data.VerticalDLU*5.5);
-            var btnHrzSpace = (int) (Data.HorizontalDLU*3);
+            var buttonHeight = (int) (Data.VerticalDlu*15.5);
+            var btnVertSpace = (int) (Data.VerticalDlu*5.5);
+            var btnHrzSpace = (int) (Data.HorizontalDlu*3);
             int space = btnHrzSpace;
             const int border = 2;
 

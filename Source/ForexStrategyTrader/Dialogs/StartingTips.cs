@@ -123,8 +123,8 @@ namespace ForexStrategyBuilder
         {
             base.OnLoad(e);
 
-            Width = (int)(Data.HorizontalDLU * 240);
-            Height = (int)(Data.VerticalDLU * 140);
+            Width = (int)(Data.HorizontalDlu * 240);
+            Height = (int)(Data.VerticalDlu * 140);
         }
 
         /// <summary>
@@ -133,10 +133,10 @@ namespace ForexStrategyBuilder
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            var buttonHeight = (int)(Data.VerticalDLU * 15.5);
-            var buttonWidth = (int)(Data.HorizontalDLU * 60);
-            var btnVertSpace = (int)(Data.VerticalDLU * 5.5);
-            var btnHrzSpace = (int)(Data.HorizontalDLU * 3);
+            var buttonHeight = (int)(Data.VerticalDlu * 15.5);
+            var buttonWidth = (int)(Data.HorizontalDlu * 60);
+            var btnVertSpace = (int)(Data.VerticalDlu * 5.5);
+            var btnHrzSpace = (int)(Data.HorizontalDlu * 3);
             int border = btnHrzSpace;
 
             PnlControl.Height = buttonHeight + 2 * btnVertSpace;

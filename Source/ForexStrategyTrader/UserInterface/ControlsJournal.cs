@@ -58,7 +58,7 @@ namespace ForexStrategyBuilder
 
             var fontMessage = new Font(Font.FontFamily, 9);
             Graphics g = CreateGraphics();
-            float fTimeWidth = g.MeasureString(DateTime.Now.ToString(Data.DF + " HH:mm:ss"), fontMessage).Width;
+            float fTimeWidth = g.MeasureString(DateTime.Now.ToString(Data.Df + " HH:mm:ss"), fontMessage).Width;
             g.Dispose();
 
             var lblTime = new ToolStripLabel(Language.T("Time")) {AutoSize = false, Width = 16 + (int) fTimeWidth - 5};
@@ -195,7 +195,7 @@ namespace ForexStrategyBuilder
             foreach (JournalMessage message in _messages)
                 sb.AppendLine(message.Time.ToString("yyyy-MM-dd HH:mm:ss") + ", " + message.Message);
 
-            string fileName = Data.Strategy.StrategyName + "_" + Data.Symbol + "_" + Data.PeriodMTStr + "_" +
+            string fileName = Data.Strategy.StrategyName + "_" + Data.Symbol + "_" + Data.PeriodMtStr + "_" +
                               Data.ConnectionId + ".log";
 
             SaveDataFile(fileName, sb);

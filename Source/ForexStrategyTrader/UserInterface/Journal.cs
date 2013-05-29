@@ -99,7 +99,7 @@ namespace ForexStrategyBuilder
             rowHeight = Math.Max(fontMessage.Height + 4, 18F);
 
             Graphics g = CreateGraphics();
-            timeWidth = g.MeasureString(DateTime.Now.ToString(Data.DF + " HH:mm:ss"), fontMessage).Width;
+            timeWidth = g.MeasureString(DateTime.Now.ToString(Data.Df + " HH:mm:ss"), fontMessage).Width;
             g.Dispose();
 
             hScrollBar = new HScrollBar
@@ -272,7 +272,7 @@ namespace ForexStrategyBuilder
                 var pointMessage = new PointF(IconWidth + 2*Space, vertPos);
                 int index = rows - row - vScrollBar.Value - 1;
                 g.DrawImage(GetImage(messages[index].Icon), Space, vertPos, IconWidth, IconHeight);
-                string text = messages[index].Time.ToString(Data.DF + " HH:mm:ss") + "   " + messages[index].Message;
+                string text = messages[index].Time.ToString(Data.Df + " HH:mm:ss") + "   " + messages[index].Message;
                 g.DrawString(text, fontMessage, brushParams, pointMessage);
             }
 

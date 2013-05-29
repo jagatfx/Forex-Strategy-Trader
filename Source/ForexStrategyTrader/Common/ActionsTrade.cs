@@ -746,7 +746,7 @@ namespace ForexStrategyBuilder
                     stopLossPrice = Data.Bid - stoploss*point;
                 else if (newPosDir == PosDirection.Short)
                     stopLossPrice = Data.Ask + stoploss*point;
-                stopLoss = stopLossPrice.ToString(Data.FF);
+                stopLoss = stopLossPrice.ToString(Data.Ff);
             }
 
             string takeProfit = "0";
@@ -757,20 +757,20 @@ namespace ForexStrategyBuilder
                     takeProfitPrice = Data.Bid + takeprofit*point;
                 else if (newPosDir == PosDirection.Short)
                     takeProfitPrice = Data.Ask - takeprofit*point;
-                takeProfit = takeProfitPrice.ToString(Data.FF);
+                takeProfit = takeProfitPrice.ToString(Data.Ff);
             }
 
             if (Configs.PlaySounds)
                 Data.SoundOrderSent.Play();
 
-            string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+            string message = string.Format(symbol + " " + Data.PeriodMtStr + " " +
                                            Language.T("An entry order sent") + ": " +
                                            Language.T(ordDir.ToString()) + " {0} " +
                                            LotOrLots(lots) + " " +
                                            Language.T("at") + " {1}, " +
                                            Language.T("Stop Loss") + " {2}, " +
                                            Language.T("Take Profit") + " {3}",
-                                           lots, price.ToString(Data.FF), stopLoss,
+                                           lots, price.ToString(Data.Ff), stopLoss,
                                            takeProfit);
             var jmsg = new JournalMessage(icon, DateTime.Now, message);
             AppendJournalMessage(jmsg);
@@ -817,11 +817,11 @@ namespace ForexStrategyBuilder
             if (Configs.PlaySounds)
                 Data.SoundOrderSent.Play();
 
-            string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+            string message = string.Format(symbol + " " + Data.PeriodMtStr + " " +
                                            Language.T("An exit order sent") + ": " +
                                            Language.T("Close") + " {0} " +
                                            LotOrLots(lots) + " " + Language.T("at") + " {1}",
-                                           lots, price.ToString(Data.FF));
+                                           lots, price.ToString(Data.Ff));
             var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now, message);
             AppendJournalMessage(jmsg);
             Log(message);
@@ -980,7 +980,7 @@ namespace ForexStrategyBuilder
                     stopLossPrice = Data.Bid - stoploss*Data.InstrProperties.Point;
                 else if (Data.PositionDirection == PosDirection.Short)
                     stopLossPrice = Data.Ask + stoploss*Data.InstrProperties.Point;
-                stopLoss = stopLossPrice.ToString(Data.FF);
+                stopLoss = stopLossPrice.ToString(Data.Ff);
             }
 
             string takeProfit = "0";
@@ -991,10 +991,10 @@ namespace ForexStrategyBuilder
                     takeProfitPrice = Data.Bid + takeprofit*Data.InstrProperties.Point;
                 else if (Data.PositionDirection == PosDirection.Short)
                     takeProfitPrice = Data.Ask - takeprofit*Data.InstrProperties.Point;
-                takeProfit = takeProfitPrice.ToString(Data.FF);
+                takeProfit = takeProfitPrice.ToString(Data.Ff);
             }
 
-            string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+            string message = string.Format(symbol + " " + Data.PeriodMtStr + " " +
                                            Language.T("A modify order sent") + ": " +
                                            Language.T("Stop Loss") + " {0}, " + Language.T("Take Profit") +
                                            " {1}", stopLoss, takeProfit);

@@ -13,7 +13,7 @@ namespace ForexStrategyBuilder
     /// </summary>
     public partial class Controls
     {
-        private BalanceChart _balanceChart;
+        private BalanceChart balanceChart;
 
         /// <summary>
         /// Initializes page Account.
@@ -25,9 +25,9 @@ namespace ForexStrategyBuilder
             TabPageAccount.ImageIndex = 3;
             TabPageAccount.BackColor = LayoutColors.ColorFormBack;
 
-            _balanceChart = new BalanceChart {Parent = TabPageAccount, Dock = DockStyle.Fill};
-            _balanceChart.UpdateChartData(Data.BalanceData, Data.BalanceDataPoints);
-            _balanceChart.Invalidate();
+            balanceChart = new BalanceChart {Parent = TabPageAccount, Dock = DockStyle.Fill};
+            balanceChart.UpdateChartData(Data.BalanceData, Data.BalanceDataPoints);
+            balanceChart.Invalidate();
         }
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace ForexStrategyBuilder
         /// </summary>
         private void SetAccountColors()
         {
-            _balanceChart.SetColors();
-            _balanceChart.Invalidate();
+            balanceChart.SetColors();
+            balanceChart.Invalidate();
         }
 
         /// <summary>
@@ -44,15 +44,15 @@ namespace ForexStrategyBuilder
         /// </summary>
         protected void UpdateBalanceChart(BalanceChartUnit[] balanceData, int balancePoints)
         {
-            if (_balanceChart.InvokeRequired)
+            if (balanceChart.InvokeRequired)
             {
-                _balanceChart.BeginInvoke(new UpdateBalanceChartDelegate(UpdateBalanceChart),
+                balanceChart.BeginInvoke(new UpdateBalanceChartDelegate(UpdateBalanceChart),
                                           new object[] {balanceData, balancePoints});
             }
             else
             {
-                _balanceChart.UpdateChartData(balanceData, balancePoints);
-                _balanceChart.RefreshChart();
+                balanceChart.UpdateChartData(balanceData, balancePoints);
+                balanceChart.RefreshChart();
             }
         }
 

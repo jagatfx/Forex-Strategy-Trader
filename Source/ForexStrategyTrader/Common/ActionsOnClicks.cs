@@ -399,15 +399,15 @@ namespace ForexStrategyBuilder
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                        string message = string.Format(symbol + " " + Data.PeriodMtStr + " " +
                                                        Language.T("An entry order sent") + ": " +
                                                        Language.T("Buy") + " {0} " +
                                                        LotOrLots(lots) + " " +
                                                        Language.T("at") + " {1}, " +
                                                        Language.T("Stop Loss") + " {2}, " +
                                                        Language.T("Take Profit") + " {3}", lots,
-                                                       price.ToString(Data.FF), stoploss.ToString(Data.FF),
-                                                       takeprofit.ToString(Data.FF));
+                                                       price.ToString(Data.Ff), stoploss.ToString(Data.Ff),
+                                                       takeprofit.ToString(Data.Ff));
                         var jmsg = new JournalMessage(JournalIcons.OrderBuy, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
                         Log(message);
@@ -457,15 +457,15 @@ namespace ForexStrategyBuilder
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                        string message = string.Format(symbol + " " + Data.PeriodMtStr + " " +
                                                        Language.T("An entry order sent") + ": " +
                                                        Language.T("Sell") + " {0} " +
                                                        LotOrLots(lots) + " " +
                                                        Language.T("at") + " {1}, " +
                                                        Language.T("Stop Loss") + " {2}, " +
                                                        Language.T("Take Profit") + " {3}", lots,
-                                                       price.ToString(Data.FF), stoploss.ToString(Data.FF),
-                                                       takeprofit.ToString(Data.FF));
+                                                       price.ToString(Data.Ff), stoploss.ToString(Data.Ff),
+                                                       takeprofit.ToString(Data.Ff));
                         var jmsg = new JournalMessage(JournalIcons.OrderSell, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
                         Log(message);
@@ -510,12 +510,12 @@ namespace ForexStrategyBuilder
                         if (Configs.PlaySounds)
                             Data.SoundOrderSent.Play();
 
-                        string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                        string message = string.Format(symbol + " " + Data.PeriodMtStr + " " +
                                                        Language.T("An exit order sent") + ": " +
                                                        Language.T("Close") + " {0} " +
                                                        LotOrLots(lots) + " " +
                                                        Language.T("at") + " {1}",
-                                                       lots, price.ToString(Data.FF));
+                                                       lots, price.ToString(Data.Ff));
                         var jmsg = new JournalMessage(JournalIcons.OrderClose, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
                         Log(message);
@@ -562,12 +562,12 @@ namespace ForexStrategyBuilder
                                                 ? price + sign*Data.InstrProperties.Point*OperationTakeProfit
                                                 : 0;
 
-                        string message = string.Format(symbol + " " + Data.PeriodMTStr + " " +
+                        string message = string.Format(symbol + " " + Data.PeriodMtStr + " " +
                                                        Language.T("A modify order sent") + ": " +
                                                        Language.T("Stop Loss") + " {0}, " +
                                                        Language.T("Take Profit") + " {1}",
-                                                       stoploss.ToString(Data.FF),
-                                                       takeprofit.ToString(Data.FF));
+                                                       stoploss.ToString(Data.Ff),
+                                                       takeprofit.ToString(Data.Ff));
                         var jmsg = new JournalMessage(JournalIcons.Recalculate, DateTime.Now, message);
                         AppendJournalMessage(jmsg);
                         Log(message);
