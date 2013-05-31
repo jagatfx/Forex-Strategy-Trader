@@ -5,21 +5,22 @@ Thumbs.db
 *.sln.docstates
 obj
 *.exe
-*.pfx
-*.iss
 *.user
 
-/Releases
+/Releases/*.exe
+/Releases/*.ini
 
 /Output/Debug/*.config
 /Output/Debug/*.pdb
 /Output/Debug/*.manifest
 /Output/Debug/*.dll
+/Output/Debug/*.exe
 
 /Output/Release/*.config
 /Output/Release/*.pdb
 /Output/Release/*.manifest
 /Output/Release/*.dll
+/Output/Release/*.exe
 
 /Output/Release/User Files/Libraries/*.dll
 /Output/Release/User Files/Logs/*.log

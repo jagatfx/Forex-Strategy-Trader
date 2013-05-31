@@ -16,6 +16,7 @@ using System.IO;
 using System.Windows.Forms;
 using ForexStrategyBuilder.Indicators;
 using ForexStrategyBuilder.Infrastructure.Enums;
+using ForexStrategyBuilder.Utils;
 
 namespace ForexStrategyBuilder
 {
@@ -37,7 +38,7 @@ namespace ForexStrategyBuilder
             Application.Idle += ApplicationIdle;
 
             LoadInstrument();
-            PrepareCustomIndicators();
+            LoadCustomIndicators();
 
             // Load a strategy
             UpdateStatusLabel("- loading strategy...");
@@ -117,18 +118,45 @@ namespace ForexStrategyBuilder
             WinApi.CloseWindow(splashScreenId);
         }
 
-        private void PrepareCustomIndicators()
+        private void LoadCustomIndicators()
         {
-            if (Configs.LoadCustomIndicators)
+            if (!Configs.LoadCustomIndicators)
             {
-                UpdateStatusLabel("- loading custom indicators...");
-                CustomIndicators.LoadCustomIndicators();
-
-                if (Configs.ShowCustomIndicators)
-                    CustomIndicators.ShowLoadedCustomIndicators();
-            }
-            else
                 IndicatorManager.CombineAllIndicators();
+                return;
+            }
+
+            UpdateStatusLabel("- loading custom indicators...");
+
+            try
+            {
+                CustomIndicators.LoadCustomIndicators();
+            }
+            catch (Exception e)
+            {
+                var checker = new DotNetVersionChecker();
+                bool isNet35 = checker.IsDonNet35Installed();
+                string msg;
+
+                if (isNet35)
+                {
+                    msg = e.Message;
+                    if (e.InnerException != null && e.InnerException.Message != "")
+                        msg += Environment.NewLine + e.InnerException.Message;
+                }
+                else
+                {
+                    msg = "FSB cannot compile the custom indicators." + Environment.NewLine +
+                          "Please install .NET 3.5 or newer and try again.";
+                }
+
+                MessageBox.Show(msg, "Loading Custom Indicators",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+            }
+
+            if (Configs.ShowCustomIndicators)
+                CustomIndicators.ShowLoadedCustomIndicators();
         }
 
         private static void CheckIfStartedFromCmdLine(params string[] input)
@@ -614,11 +642,7 @@ namespace ForexStrategyBuilder
                     return;
             }
 
-            // Reload all the custom indicators
-            CustomIndicators.LoadCustomIndicators();
-
-            if (Configs.ShowCustomIndicators)
-                CustomIndicators.ShowLoadedCustomIndicators();
+            LoadCustomIndicators();
 
             if (strategyHasCustomIndicator)
             {

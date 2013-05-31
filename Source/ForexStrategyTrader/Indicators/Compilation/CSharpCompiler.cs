@@ -1,5 +1,5 @@
 ﻿//==============================================================
-// Forex Strategy Trader
+// Forex Strategy Builder
 // Copyright © Miroslav Popov. All rights reserved.
 //==============================================================
 // THIS CODE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
@@ -12,6 +12,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Reflection;
+using ForexStrategyBuilder.Utils;
 using Microsoft.CSharp;
 
 namespace ForexStrategyBuilder
@@ -23,18 +24,17 @@ namespace ForexStrategyBuilder
     /// </summary>
     public class CSharpCompiler
     {
-        private readonly CompilerParameters compilerParametersCs;
-        private readonly CompilerParameters compilerParametersDll;
+        private readonly CompilerParameters compilerParameters;
         private volatile CSharpCodeProvider codeProvider;
 
-        /// <summary>
-        ///     Constructor.
-        /// </summary>
         public CSharpCompiler()
         {
-            codeProvider = new CSharpCodeProvider(new Dictionary<String, String> { { "CompilerVersion", "v3.5" } });
-            compilerParametersCs = new CompilerParameters();
-            compilerParametersDll = new CompilerParameters();
+            var checker = new DotNetVersionChecker();
+            codeProvider = checker.IsDonNet35Installed()
+                               ? new CSharpCodeProvider(new Dictionary<String, String> {{"CompilerVersion", "v3.5"}})
+                               : new CSharpCodeProvider();
+
+            compilerParameters = new CompilerParameters();
         }
 
         /// <summary>
@@ -46,8 +46,7 @@ namespace ForexStrategyBuilder
         {
             lock (this)
             {
-                compilerParametersCs.ReferencedAssemblies.Add(assembly.Location);
-                compilerParametersDll.ReferencedAssemblies.Add(assembly.Location);
+                compilerParameters.ReferencedAssemblies.Add(assembly.Location);
             }
         }
 
@@ -60,8 +59,9 @@ namespace ForexStrategyBuilder
         public Assembly CompileSource(string source, out Dictionary<string, int> compilerErrors)
         {
             compilerErrors = new Dictionary<string, int>();
-            compilerParametersCs.GenerateInMemory = true;
-            CompilerResults compilerResults = codeProvider.CompileAssemblyFromSource(compilerParametersCs, source);
+            compilerParameters.OutputAssembly = string.Empty;
+            compilerParameters.GenerateInMemory = true;
+            CompilerResults compilerResults = codeProvider.CompileAssemblyFromSource(compilerParameters, source);
 
             if (compilerResults.Errors.Count > 0)
             {
@@ -89,9 +89,9 @@ namespace ForexStrategyBuilder
         /// </summary>
         public void CompileSourceToDll(string source, string targedFileName)
         {
-            compilerParametersDll.GenerateInMemory = false;
-            compilerParametersDll.OutputAssembly = targedFileName;
-            codeProvider.CompileAssemblyFromSource(compilerParametersDll, source);
+            compilerParameters.GenerateInMemory = false;
+            compilerParameters.OutputAssembly = targedFileName;
+            codeProvider.CompileAssemblyFromSource(compilerParameters, source);
         }
     }
 }

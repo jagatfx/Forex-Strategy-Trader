@@ -342,6 +342,7 @@
     <Compile Include="Tools\Utils.cs" />
     <Compile Include="Utils\CopyDataStruct.cs" />
     <Compile Include="Utils\DIBSection.cs" />
+    <Compile Include="Utils\DotNetVersionChecker.cs" />
     <Compile Include="Utils\PresentationUtils.cs" />
     <Compile Include="Utils\SerializableDictionary.cs" />
     <Compile Include="Utils\WinApi.cs" />
