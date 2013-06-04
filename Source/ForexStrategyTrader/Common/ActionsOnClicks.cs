@@ -1,8 +1,12 @@
-// Actions OnClick
-// Part of Forex Strategy Trader
-// Website http://forexsb.com/
-// Copyright (c) 2009 - 2012 Miroslav Popov - All rights reserved!
-// This code or any part of it cannot be used in other applications without a permission.
+//==============================================================
+// Forex Strategy Trader
+// Copyright © Miroslav Popov. All rights reserved.
+//==============================================================
+// THIS CODE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
+// EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE.
+//==============================================================
 
 using System;
 using System.Collections.Generic;
@@ -10,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using System.Xml;
+using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Exceptions;
 using MT4Bridge;
 
@@ -203,7 +208,7 @@ namespace ForexStrategyBuilder
         /// </summary>
         protected override void MenuStrategyCopy_OnClick(object sender, EventArgs e)
         {
-            XmlDocument xmlDoc = StrategyXML.CreateStrategyXmlDoc(Data.Strategy);
+            XmlDocument xmlDoc = StrategyXml.CreateStrategyXmlDoc(Data.Strategy);
             Clipboard.SetText(xmlDoc.InnerXml);
         }
 
@@ -220,20 +225,21 @@ namespace ForexStrategyBuilder
                 return;
 
             var xmlDoc = new XmlDocument();
-            var strategyXml = new StrategyXML();
+            var strategyXml = new StrategyXml();
             Strategy tempStrategy;
 
             try
             {
                 xmlDoc.InnerXml = Clipboard.GetText();
                 tempStrategy = strategyXml.ParseXmlStrategy(xmlDoc);
+                Strategy.CheckStrategyCompatibility(tempStrategy);
             }
             catch (MissingIndicatorException exception)
             {
                 string message = string.Format(
                     "{2}{1}{0}{1}Please find this indicator in Repository or in Custom Indicators forum.",
                     exception.Message, Environment.NewLine, "Cannot load the strategy.");
-                MessageBox.Show(message, "Load strategy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(message, "Load strategy", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             catch (Exception exception)

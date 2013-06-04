@@ -13,12 +13,13 @@ using System.Globalization;
 using System.Windows.Forms;
 using System.Xml;
 using ForexStrategyBuilder.Indicators;
+using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
 using ForexStrategyBuilder.Infrastructure.Exceptions;
 
 namespace ForexStrategyBuilder
 {
-    public class StrategyXML
+    public class StrategyXml
     {
         /// <summary>
         ///     Represents the Strategy as a XmlDocument.
@@ -295,6 +296,7 @@ namespace ForexStrategyBuilder
             for (int slot = 0; slot < xmlSlotList.Count; slot++)
             {
                 XmlNodeList xmlSlotTagList = xmlSlotList[slot].ChildNodes;
+                IndicatorSlot tempSlot = tempStrategy.Slot[slot];
 
                 XmlAttributeCollection collection = xmlSlotList[slot].Attributes;
                 if (collection != null)
@@ -311,7 +313,7 @@ namespace ForexStrategyBuilder
                         if (nodeGroup != null)
                         {
                             string group = nodeGroup.InnerText;
-                            tempStrategy.Slot[slot].LogicalGroup = @group;
+                            tempSlot.LogicalGroup = @group;
                             if (@group != defGroup && @group.ToLower() != "all" && !Configs.UseLogicalGroups)
                             {
                                 MessageBox.Show(
@@ -324,7 +326,7 @@ namespace ForexStrategyBuilder
                             }
                         }
                         else
-                            tempStrategy.Slot[slot].LogicalGroup = defGroup;
+                            tempSlot.LogicalGroup = defGroup;
                     }
 
                     // Indicator name.
@@ -409,17 +411,46 @@ namespace ForexStrategyBuilder
                         }
                     }
 
+                    if (slotType == SlotTypes.OpenFilter || slotType == SlotTypes.CloseFilter)
+                    {
+                        // Signal shift type.
+                        XmlNodeList signalShiftType = xmlSlotList[slot].SelectNodes("signalShiftType");
+                        tempSlot.SignalShiftType = signalShiftType.Count == 0
+                                                       ? SignalShiftType.At
+                                                       : (SignalShiftType)
+                                                         Enum.Parse(typeof(SignalShiftType),
+                                                                    signalShiftType[0].InnerText);
+
+                        // Signal shift type.
+                        XmlNodeList signalShift = xmlSlotList[slot].SelectNodes("signalShift");
+                        tempSlot.SignalShift = signalShift.Count == 0
+                                                   ? 0
+                                                   : int.Parse(signalShift[0].InnerText);
+
+                        // Symbol
+                        XmlNodeList indicatorSymbol = xmlSlotList[slot].SelectNodes("indicatorSymbol");
+                        tempSlot.IndicatorSymbol = indicatorSymbol.Count == 0
+                                                       ? string.Empty
+                                                       : indicatorSymbol[0].InnerText;
+
+                        // Period
+                        XmlNodeList indicatorPeriod = xmlSlotList[slot].SelectNodes("indicatorPeriod");
+                        tempSlot.IndicatorPeriod = indicatorPeriod.Count == 0
+                                                       ? DataPeriod.M1
+                                                       : ImportDataPeriod(indicatorPeriod[0].InnerText);
+                    }
+
                     // Calculate the indicator.
                     indicator.Calculate(Data.DataSet);
-                    tempStrategy.Slot[slot].IndicatorName = indicator.IndicatorName;
-                    tempStrategy.Slot[slot].IndParam = indicator.IndParam;
-                    tempStrategy.Slot[slot].Component = indicator.Component;
-                    tempStrategy.Slot[slot].SeparatedChart = indicator.SeparatedChart;
-                    tempStrategy.Slot[slot].SpecValue = indicator.SpecialValues;
-                    tempStrategy.Slot[slot].MinValue = indicator.SeparatedChartMinValue;
-                    tempStrategy.Slot[slot].MaxValue = indicator.SeparatedChartMaxValue;
+                    tempSlot.IndicatorName = indicator.IndicatorName;
+                    tempSlot.IndParam = indicator.IndParam;
+                    tempSlot.Component = indicator.Component;
+                    tempSlot.SeparatedChart = indicator.SeparatedChart;
+                    tempSlot.SpecValue = indicator.SpecialValues;
+                    tempSlot.MinValue = indicator.SeparatedChartMinValue;
+                    tempSlot.MaxValue = indicator.SeparatedChartMaxValue;
                 }
-                tempStrategy.Slot[slot].IsDefined = true;
+                tempSlot.IsDefined = true;
             }
 
             return tempStrategy;

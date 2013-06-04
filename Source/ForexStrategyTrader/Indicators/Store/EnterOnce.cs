@@ -7,6 +7,7 @@
 // A PARTICULAR PURPOSE.
 //==============================================================
 
+using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
 using ForexStrategyBuilder.Infrastructure.Interfaces;
 

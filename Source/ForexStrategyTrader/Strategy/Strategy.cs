@@ -634,7 +634,7 @@ namespace ForexStrategyBuilder
             Symbol = Data.Symbol;
             DataPeriod = Data.Period;
 
-            XmlDocument xmlDocStrategy = StrategyXML.CreateStrategyXmlDoc(this);
+            XmlDocument xmlDocStrategy = StrategyXml.CreateStrategyXmlDoc(this);
 
             try
             {
@@ -664,19 +664,21 @@ namespace ForexStrategyBuilder
                 return false;
             }
 
-            var strategyXML = new StrategyXML();
+            var strategyXml = new StrategyXml();
 
 
             try
             {
-                Data.Strategy = strategyXML.ParseXmlStrategy(xmlDocStrategy);
+                Strategy strategy = strategyXml.ParseXmlStrategy(xmlDocStrategy);
+                CheckStrategyCompatibility(strategy);
+                Data.Strategy = strategy;
             }
             catch (MissingIndicatorException exception)
             {
                 string message = string.Format(
                     "Cannot load \"{2}\" strategy. {1} {0} {1} Please find this indicator in Repository or in Custom Indicators forum.",
                     exception.Message, Environment.NewLine, Path.GetFileNameWithoutExtension(filename));
-                MessageBox.Show(message, "Load strategy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(message, "Load strategy", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
             catch (Exception exception)
@@ -685,8 +687,25 @@ namespace ForexStrategyBuilder
                 return false;
             }
 
-
             return true;
+        }
+
+        public static void CheckStrategyCompatibility(Strategy strategy)
+        {
+            bool isProFeatures = false;
+            foreach (IndicatorSlot indicatorSlot in strategy.Slot)
+            {
+                if (indicatorSlot.SignalShift > 0 ||
+                    (!string.IsNullOrEmpty(indicatorSlot.IndicatorSymbol) && indicatorSlot.IndicatorSymbol != strategy.Symbol) ||
+                    (indicatorSlot.IndicatorPeriod != DataPeriod.M1 && indicatorSlot.IndicatorPeriod != strategy.DataPeriod))
+                    isProFeatures = true;
+            }
+
+            if (isProFeatures)
+            {
+                const string message = "This strategy uses features from FSB Pro. It may not trade as expected.";
+                MessageBox.Show(message, "Load strategy", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         /// <summary>

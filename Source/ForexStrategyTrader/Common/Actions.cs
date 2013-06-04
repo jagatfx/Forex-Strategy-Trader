@@ -15,6 +15,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 using ForexStrategyBuilder.Indicators;
+using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
 using ForexStrategyBuilder.Utils;
 

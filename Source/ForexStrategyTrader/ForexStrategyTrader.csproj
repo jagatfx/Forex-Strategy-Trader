@@ -189,6 +189,9 @@
     <Compile Include="Infrastructure\Entities\DataSet.cs" />
     <Compile Include="Infrastructure\Enums\DataPeriod.cs" />
     <Compile Include="Infrastructure\Enums\DeviceCap.cs" />
+    <Compile Include="Infrastructure\Enums\OppositeDirSignalAction.cs" />
+    <Compile Include="Infrastructure\Enums\SameDirSignalAction.cs" />
+    <Compile Include="Infrastructure\Enums\SignalShiftType.cs" />
     <Compile Include="Infrastructure\Exceptions\MissingIndicatorException.cs" />
     <Compile Include="Infrastructure\Interfaces\IDataSet.cs" />
     <Compile Include="Infrastructure\Interfaces\IIndicator.cs" />
@@ -235,7 +238,7 @@
     <Compile Include="Indicators\Enumerations.cs" />
     <Compile Include="Indicators\IndicatorComp.cs" />
     <Compile Include="Indicators\IndicatorParam.cs" />
-    <Compile Include="Indicators\Indicator Slot.cs" />
+    <Compile Include="Indicators\IndicatorSlot.cs" />
     <Compile Include="Indicators\IndicatorManager.cs" />
     <Compile Include="Indicators\Indicator.cs" />
     <Compile Include="Indicators\ListParam.cs" />
