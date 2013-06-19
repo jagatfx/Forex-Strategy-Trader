@@ -968,7 +968,7 @@ namespace ForexStrategyBuilder
                 periodReconnect == Data.Period &&
                 accountReconnect == Data.AccountNumber) return true;
 
-            // Start trade once after starting FSB from the auto start script.
+            // Start trade once after starting FST from the auto start script.
             if (Data.StartAutotradeWhenConnected)
             {
                 Data.StartAutotradeWhenConnected = false;

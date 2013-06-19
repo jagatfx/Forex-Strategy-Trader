@@ -16,34 +16,34 @@ using ForexStrategyBuilder.Properties;
 namespace ForexStrategyBuilder
 {
     /// <summary>
-    /// Class Controls : Menu_and_StatusBar
+    ///     Class Controls : Menu_and_StatusBar
     /// </summary>
     public partial class Controls
     {
-        private readonly List<JournalMessage> _messages = new List<JournalMessage>();
-        private bool _isShowSystemMessages = Configs.JournalShowSystemMessages;
-        private bool _isShowTicks = Configs.JournalShowTicks;
+        private readonly List<JournalMessage> messages = new List<JournalMessage>();
+        private bool isShowSystemMessages = Configs.JournalShowSystemMessages;
+        private bool isShowTicks = Configs.JournalShowTicks;
         private Journal Journal { get; set; }
         private ToolStrip TsJournal { get; set; }
 
         /// <summary>
-        /// Gets or sets if the journal shows ticks.
+        ///     Gets or sets if the journal shows ticks.
         /// </summary>
         protected bool JournalShowTicks
         {
-            get { return _isShowTicks; }
+            get { return isShowTicks; }
         }
 
         /// <summary>
-        /// Gets or sets if the journal shows system messages.
+        ///     Gets or sets if the journal shows system messages.
         /// </summary>
         protected bool JournalShowSystemMessages
         {
-            get { return _isShowSystemMessages; }
+            get { return isShowSystemMessages; }
         }
 
         /// <summary>
-        /// Initializes page Chart.
+        ///     Initializes page Chart.
         /// </summary>
         private void InitializePageJournal()
         {
@@ -71,12 +71,12 @@ namespace ForexStrategyBuilder
 
             // Tool strip buttons
             var tsbClear = new ToolStripButton
-                               {
-                                   Image = Resources.clear,
-                                   DisplayStyle = ToolStripItemDisplayStyle.Image,
-                                   Alignment = ToolStripItemAlignment.Right,
-                                   ToolTipText = Language.T("Clear journal's messages.")
-                               };
+                {
+                    Image = Resources.clear,
+                    DisplayStyle = ToolStripItemDisplayStyle.Image,
+                    Alignment = ToolStripItemAlignment.Right,
+                    ToolTipText = Language.T("Clear journal's messages.")
+                };
             tsbClear.Click += TsbClearClick;
             TsJournal.Items.Add(tsbClear);
 
@@ -84,12 +84,12 @@ namespace ForexStrategyBuilder
             TsJournal.Items.Add(sep);
 
             var tscbxJounalLength = new ToolStripComboBox
-                                        {
-                                            Alignment = ToolStripItemAlignment.Right,
-                                            DropDownStyle = ComboBoxStyle.DropDownList,
-                                            AutoSize = false,
-                                            Size = new Size(60, 25)
-                                        };
+                {
+                    Alignment = ToolStripItemAlignment.Right,
+                    DropDownStyle = ComboBoxStyle.DropDownList,
+                    AutoSize = false,
+                    Size = new Size(60, 25)
+                };
             tscbxJounalLength.Items.AddRange(new object[] {"20", "200", "500", "1000", "5000", "10000"});
             tscbxJounalLength.SelectedItem = Configs.JournalLength.ToString(CultureInfo.InvariantCulture);
             tscbxJounalLength.ToolTipText = Language.T("Maximum messages in the journal.");
@@ -97,24 +97,24 @@ namespace ForexStrategyBuilder
             TsJournal.Items.Add(tscbxJounalLength);
 
             var tsbShowTicks = new ToolStripButton
-                                   {
-                                       Image = Resources.show_ticks,
-                                       DisplayStyle = ToolStripItemDisplayStyle.Image,
-                                       Alignment = ToolStripItemAlignment.Right,
-                                       Checked = _isShowTicks,
-                                       ToolTipText = Language.T("Show incoming ticks.")
-                                   };
+                {
+                    Image = Resources.show_ticks,
+                    DisplayStyle = ToolStripItemDisplayStyle.Image,
+                    Alignment = ToolStripItemAlignment.Right,
+                    Checked = isShowTicks,
+                    ToolTipText = Language.T("Show incoming ticks.")
+                };
             tsbShowTicks.Click += TsbShowTicksClick;
             TsJournal.Items.Add(tsbShowTicks);
 
             var tsbShowSystemMessages = new ToolStripButton
-                                            {
-                                                Image = Resources.show_system_messages,
-                                                DisplayStyle = ToolStripItemDisplayStyle.Image,
-                                                Alignment = ToolStripItemAlignment.Right,
-                                                Checked = _isShowSystemMessages,
-                                                ToolTipText = Language.T("Show system messages.")
-                                            };
+                {
+                    Image = Resources.show_system_messages,
+                    DisplayStyle = ToolStripItemDisplayStyle.Image,
+                    Alignment = ToolStripItemAlignment.Right,
+                    Checked = isShowSystemMessages,
+                    ToolTipText = Language.T("Show system messages.")
+                };
             tsbShowSystemMessages.Click += TsbShowSystemsClick;
             TsJournal.Items.Add(tsbShowSystemMessages);
 
@@ -122,33 +122,33 @@ namespace ForexStrategyBuilder
             TsJournal.Items.Add(sep1);
 
             var tsbSaveJournal = new ToolStripButton
-                                     {
-                                         Image = Resources.save,
-                                         DisplayStyle = ToolStripItemDisplayStyle.Image,
-                                         Alignment = ToolStripItemAlignment.Right,
-                                         Checked = _isShowSystemMessages,
-                                         ToolTipText = Language.T("Save journal.")
-                                     };
+                {
+                    Image = Resources.save,
+                    DisplayStyle = ToolStripItemDisplayStyle.Image,
+                    Alignment = ToolStripItemAlignment.Right,
+                    Checked = isShowSystemMessages,
+                    ToolTipText = Language.T("Save journal.")
+                };
             tsbSaveJournal.Click += TsbSaveJournalClick;
             TsJournal.Items.Add(tsbSaveJournal);
         }
 
         /// <summary>
-        /// Journal Length changed
+        ///     Journal Length changed
         /// </summary>
         private void TscbxJounalLenghtSelectedIndexChanged(object sender, EventArgs e)
         {
             var comboBox = (ToolStripComboBox) sender;
             Configs.JournalLength = int.Parse(comboBox.SelectedItem.ToString());
-            if (_messages.Count > Configs.JournalLength)
-                _messages.RemoveRange(0, _messages.Count - Configs.JournalLength);
+            if (messages.Count > Configs.JournalLength)
+                messages.RemoveRange(0, messages.Count - Configs.JournalLength);
 
             TabPageJournal.Select();
-            UpdateJournal(_messages);
+            UpdateJournal(messages);
         }
 
         /// <summary>
-        /// Page journal was selected.
+        ///     Page journal was selected.
         /// </summary>
         private void PageJournalSelected()
         {
@@ -156,43 +156,43 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Clears the journal messages.
+        ///     Clears the journal messages.
         /// </summary>
         private void TsbClearClick(object sender, EventArgs e)
         {
-            _messages.Clear();
+            messages.Clear();
             Journal.ClearMessages();
         }
 
         /// <summary>
-        /// Journal starts showing ticks.
+        ///     Journal starts showing ticks.
         /// </summary>
         private void TsbShowTicksClick(object sender, EventArgs e)
         {
             var btn = (ToolStripButton) sender;
             btn.Checked = !btn.Checked;
-            _isShowTicks = btn.Checked;
-            Configs.JournalShowTicks = _isShowTicks;
+            isShowTicks = btn.Checked;
+            Configs.JournalShowTicks = isShowTicks;
         }
 
         /// <summary>
-        /// Journal starts showing system messages.
+        ///     Journal starts showing system messages.
         /// </summary>
         private void TsbShowSystemsClick(object sender, EventArgs e)
         {
             var btn = (ToolStripButton) sender;
             btn.Checked = !btn.Checked;
-            _isShowSystemMessages = btn.Checked;
-            Configs.JournalShowSystemMessages = _isShowSystemMessages;
+            isShowSystemMessages = btn.Checked;
+            Configs.JournalShowSystemMessages = isShowSystemMessages;
         }
 
         /// <summary>
-        /// Saves journal to a file.
+        ///     Saves journal to a file.
         /// </summary>
         private void TsbSaveJournalClick(object sender, EventArgs e)
         {
             var sb = new StringBuilder();
-            foreach (JournalMessage message in _messages)
+            foreach (JournalMessage message in messages)
                 sb.AppendLine(message.Time.ToString("yyyy-MM-dd HH:mm:ss") + ", " + message.Message);
 
             string fileName = Data.Strategy.StrategyName + "_" + Data.Symbol + "_" + Data.PeriodMtStr + "_" +
@@ -202,19 +202,19 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Adds a message to the journal.
+        ///     Adds a message to the journal.
         /// </summary>
         protected void AppendJournalMessage(JournalMessage message)
         {
-            _messages.Add(message);
-            if (_messages.Count > Configs.JournalLength)
-                _messages.RemoveRange(0, _messages.Count - Configs.JournalLength);
+            messages.Add(message);
+            if (messages.Count > Configs.JournalLength)
+                messages.RemoveRange(0, messages.Count - Configs.JournalLength);
 
-            UpdateJournal(_messages);
+            UpdateJournal(messages);
         }
 
         /// <summary>
-        /// Updates journal.
+        ///     Updates journal.
         /// </summary>
         private void UpdateJournal(List<JournalMessage> newMessages)
         {
@@ -229,7 +229,7 @@ namespace ForexStrategyBuilder
         }
 
         /// <summary>
-        /// Sets the colors of tab page Journal.
+        ///     Sets the colors of tab page Journal.
         /// </summary>
         private void SetJournalColors()
         {
@@ -240,14 +240,14 @@ namespace ForexStrategyBuilder
         private void SaveDataFile(string fileName, StringBuilder data)
         {
             var sfdExport = new SaveFileDialog
-                                {
-                                    AddExtension = true,
-                                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                                    Title = Language.T("Save"),
-                                    Filter =
-                                        "Log file (*.log)|*.log|Excel file (*.xls)|*.xls|Text files (*.txt)|*.txt|All files (*.*)|*.*",
-                                    FileName = fileName
-                                };
+                {
+                    AddExtension = true,
+                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    Title = Language.T("Save"),
+                    Filter =
+                        "Log file (*.log)|*.log|Excel file (*.xls)|*.xls|Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                    FileName = fileName
+                };
 
             if (sfdExport.ShowDialog() != DialogResult.OK) return;
             try

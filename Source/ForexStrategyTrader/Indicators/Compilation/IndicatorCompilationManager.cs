@@ -37,7 +37,6 @@ namespace ForexStrategyBuilder
             foreach (Assembly assembly in GetReferencedAndInitialAssembly(Assembly.GetEntryAssembly()))
             {
                 compiler.AddReferencedAssembly(assembly);
-                Console.WriteLine("############# " + assembly.FullName);
             }
         }
 

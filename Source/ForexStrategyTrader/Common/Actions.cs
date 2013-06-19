@@ -147,7 +147,7 @@ namespace ForexStrategyBuilder
                 }
                 else
                 {
-                    msg = "FSB cannot compile the custom indicators." + Environment.NewLine +
+                    msg = "FST cannot compile the custom indicators." + Environment.NewLine +
                           "Please install .NET 3.5 or newer and try again.";
                 }
 

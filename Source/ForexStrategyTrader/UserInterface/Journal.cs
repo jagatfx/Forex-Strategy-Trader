@@ -140,7 +140,6 @@ namespace ForexStrategyBuilder
         /// <summary>
         ///     Gets image for the icon type.
         /// </summary>
-        /// <param name="icon"></param>
         private Image GetImage(JournalIcons icon)
         {
             Image image;
@@ -260,7 +259,7 @@ namespace ForexStrategyBuilder
                 float vertPos = row*rowHeight;
 
                 // Row background
-                var rectRow = new RectangleF(0, vertPos, pnlWidth, rowHeight);
+                var rectRow = new RectangleF(0, vertPos, pnlWidth + 2*Space, rowHeight);
                 g.FillRectangle(
                     Math.Abs(row%2f) > 0.001
                         ? new SolidBrush(colorBackroundEvenRows)
