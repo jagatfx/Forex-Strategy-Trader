@@ -152,6 +152,10 @@ namespace ForexStrategyBuilder.Indicators.Store
                     }
                     SpecialValues = new double[1] { dLevel };
                     break;
+
+                default:
+                    break;
+
             }
         }
 
@@ -193,6 +197,9 @@ namespace ForexStrategyBuilder.Indicators.Store
                     EntryFilterShortDescription += "is lower than the Level " + sLevelShort;
                     ExitFilterLongDescription   += "is lower than the Level " + sLevelLong;
                     ExitFilterShortDescription  += "is lower than the Level " + sLevelShort;
+                    break;
+
+                default:
                     break;
             }
         }

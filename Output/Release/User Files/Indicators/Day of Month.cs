@@ -18,7 +18,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 {
     public class DayOfMonth : Indicator
     {
-	    public DayOfMonth()
+        public DayOfMonth()
         {
             IndicatorName   = "Day of Month";
             PossibleSlots   = SlotTypes.OpenFilter;
@@ -31,7 +31,7 @@ namespace ForexStrategyBuilder.Indicators.Store
         public override void Initialize(SlotTypes slotType)
         {
             SlotType = slotType;
-			
+
             // Setting up the indicator parameters
             IndParam.IndicatorType = TypeOfIndicator.DateTime;
 
@@ -66,7 +66,7 @@ namespace ForexStrategyBuilder.Indicators.Store
         public override void Calculate(IDataSet dataSet)
         {
             DataSet = dataSet;
-			
+
             // Reading the parameters
             int iFromDay  = (int)IndParam.NumParam[0].Value;
             int iUntilDay = (int)IndParam.NumParam[1].Value;

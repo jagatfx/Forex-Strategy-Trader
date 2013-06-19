@@ -100,7 +100,7 @@ namespace ForexStrategyBuilder.Indicators.Store
         public override void Calculate(IDataSet dataSet)
         {
             DataSet = dataSet;
-			
+
             // Reading the parameters
             MAMethod maMethod = (MAMethod) IndParam.ListParam[1].Index;
             BasePrice basePrice = (BasePrice) IndParam.ListParam[2].Index;
@@ -131,14 +131,14 @@ namespace ForexStrategyBuilder.Indicators.Store
             Component[0].Value = adMomentum;
 
             Component[1] = new IndicatorComp();
-			Component[1].ChartType = IndChartType.NoChart;
-			Component[1].FirstBar = firstBar;
-			Component[1].Value = new double[Bars];
+            Component[1].ChartType = IndChartType.NoChart;
+            Component[1].FirstBar = firstBar;
+            Component[1].Value = new double[Bars];
 
             Component[2] = new IndicatorComp();
-			Component[2].ChartType = IndChartType.NoChart;
-			Component[2].FirstBar = firstBar;
-			Component[2].Value = new double[Bars];
+            Component[2].ChartType = IndChartType.NoChart;
+            Component[2].FirstBar = firstBar;
+            Component[2].Value = new double[Bars];
 
             // Sets the Component's type
             switch (SlotType)
@@ -154,6 +154,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                     Component[1].CompName = "Close out long position";
                     Component[2].DataType = IndComponentType.ForceCloseShort;
                     Component[2].CompName = "Close out short position";
+                    break;
+                default:
                     break;
             }
 
@@ -200,6 +202,9 @@ namespace ForexStrategyBuilder.Indicators.Store
                 case "Momentum changes its direction downward":
                     indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     SpecialValues = new double[] {100};
+                    break;
+
+                default:
                     break;
             }
 
@@ -273,6 +278,9 @@ namespace ForexStrategyBuilder.Indicators.Store
                     EntryFilterShortDescription += "changes its direction upward";
                     ExitFilterLongDescription += "changes its direction downward";
                     ExitFilterShortDescription += "changes its direction upward";
+                    break;
+
+                default:
                     break;
             }
         }

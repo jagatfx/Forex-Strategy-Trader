@@ -4,7 +4,7 @@
 //==============================================================
 // THIS CODE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
 // EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
 // A PARTICULAR PURPOSE.
 //==============================================================
 
@@ -33,7 +33,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void Initialize(SlotTypes slotType)
         {
-		    SlotType = slotType;
+            SlotType = slotType;
 
             // ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
@@ -84,7 +84,7 @@ namespace ForexStrategyBuilder.Indicators.Store
         public override void Calculate(IDataSet dataSet)
         {
             DataSet = dataSet;
-			
+
             // Reading parameters
             BasePrice basePrice = (BasePrice)IndParam.ListParam[2].Index;
             int       iPeriod   = (int)IndParam.NumParam[0].Value;
@@ -102,12 +102,12 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             for (int iBar = 1; iBar < Bars; iBar++)
             {
-				adCMO1[iBar] = 0;
-				adCMO2[iBar] = 0;
+                adCMO1[iBar] = 0;
+                adCMO2[iBar] = 0;
                 if (adBasePrice[iBar] > adBasePrice[iBar - 1])
-					adCMO1[iBar] = adBasePrice[iBar] - adBasePrice[iBar - 1];
+                    adCMO1[iBar] = adBasePrice[iBar] - adBasePrice[iBar - 1];
                 if (adBasePrice[iBar] < adBasePrice[iBar - 1])
-					adCMO2[iBar] = adBasePrice[iBar - 1] - adBasePrice[iBar];
+                    adCMO2[iBar] = adBasePrice[iBar - 1] - adBasePrice[iBar];
             }
 
             for (int iBar = 0; iBar < iPeriod; iBar++)
@@ -208,6 +208,9 @@ namespace ForexStrategyBuilder.Indicators.Store
                     indLogic = IndicatorLogic.The_indicator_changes_its_direction_downward;
                     SpecialValues = new double[1] { 0 };
                     break;
+
+                default:
+                    break;
             }
 
             OscillatorLogic(iFirstBar, iPrvs, adCMO, dLevel, -dLevel, ref Component[1], ref Component[2], indLogic);
@@ -279,6 +282,9 @@ namespace ForexStrategyBuilder.Indicators.Store
                     EntryFilterShortDescription += "changes its direction upward";
                     ExitFilterLongDescription   += "changes its direction downward";
                     ExitFilterShortDescription  += "changes its direction upward";
+                    break;
+
+                default:
                     break;
             }
         }

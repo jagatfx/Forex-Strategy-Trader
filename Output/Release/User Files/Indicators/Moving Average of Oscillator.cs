@@ -291,6 +291,9 @@ namespace ForexStrategyBuilder.Indicators.Store
                     ExitFilterLongDescription   += "changes its direction downward";
                     ExitFilterShortDescription  += "changes its direction upward";
                     break;
+
+                default:
+                    break;
             }
         }
 

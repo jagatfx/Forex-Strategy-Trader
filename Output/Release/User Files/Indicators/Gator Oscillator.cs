@@ -185,19 +185,22 @@ namespace ForexStrategyBuilder.Indicators.Store
             switch (IndParam.ListParam[0].Text)
             {
                 case "The Gator Oscillator expands":
-					for (int iBar = iFirstBar; iBar < Bars; iBar++)
-					{
-						Component[2].Value[iBar] = (adUpperGator[iBar - iPrvs] - adLowerGator[iBar - iPrvs]) > (adUpperGator[iBar - iPrvs - 1] - adLowerGator[iBar - iPrvs - 1]) + Sigma() ? 1 : 0;
-						Component[3].Value[iBar] = (adUpperGator[iBar - iPrvs] - adLowerGator[iBar - iPrvs]) > (adUpperGator[iBar - iPrvs - 1] - adLowerGator[iBar - iPrvs - 1]) + Sigma() ? 1 : 0;
-					}
+                    for (int iBar = iFirstBar; iBar < Bars; iBar++)
+                    {
+                        Component[2].Value[iBar] = (adUpperGator[iBar - iPrvs] - adLowerGator[iBar - iPrvs]) > (adUpperGator[iBar - iPrvs - 1] - adLowerGator[iBar - iPrvs - 1]) + Sigma() ? 1 : 0;
+                        Component[3].Value[iBar] = (adUpperGator[iBar - iPrvs] - adLowerGator[iBar - iPrvs]) > (adUpperGator[iBar - iPrvs - 1] - adLowerGator[iBar - iPrvs - 1]) + Sigma() ? 1 : 0;
+                    }
                     break;
 
                 case "The Gator Oscillator contracts":
-					for (int iBar = iFirstBar; iBar < Bars; iBar++)
-					{
-						Component[2].Value[iBar] = (adUpperGator[iBar - iPrvs] - adLowerGator[iBar - iPrvs]) < (adUpperGator[iBar - iPrvs - 1] - adLowerGator[iBar - iPrvs - 1]) - Sigma() ? 1 : 0;
-						Component[3].Value[iBar] = (adUpperGator[iBar - iPrvs] - adLowerGator[iBar - iPrvs]) < (adUpperGator[iBar - iPrvs - 1] - adLowerGator[iBar - iPrvs - 1]) - Sigma() ? 1 : 0;
-					}
+                    for (int iBar = iFirstBar; iBar < Bars; iBar++)
+                    {
+                        Component[2].Value[iBar] = (adUpperGator[iBar - iPrvs] - adLowerGator[iBar - iPrvs]) < (adUpperGator[iBar - iPrvs - 1] - adLowerGator[iBar - iPrvs - 1]) - Sigma() ? 1 : 0;
+                        Component[3].Value[iBar] = (adUpperGator[iBar - iPrvs] - adLowerGator[iBar - iPrvs]) < (adUpperGator[iBar - iPrvs - 1] - adLowerGator[iBar - iPrvs - 1]) - Sigma() ? 1 : 0;
+                    }
+                    break;
+
+                default:
                     break;
             }
         }
@@ -223,6 +226,9 @@ namespace ForexStrategyBuilder.Indicators.Store
                     EntryFilterShortDescription += "contracts";
                     ExitFilterLongDescription   += "contracts";
                     ExitFilterShortDescription  += "contracts";
+                    break;
+
+                default:
                     break;
             }
         }
