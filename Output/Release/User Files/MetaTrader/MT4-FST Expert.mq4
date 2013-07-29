@@ -1,6 +1,6 @@
 //+--------------------------------------------------------------------+
 //| File name:  MT4-FST Expert.mq4                                     |
-//| Version:    3.0 2013-07-17                                         |
+//| Version:    3.0 2013-07-25                                         |
 //| Copyright:  © 2013, Miroslav Popov - All rights reserved!          |
 //| Website:    http://forexsb.com/                                    |
 //| Support:    http://forexsb.com/forum/                              |
@@ -24,7 +24,7 @@
 //+--------------------------------------------------------------------+
 #include <WinUser32.mqh>
 
-#property copyright "Copyright © 2012, Miroslav Popov"
+#property copyright "Copyright © 2013, Miroslav Popov"
 #property link      "http://forexsb.com/"
 
 #define EXPERT_VERSION           "3.0"
@@ -290,8 +290,8 @@ bool CheckEnvironment()
     }
 
     // Checks the amount of bars available.
-    int barsNecessary = MathMax(2 * 1440 / Period() + 10, 400); // Two days + 10 bars, min 400.
-    if (!CheckChartBarsNumber(Symbol(), Period(), barsNecessary))
+    int barsNecessary = 300;
+    if (!CheckChartBarsCount(Symbol(), Period(), barsNecessary))
     {
         message = "\n" + "Cannot load enough bars! The expert needs minimum " + barsNecessary + " bars for this time frame." + "\n" +
                   "Please load more data in the chart window and restart the expert.";
@@ -426,8 +426,8 @@ int Server()
             if (isNewBar && Write_Log_File)
                 WriteNewLogLine(AggregatePositionToString());
 
-            int tickResponce = SendTick(symbol[0]);
-            CommentTickResponce(symbol[0], expertID, tickResponce);
+            int tickResponse = SendTick(symbol[0]);
+            CommentTickResponse(symbol[0], expertID, tickResponse);
 
             TimeLastPing = TimeLocal();
         }
@@ -943,9 +943,9 @@ bool ModifyPosition(string symbol, double stoploss, double takeprofit)
     double stopLossPrice   = GetStopLossPrice(symbol, PositionType, PositionLots, stoploss);
     double takeProfitPrice = GetTakeProfitPrice(symbol, PositionType, takeprofit);
 
-    int responce = SetStopLossAndTakeProfit(symbol, stopLossPrice, takeProfitPrice);
+    int response = SetStopLossAndTakeProfit(symbol, stopLossPrice, takeProfitPrice);
 
-    return (responce >= 0);
+    return (response >= 0);
 }
 
 ///
@@ -1017,7 +1017,7 @@ int ClosePositionByTicket(string symbol, int orderTicket, double orderLots, int 
 
         double orderPrice = IF_D(orderType == OP_BUY, MarketInfo(symbol, MODE_BID), MarketInfo(symbol, MODE_ASK));
         orderPrice = NormalizeDouble(orderPrice, Digits);
-        bool responce = OrderClose(orderTicket, orderLots, orderPrice, slippage, Gold);
+        bool response = OrderClose(orderTicket, orderLots, orderPrice, slippage, Gold);
         LastError = GetLastError();
 
         ReleaseTradeContext();
@@ -1028,9 +1028,9 @@ int ClosePositionByTicket(string symbol, int orderTicket, double orderLots, int 
                          ", Lots="     + DoubleToStr(orderLots, 2) +
                          ", Price="    + DoubleToStr(orderPrice, 5) +
                          ", Slippage=" + slippage + ")" +
-                         ", Response=" + responce + ", LastError=" + LastError);
+                         ", Response=" + response + ", LastError=" + LastError);
 
-        if (responce)
+        if (response)
             return (0);
 
         Print("Error with ClosePositionByTicket: ", GetErrorDescription(LastError), ". Attempt No: ", (attempt + 1));
@@ -1045,7 +1045,7 @@ int ClosePositionByTicket(string symbol, int orderTicket, double orderLots, int 
 ///
 int SetStopLossAndTakeProfit(string symbol, double stopLossPrice, double takeProfitPrice)
 {
-    int responce = 1;
+    int response = 1;
 
     for (int i = 0; i < OrdersTotal(); i++)
     {
@@ -1063,10 +1063,10 @@ int SetStopLossAndTakeProfit(string symbol, double stopLossPrice, double takePro
         if (type != OP_BUY && type != OP_SELL)
             continue;
 
-        responce = ModifyPositionByTicket(symbol, OrderTicket(), stopLossPrice, takeProfitPrice);
+        response = ModifyPositionByTicket(symbol, OrderTicket(), stopLossPrice, takeProfitPrice);
     }
 
-    return (responce);
+    return (response);
 }
 
 ///
@@ -1086,7 +1086,7 @@ int ModifyPositionByTicket(string symbol, int orderTicket, double stopLossPrice,
     for (int attempt = 0; attempt < TRADE_RETRY_COUNT; attempt++)
     {
         if (attempt > 0)
-        {   // Prevents Invalit Stops due to price change during the cycle.
+        {   // Prevents Invalid Stops due to price change during the cycle.
             stopLossPrice   = CorrectStopLossPrice(symbol,   OrderType(), stopLossPrice);
             takeProfitPrice = CorrectTakeProfitPrice(symbol, OrderType(), takeProfitPrice);
         }
@@ -1151,9 +1151,9 @@ int ModifyPositionByTicket(string symbol, int orderTicket, double stopLossPrice,
 ///
 bool OrderSelectByTicket(int orderTicket)
 {
-    bool responce = OrderSelect(orderTicket, SELECT_BY_TICKET);
+    bool response = OrderSelect(orderTicket, SELECT_BY_TICKET);
 
-    if (!responce)
+    if (!response)
     {
          LastError = GetLastError();
          string message = "### Error with OrderSelect(" + orderTicket + ")" +
@@ -1164,7 +1164,7 @@ bool OrderSelectByTicket(int orderTicket)
              WriteLogLine(message);
     }
 
-    return (responce);
+    return (response);
 }
 
 ///
@@ -1677,21 +1677,21 @@ string GenerateParameters(string symbol)
 ///
 /// Updates tick response on chart.
 ///
-void CommentTickResponce(string symbol, string expertID, int tickResponce)
+void CommentTickResponse(string symbol, string expertID, int tickresponse)
 {
     string message;
-    if (tickResponce == 1)
+    if (tickresponse == 1)
     {
         FST_Connected = true;
         TimeLastPing  = TimeLocal();
         message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Forex Strategy Trader is connected.";
     }
-    else if (tickResponce == 0)
+    else if (tickresponse == 0)
     {
         FST_Connected = false;
         message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Forex Strategy Trader is disconnected.";
     }
-    else if (tickResponce == -1)
+    else if (tickresponse == -1)
     {
         message = expertID + TimeToStr(TimeLocal(), TIME_DATE | TIME_SECONDS) + " Error with sending a tick";
     }
@@ -1740,12 +1740,12 @@ int SendTick(string symbol)
     int    spread  = MathRound(MarketInfo(symbol, MODE_SPREAD));
     double tickval = MarketInfo(symbol, MODE_TICKVALUE);
 
-    int responce = FST_Tick(Connection_ID, symbol, Period(), TimeCurrent(), bid, ask, spread, tickval, rates, Bars,
+    int response = FST_Tick(Connection_ID, symbol, Period(), TimeCurrent(), bid, ask, spread, tickval, rates, Bars,
         AccountBalance(), AccountEquity(), AccountProfit(), AccountFreeMargin(),
         PositionTicket, PositionType, PositionLots, PositionOpenPrice, PositionTime, PositionStopLoss, PositionTakeProfit, PositionProfit, PositionComment,
         GenerateParameters(symbol));
 
-    return (responce);
+    return (response);
 }
 
 ///
@@ -1753,7 +1753,7 @@ int SendTick(string symbol)
 ///
 void GetBars(string symbol, int period, int barsNecessary)
 {
-    CheckChartBarsNumber(symbol, period, barsNecessary);
+    CheckChartBarsCount(symbol, period, barsNecessary);
 
     RefreshRates();
     double rates[][6];
@@ -1764,7 +1764,7 @@ void GetBars(string symbol, int period, int barsNecessary)
 //
 // Checks if the chart contains enough bars.
 //
-bool CheckChartBarsNumber(string symbol, int period, int barsNecessary)
+bool CheckChartBarsCount(string symbol, int period, int barsNecessary)
 {
     int    bars = 0;
     double rates[][6];
@@ -2255,7 +2255,7 @@ void CloseLogFile()
 
 /**
 * Search for the string needle in the string haystack and replace all
-* occurrecnes with replace.
+* occurrences with replace.
 */
 string StringReplace(string haystack, string needle, string replace){
    string left, right;
