@@ -610,7 +610,7 @@ namespace ForexStrategyBuilder
 
             if (mi.Checked)
             {
-                Configs.UseLogicalGroups = mi.Checked;
+                Configs.UseLogicalGroups = true;
                 RebuildStrategyLayout();
                 return;
             }

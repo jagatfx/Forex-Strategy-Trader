@@ -1,7 +1,7 @@
 //+--------------------------------------------------------------------+
 //| File name:  MT4-FST Expert.mq4                                     |
-//| Version:    1.17 2012-07-10                                        |
-//| Copyright:  © 2012, Miroslav Popov - All rights reserved!          |
+//| Version:    3.0 2013-07-17                                         |
+//| Copyright:  © 2013, Miroslav Popov - All rights reserved!          |
 //| Website:    http://forexsb.com/                                    |
 //| Support:    http://forexsb.com/forum/                              |
 //| License:    Freeware under the following circumstances:            |
@@ -27,7 +27,7 @@
 #property copyright "Copyright © 2012, Miroslav Popov"
 #property link      "http://forexsb.com/"
 
-#define EXPERT_VERSION           "1.17"
+#define EXPERT_VERSION           "3.0"
 #define SERVER_SEMA_NAME         "MT4-FST Expert ID - "
 #define TRADE_SEMA_NAME          "TradeIsBusy"
 #define TRADE_SEMA_WAIT          100
@@ -43,6 +43,7 @@
 #define FST_REQ_PING             11
 #define FST_REQ_MARKET_INFO_ALL  12
 #define FST_REQ_TERMINAL_INFO    13
+#define FST_REQ_SET_LTF_META     14
 
 #define FST_ERR_INVALID_REQUEST  -1
 #define FST_ERR_WRONG_ORD_TYPE   -10005
@@ -158,6 +159,10 @@ datetime barLowTime     = 0;
 double   currentBarHigh = 0;
 double   currentBarLow  = 1000000;
 int      logLines       = 0;
+
+string ltfSymbols[]; 
+int    ltfPeriods[];
+int    ltfLength = 0;
 
 ///
 /// Expert's initialization function.
@@ -536,6 +541,13 @@ int Server()
                        if (Write_Log_File) WriteLogLine(requestOrderModifyMessage);
                     }
                     FST_Response(Connection_ID, isSucceed, lastErrorOrdModify);
+                    break;
+
+                case FST_REQ_SET_LTF_META:
+                    // Forex Strategy Trader wants to set required LTF (Longer Time Period) meta data.
+                    if (Write_Log_File) WriteLogRequest("FST Request: Set LTF meta data.", FST_Request);
+                    SetLtfMetaData(parameters[0]);
+                    FST_Response(Connection_ID, true, 0);
                     break;
 
                 default:
@@ -1557,7 +1569,6 @@ void ClosePositionStopExpert(string symbol)
 ///
 void DetectSLTPActivation(string symbol)
 {
-
     // Save position values from previous tick.
     double oldStopLoss   = PositionStopLoss;
     double oldTakeProfit = PositionTakeProfit;
@@ -1650,13 +1661,17 @@ void ParseOrderParameters(string parameters)
 ///
 string GenerateParameters(string symbol)
 {
-   string parametrs =
-      "cl="  + ConsecutiveLosses   + ";" +
-      "aSL=" + ActivatedStopLoss   + ";" +
-      "aTP=" + ActivatedTakeProfit + ";" +
-      "al="  + ClosedSLTPLots;
+    string parametrs =
+        "cl="  + ConsecutiveLosses   + ";" +
+        "aSL=" + ActivatedStopLoss   + ";" +
+        "aTP=" + ActivatedTakeProfit + ";" +
+        "al="  + ClosedSLTPLots;
+      
+    if (ltfLength > 0)
+        parametrs = parametrs + ";" +
+            "LTF=" + GetLtfBarsString();
 
-   return (parametrs);
+    return (parametrs);
 }
 
 ///
@@ -1682,7 +1697,6 @@ void CommentTickResponce(string symbol, string expertID, int tickResponce)
     }
     Comment(message);
 }
-
 
 // ===========================================================================
 
@@ -1773,7 +1787,7 @@ bool CheckChartBarsNumber(string symbol, int period, int barsNecessary)
 
     if (bars < barsNecessary)
     {
-        int hwnd = WindowHandle(Symbol(), Period());
+        int hwnd = WindowHandle(symbol, period);
         int maxbars = 0;
         int nullattempts = 0;
         int Key_HOME = 36;
@@ -1789,7 +1803,7 @@ bool CheckChartBarsNumber(string symbol, int period, int barsNecessary)
 
             if (bars > barsNecessary)
             {
-                Comment("Loaded bars: ", bars);
+                Comment("Loaded ", symbol, " ", period,  " bars: ", bars);
                 break;
             }
 
@@ -1804,14 +1818,14 @@ bool CheckChartBarsNumber(string symbol, int period, int barsNecessary)
             {
                 nullattempts = 0;
                 maxbars = bars;
-                Comment("Loading... ", bars, " of ", barsNecessary);
+                Comment("Loading... ", symbol, " ", period,  " bars: ", bars, " of ", barsNecessary);
             }
         }
     }
 
     if (bars < barsNecessary)
     {
-        string message = "There isn\'t enough bars. FST needs minimum " + barsNecessary + " bars for this time frame. Currently " + bars + " bars are loaded.";
+        string message = "There isn\'t enough bars. FST needs minimum " + barsNecessary + " bars for " + symbol + " " + period + ". Currently " + bars + " bars are loaded.";
         Comment(message);
         Print(message);
     }
@@ -1851,6 +1865,59 @@ void GetMarketInfoAll(string symbol)
     );
 
     return;
+}
+
+///
+/// Sets Longer Time Frame meta data required by the strategy
+///
+void SetLtfMetaData(string metaData)
+{
+    string meta[];
+    SplitString(metaData, ";", meta);
+    ltfLength = ArraySize(meta)/2;
+    ArrayResize(ltfSymbols, ltfLength);
+    ArrayResize(ltfPeriods, ltfLength);
+    
+    int j = 0;
+    for (int i = 0; i< ltfLength; i++)
+    {
+        ltfSymbols[i] = meta[j];
+        j = j + 1;
+        ltfPeriods[i] = StrToInteger(meta[j]);
+        j = j + 1;
+    }
+}
+
+string GetLtfBarsString()
+{
+    string output;
+    
+    string bars;
+    for(int i = 0; i < ltfLength; i++)
+    {
+        string symbol = ltfSymbols[i];
+        int    period = ltfPeriods[i];
+        
+        bars = bars + symbol + "|" + period;
+        for (int j = 1; j >= 0; j--)
+        {
+            int    digits = MarketInfo(symbol, MODE_DIGITS);
+            string time   = TimeToStr(iTime(symbol, period, j), TIME_DATE) + "|" +
+                            TimeToStr(iTime(symbol, period, j), TIME_SECONDS);
+            string open   = DoubleToStr(iOpen (symbol, period, j), digits);
+            string high   = DoubleToStr(iHigh (symbol, period, j), digits);
+            string low    = DoubleToStr(iLow  (symbol, period, j), digits);
+            string close  = DoubleToStr(iClose(symbol, period, j), digits);
+            string volume = DoubleToStr(iVolume(symbol, period, j), 0);
+
+            bars = bars + "|" + time + "|" + open + "|" + high + "|" + low + "|" + close + "|" + volume;
+        }
+        
+        if (i < ltfLength - 1)
+            bars = bars + "#";
+    }
+    
+    return (bars);
 }
 
 ///

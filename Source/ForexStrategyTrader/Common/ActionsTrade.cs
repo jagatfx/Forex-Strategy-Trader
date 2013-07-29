@@ -160,7 +160,7 @@ namespace ForexStrategyBuilder
                     basePrice = Data.Ask;
                     oldPrice = Data.OldAsk;
                     break;
-                case "Close":
+                case "Chart":
                     basePrice = Data.LastClose;
                     oldPrice = Data.OldClose;
                     break;

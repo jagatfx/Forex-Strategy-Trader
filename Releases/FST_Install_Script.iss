@@ -1,6 +1,6 @@
 #define MyAppName      "Forex Strategy Trader"
-#define MyAppVersion   "3.0.0.0"
-#define MyAppVerText   "v3"
+#define MyAppVersion   "3.2.0.0"
+#define MyAppVerText   "v3.2"
 #define MyOutputPath   SourcePath
 #define MyCertPass     ReadIni(SourcePath + "\Install.ini", "Release", "CertificatePassoword")
 
@@ -27,11 +27,10 @@ DisableProgramGroupPage = true
 DisableReadyPage        = true
 
 [Components]
-Name: "main";      Description: "Main files.";        Types: full compact custom; Flags: fixed;
-Name: "autostart"; Description: "autostart.bat (Disable to prevent replacing of existing one)."; Types: full; Flags: disablenouninstallwarning;
-Name: "custind";   Description: "Custom indicators."; Types: full; Flags: disablenouninstallwarning;
-Name: "strat";     Description: "Demo strategies.";   Types: full; Flags: disablenouninstallwarning;
-Name: "vcredist";  Description: "VC Redist 2008 (Required. If you are not sure, leave it on)."; Types: full; Flags: disablenouninstallwarning;
+Name: "main";      Description: "Main files.";                                                   Types: full compact custom; Flags: fixed;
+Name: "autostart"; Description: "autostart.bat (Disable to prevent replacing of existing one)."; Types: full;                Flags: disablenouninstallwarning;
+Name: "mt4files";  Description: "MT4 Expert and Library (Required for Trader).";                 Types: full;                Flags: disablenouninstallwarning;
+Name: "vcredist";  Description: "VC++ Redist 2012 (Required for MT4 library).";                  Types: full;                Flags: disablenouninstallwarning;
 
 [InstallDelete]
 Type: files; Name: "{app}\User Files\System\fstconfig.xml"
@@ -39,16 +38,16 @@ Type: files; Name: "{app}\User Files\System\config.xml"
 Type: files; Name: "{app}\User Files\System\fst-update.xml"
 
 [Files]
-Source: autostart.bat;                      DestDir: "{app}"; Components: autostart;   Permissions: users-modify;
-Source: Forex Strategy Trader.exe;          DestDir: "{app}"; Components: main;        Flags: replacesameversion;
-Source: FST_Launcher.exe;                   DestDir: "{app}"; Components: main;        Flags: replacesameversion;
-Source: FST_Launcher.xml;                   DestDir: "{app}"; Components: main;
-Source: ReadMe.html;                        DestDir: "{app}"; Components: main;
-Source: License.rtf;                        DestDir: "{app}"; Components: main;
-Source: Redistributable\*;                  DestDir: "{app}\Redistributable";                 Components: vcredist;
-Source: User Files\Indicators\*;            DestDir: "{app}\User Files\Indicators";           Components: custind;
-Source: User Files\MetaTrader\*;            DestDir: "{app}\User Files\MetaTrader";           Components: main;
-Source: User Files\Strategies\*;            DestDir: "{app}\User Files\Strategies";           Components: strat;
+Source: autostart.bat;                      DestDir: "{app}";                                 Components: autostart; Permissions: users-modify;
+Source: Forex Strategy Trader.exe;          DestDir: "{app}";                                 Components: main;      Flags: replacesameversion;
+Source: FST_Launcher.exe;                   DestDir: "{app}";                                 Components: main;      Flags: replacesameversion;
+Source: FST_Launcher.xml;                   DestDir: "{app}";                                 Components: main;
+Source: ReadMe.html;                        DestDir: "{app}";                                 Components: main;
+Source: License.rtf;                        DestDir: "{app}";                                 Components: main;
+Source: Redistributable\*;                  DestDir: "{app}\Redistributable";                 Components: main;
+Source: User Files\Indicators\*;            DestDir: "{app}\User Files\Indicators";           Components: main;
+Source: User Files\MetaTrader\*;            DestDir: "{app}\User Files\MetaTrader";           Components: main;      Flags: replacesameversion;
+Source: User Files\Strategies\*;            DestDir: "{app}\User Files\Strategies";           Components: main;
 Source: User Files\System\Colors\*;         DestDir: "{app}\User Files\System\Colors";        Components: main;
 Source: User Files\System\Images\*;         DestDir: "{app}\User Files\System\Images";        Components: main;
 Source: User Files\System\Languages\*;      DestDir: "{app}\User Files\System\Languages";     Components: main;
@@ -70,9 +69,9 @@ Name: "{group}\User Files";                    Filename: "{app}\User Files";
 Name: "{group}\Uninstall";                     Filename: "{uninstallexe}";
 
 [Run]
-Filename: "{app}\Redistributable\vcredist_x86.exe"; WorkingDir: "{app}\Redistributable"; Parameters: "/q:a"; StatusMsg: "Installing vcredist_x86..."; Flags: waituntilterminated skipifdoesntexist
-Filename: "{app}\User Files\MetaTrader\Install MT Files.exe"; WorkingDir: "{app}\User Files\MetaTrader"; StatusMsg: "Installing the MetaTrader expert and DLL...";    Flags: waituntilterminated
-Filename: "{app}\ReadMe.html";     Description: "View the ReadMe file";   Flags: postinstall skipifsilent shellexec;
+Filename: "{app}\Redistributable\vcredist_x86.exe";           WorkingDir: "{app}\Redistributable";       StatusMsg: "Installing vcredist_x86...";                  Components: vcredist; Flags: waituntilterminated skipifdoesntexist; Parameters: "/q:a";
+Filename: "{app}\User Files\MetaTrader\Install MT Files.exe"; WorkingDir: "{app}\User Files\MetaTrader"; StatusMsg: "Installing the MetaTrader expert and DLL..."; Components: mt4files; Flags: waituntilterminated
+Filename: "{app}\ReadMe.html";      Description: "View the ReadMe file";   Flags: postinstall skipifsilent shellexec;
 Filename: "{app}\FST_Launcher.exe"; Description: "Launch the application"; Flags: postinstall skipifsilent nowait;
 
 [code]
@@ -104,62 +103,7 @@ begin
 			    ShellExec('open', 'http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/dotnetfx.exe', '','', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 		    end;
     end;
-    
-   MsgBox('Meta Trader 4 have to be closed during the installation.', mbConfirmation, MB_OK);
-end;
-
-procedure DeleteVCRedistRuntimeTemporaryFiles();
-var
-   i : Integer;
-   byCounter : Byte;
-   strRootDrivePath : String;
-   arrFiles : Array [1..24] Of String;
-begin
-   For byCounter := 67 to 77 do
-   Begin
-      strRootDrivePath := Chr(byCounter) + ':\';
-      arrFiles[1] := strRootDrivePath + 'vcredist.bmp';
-      arrFiles[2] := strRootDrivePath + 'VC_RED.cab';
-      arrFiles[3] := strRootDrivePath + 'VC_RED.MSI';
-
-      If (FileExists(arrFiles[1]) And FileExists(arrFiles[2]) And FileExists(arrFiles[3])) Then
-      Begin
-          arrFiles[4]  := strRootDrivePath + 'eula.1028.txt';
-          arrFiles[5]  := strRootDrivePath + 'eula.1031.txt';
-          arrFiles[6]  := strRootDrivePath + 'eula.1033.txt';
-          arrFiles[7]  := strRootDrivePath + 'eula.1036.txt';
-          arrFiles[8]  := strRootDrivePath + 'eula.1040.txt';
-          arrFiles[9]  := strRootDrivePath + 'eula.1041.txt';
-          arrFiles[10] := strRootDrivePath + 'eula.1042.txt';
-          arrFiles[11] := strRootDrivePath + 'eula.2052.txt';
-          arrFiles[12] := strRootDrivePath + 'eula.3082.txt';
-          arrFiles[13] := strRootDrivePath + 'globdata.ini';
-          arrFiles[14] := strRootDrivePath + 'install.exe';
-          arrFiles[15] := strRootDrivePath + 'install.ini';
-          arrFiles[16] := strRootDrivePath + 'install.res.1028.dll';
-          arrFiles[17] := strRootDrivePath + 'install.res.1031.dll';
-          arrFiles[18] := strRootDrivePath + 'install.res.1033.dll';
-          arrFiles[19] := strRootDrivePath + 'install.res.1036.dll';
-          arrFiles[20] := strRootDrivePath + 'install.res.1040.dll';
-          arrFiles[21] := strRootDrivePath + 'install.res.1041.dll';
-          arrFiles[22] := strRootDrivePath + 'install.res.1042.dll';
-          arrFiles[23] := strRootDrivePath + 'install.res.2052.dll';
-          arrFiles[24] := strRootDrivePath + 'install.res.3082.dll';
-
-          For i := 1 to 24 Do
-          Begin
-            DeleteFile(arrFiles[i]);
-          End;
-
-          Break;
-      End;
-   End;
-End;
-
-procedure DeinitializeSetup();
-begin
-    DeleteVCRedistRuntimeTemporaryFiles();
-end;
+ end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
@@ -183,9 +127,7 @@ begin
 
     // Move files in new location
     CreateDir(ExpandConstant('{app}\User Files'));
-    RenameFile(ExpandConstant('{app}\Custom Indicators'), ExpandConstant('{app}\User Files\Indicators'));
     RenameFile(ExpandConstant('{app}\Logs'),              ExpandConstant('{app}\User Files\Logs'));
-    RenameFile(ExpandConstant('{app}\MetaTrader'),        ExpandConstant('{app}\User Files\MetaTrader'));
     RenameFile(ExpandConstant('{app}\Strategies'),        ExpandConstant('{app}\User Files\Strategies'));
     RenameFile(ExpandConstant('{app}\System'),            ExpandConstant('{app}\User Files\System'));
     DelTree(ExpandConstant('{app}\Custom Indicators'), True, True, True);

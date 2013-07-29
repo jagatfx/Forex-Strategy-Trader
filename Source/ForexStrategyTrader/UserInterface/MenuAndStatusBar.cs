@@ -670,11 +670,21 @@ namespace ForexStrategyBuilder
                 };
             miForum.Click += MenuForexContentsOnClick;
 
+            // Go Pro
+            var miGoPro = new ToolStripMenuItem(Language.T("Go Pro"))
+            {
+                Alignment = ToolStripItemAlignment.Right,
+                Tag = "http://forexsb.com/wiki/fsbpro/start",
+                ForeColor = Color.Navy,
+                ToolTipText = Language.T("See Forex Strategy Builder Professional web page") + "..."
+            };
+            miGoPro.Click += MenuForexContentsOnClick;
+
             // MainMenu
             ToolStripItem[] mainMenu =
                 {
                     miFile, miEdit, miView, miStrategy, miTools,
-                    miHelp, MiForex, MiLiveContent, miForum
+                    miHelp, MiForex, MiLiveContent, miForum, miGoPro
                 };
 
             MainMenuStrip.Items.AddRange(mainMenu);
