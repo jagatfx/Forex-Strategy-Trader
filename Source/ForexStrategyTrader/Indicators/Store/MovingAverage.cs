@@ -24,7 +24,7 @@ namespace ForexStrategyBuilder.Indicators.Store
             PossibleSlots = SlotTypes.Open | SlotTypes.OpenFilter | SlotTypes.Close | SlotTypes.CloseFilter;
 
             IndicatorAuthor = "Miroslav Popov";
-            IndicatorVersion = "2.0";
+            IndicatorVersion = "2.1";
             IndicatorDescription = "Bundled in FSB distribution.";
         }
 
@@ -124,11 +124,16 @@ namespace ForexStrategyBuilder.Indicators.Store
             int previous = IndParam.CheckParam[0].Checked ? 1 : 0;
 
             // TimeExecution
-            if (price == BasePrice.Open && period == 1 && shift == 0)
-                IndParam.ExecutionTime = ExecutionTime.AtBarOpening;
+            if (period == 1 && shift == 0)
+            {
+                if (price == BasePrice.Open)
+                    IndParam.ExecutionTime = ExecutionTime.AtBarOpening;
+                else if (price == BasePrice.Close)
+                    IndParam.ExecutionTime = ExecutionTime.AtBarClosing;
+            }
 
             // Calculation
-            double[] adMA = MovingAverage(period, shift, maMethod, Price(price));
+            double[] movingAverage = MovingAverage(period, shift, maMethod, Price(price));
             int firstBar = period + shift + 1 + previous;
 
             // Saving the components
@@ -141,8 +146,8 @@ namespace ForexStrategyBuilder.Indicators.Store
                 for (int bar = firstBar; bar < Bars; bar++)
                 {
                     // Covers the cases when the price can pass through the MA without a signal
-                    double value = adMA[bar - previous]; // Current value
-                    double value1 = adMA[bar - previous - 1]; // Previous value
+                    double value = movingAverage[bar - previous]; // Current value
+                    double value1 = movingAverage[bar - previous - 1]; // Previous value
                     double tempVal = value;
                     if ((value1 > High[bar - 1] && value < Open[bar]) || // The Open price jumps above the indicator
                         (value1 < Low[bar - 1] && value > Open[bar]) || // The Open price jumps below the indicator
@@ -170,7 +175,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                     ChartType = IndChartType.Line,
                     ChartColor = Color.Red,
                     FirstBar = firstBar,
-                    Value = adMA
+                    Value = movingAverage
                 };
 
             switch (SlotType)
@@ -202,28 +207,28 @@ namespace ForexStrategyBuilder.Indicators.Store
                 switch (IndParam.ListParam[0].Text)
                 {
                     case "Moving Average rises":
-                        IndicatorRisesLogic(firstBar, previous, adMA, ref Component[1], ref Component[2]);
+                        IndicatorRisesLogic(firstBar, previous, movingAverage, ref Component[1], ref Component[2]);
                         break;
 
                     case "Moving Average falls":
-                        IndicatorFallsLogic(firstBar, previous, adMA, ref Component[1], ref Component[2]);
+                        IndicatorFallsLogic(firstBar, previous, movingAverage, ref Component[1], ref Component[2]);
                         break;
 
                     case "The bar opens above Moving Average":
-                        BarOpensAboveIndicatorLogic(firstBar, previous, adMA, ref Component[1], ref Component[2]);
+                        BarOpensAboveIndicatorLogic(firstBar, previous, movingAverage, ref Component[1], ref Component[2]);
                         break;
 
                     case "The bar opens below Moving Average":
-                        BarOpensBelowIndicatorLogic(firstBar, previous, adMA, ref Component[1], ref Component[2]);
+                        BarOpensBelowIndicatorLogic(firstBar, previous, movingAverage, ref Component[1], ref Component[2]);
                         break;
 
                     case "The bar opens above Moving Average after opening below it":
-                        BarOpensAboveIndicatorAfterOpeningBelowLogic(firstBar, previous, adMA, ref Component[1],
+                        BarOpensAboveIndicatorAfterOpeningBelowLogic(firstBar, previous, movingAverage, ref Component[1],
                                                                      ref Component[2]);
                         break;
 
                     case "The bar opens below Moving Average after opening above it":
-                        BarOpensBelowIndicatorAfterOpeningAboveLogic(firstBar, previous, adMA, ref Component[1],
+                        BarOpensBelowIndicatorAfterOpeningAboveLogic(firstBar, previous, movingAverage, ref Component[1],
                                                                      ref Component[2]);
                         break;
 
@@ -246,11 +251,11 @@ namespace ForexStrategyBuilder.Indicators.Store
                         break;
 
                     case "The bar closes below Moving Average":
-                        BarClosesBelowIndicatorLogic(firstBar, previous, adMA, ref Component[1], ref Component[2]);
+                        BarClosesBelowIndicatorLogic(firstBar, previous, movingAverage, ref Component[1], ref Component[2]);
                         break;
 
                     case "The bar closes above Moving Average":
-                        BarClosesAboveIndicatorLogic(firstBar, previous, adMA, ref Component[1], ref Component[2]);
+                        BarClosesAboveIndicatorLogic(firstBar, previous, movingAverage, ref Component[1], ref Component[2]);
                         break;
                 }
             }

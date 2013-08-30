@@ -192,10 +192,18 @@ namespace ForexStrategyBuilder
             int bar = Data.Bars - 1;
 
             // Do not send entry order when we are not on time
-            if (openTimeExec == ExecutionTime.AtBarOpening &&
-                Data.Strategy.Slot[Data.Strategy.OpenSlot].Component[0].Value[bar] < Epsilon)
-                // TODO Inspect why we check exactly component 0 
-                return TradeDirection.None;
+            if (openTimeExec == ExecutionTime.AtBarOpening)
+            {
+                var slot = Data.Strategy.Slot[Data.Strategy.OpenSlot];
+                foreach (IndicatorComp component in slot.Component)
+                {
+                    if (component.DataType != IndComponentType.OpenLongPrice &&
+                        component.DataType != IndComponentType.OpenShortPrice &&
+                        component.DataType != IndComponentType.OpenPrice) continue;
+                    if (component.Value[bar] < Epsilon)
+                        return TradeDirection.None;
+                }
+            }
 
             foreach (IndicatorSlot slot in Data.Strategy.Slot)
                 if (slot.IndicatorName == "Enter Once")
@@ -501,10 +509,18 @@ namespace ForexStrategyBuilder
         {
             int bar = Data.Bars - 1;
 
-            if (closeTimeExec == ExecutionTime.AtBarClosing &&
-                Data.Strategy.Slot[Data.Strategy.CloseSlot].Component[0].Value[bar] < Epsilon)
-                // TODO Inspect why we check exactly component 0 
-                return TradeDirection.None;
+            if (closeTimeExec == ExecutionTime.AtBarClosing)
+            {
+                var slot = Data.Strategy.Slot[Data.Strategy.CloseSlot];
+                foreach (IndicatorComp component in slot.Component)
+                {
+                    if (component.DataType != IndComponentType.CloseLongPrice &&
+                        component.DataType != IndComponentType.CloseShortPrice &&
+                        component.DataType != IndComponentType.ClosePrice) continue;
+                    if (component.Value[bar] < Epsilon)
+                        return TradeDirection.None;
+                }
+            }
 
             if (Data.Strategy.CloseFilters == 0)
                 return TradeDirection.Both;
