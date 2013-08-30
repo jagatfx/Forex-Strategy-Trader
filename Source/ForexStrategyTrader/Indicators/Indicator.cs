@@ -235,10 +235,7 @@ namespace ForexStrategyBuilder.Indicators
         public bool IsBacktester { get; private set; }
         public bool IsGeneratable { get; set; }
 
-        /// <summary>
-        ///     Fake property. It allows compatibility with the trader.
-        /// </summary>
-        protected DateTime ServerTime { get; set; }
+        protected DateTime ServerTime { get { return Data.ServerTime; } }
 
         /// <summary>
         ///     Tests if this is one of the possible slots.

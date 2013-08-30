@@ -35,7 +35,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                                  "The indicator uses the server time that comes from the broker together with ticks.";
 
             IndicatorAuthor = "Miroslav Popov";
-            IndicatorVersion = "2.0";
+            IndicatorVersion = "2.1";
             IndicatorDescription = "Bundled in FSB distribution.";
         }
 
@@ -48,7 +48,7 @@ namespace ForexStrategyBuilder.Indicators.Store
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
-            IndParam.ListParam[0].ItemList = new[] {"Exit the market at the end of the day"};
+            IndParam.ListParam[0].ItemList = new[] {"Exit the market at the end of the week"};
             IndParam.ListParam[0].Index = 0;
             IndParam.ListParam[0].Text = IndParam.ListParam[0].ItemList[IndParam.ListParam[0].Index];
             IndParam.ListParam[0].Enabled = true;
@@ -61,34 +61,19 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[1].Enabled = true;
             IndParam.ListParam[1].ToolTip = "Exit price of the position.";
 
-            // The NumericUpDown parameters
-            IndParam.NumParam[0].Caption = "Day close hour";
-            IndParam.NumParam[0].Value = 23;
+            IndParam.NumParam[0].Caption = "Friday close hour";
+            IndParam.NumParam[0].Value = 19;
             IndParam.NumParam[0].Min = 0;
             IndParam.NumParam[0].Max = 23;
             IndParam.NumParam[0].Enabled = true;
-            IndParam.NumParam[0].ToolTip = "The hour we want to close at.";
+            IndParam.NumParam[0].ToolTip = "The hour we want to close at on Friday.";
 
-            IndParam.NumParam[1].Caption = "Day close min";
+            IndParam.NumParam[1].Caption = "Friday close min";
             IndParam.NumParam[1].Value = 59;
             IndParam.NumParam[1].Min = 0;
             IndParam.NumParam[1].Max = 59;
             IndParam.NumParam[1].Enabled = true;
             IndParam.NumParam[1].ToolTip = "The minutes of the closing hour";
-
-            IndParam.NumParam[2].Caption = "Friday close hour";
-            IndParam.NumParam[2].Value = 19;
-            IndParam.NumParam[2].Min = 0;
-            IndParam.NumParam[2].Max = 23;
-            IndParam.NumParam[2].Enabled = true;
-            IndParam.NumParam[2].ToolTip = "The hour we want to close at on Friday.";
-
-            IndParam.NumParam[3].Caption = "Friday close min";
-            IndParam.NumParam[3].Value = 59;
-            IndParam.NumParam[3].Min = 0;
-            IndParam.NumParam[3].Max = 59;
-            IndParam.NumParam[3].Enabled = true;
-            IndParam.NumParam[3].ToolTip = "The minutes of the closing hour";
         }
 
         public override void Calculate(IDataSet dataSet)
