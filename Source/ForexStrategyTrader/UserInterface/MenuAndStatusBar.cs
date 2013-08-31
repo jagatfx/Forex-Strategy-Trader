@@ -720,7 +720,7 @@ namespace ForexStrategyBuilder
 
             StatusStrip.Items.Add(new ToolStripSeparator());
 
-            LblConnMarket = new ToolStripStatusLabel {Text = "Not Connected"};
+            LblConnMarket = new ToolStripStatusLabel {Text = Language.T("Not Connected")};
             StatusStrip.Items.Add(LblConnMarket);
 
             LblTickInfo = new ToolStripStatusLabel();

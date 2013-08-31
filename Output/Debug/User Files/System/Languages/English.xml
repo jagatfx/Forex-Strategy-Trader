@@ -374,6 +374,10 @@
     <alt>Reset the program settings to their default values. You need to restart!</alt>
   </str>
   <str>
+    <main>Write Log File</main>
+    <alt>Write Log File</alt>
+  </str>
+  <str>
     <main>Help</main>
     <alt>Help</alt>
   </str>
@@ -496,6 +500,14 @@
   <str>
     <main>Properties</main>
     <alt>Properties</alt>
+  </str>
+  <str>
+    <main>Go Pro</main>
+    <alt>Go Pro</alt>
+  </str>
+  <str>
+    <main>See Forex Strategy Builder Professional web page</main>
+    <alt>See Forex Strategy Builder Professional web page</alt>
   </str>
   <!-- Trade Strip -->
   <str>
@@ -1153,8 +1165,8 @@
     <alt>in the opposite direction.</alt>
   </str>
   <str>
-    <main>Trade an account percent truncated to an acceptable number of lots.</main>
-    <alt>Trade an account percent truncated to an acceptable number of lots.</alt>
+    <main>Trade percent of your account.</main>
+    <alt>Trade percent of your account.</alt>
   </str>
   <str>
     <main>% of the account equity</main>
@@ -1163,6 +1175,10 @@
   <str>
     <main>for each open lot</main>
     <alt>for each open lot</alt>
+  </str>
+  <str>
+    <main>Apply Martingale money management system with multiplier of</main>
+    <alt>Apply Martingale money management system with multiplier of</alt>
   </str>
   <str>
     <main>Open a new long position or add to an existing position</main>
@@ -1261,16 +1277,16 @@
     <alt>Add to a wining position but not to a losing one. If the position is at a loss, cancel the additional entry order. Do not exceed the maximum allowed number of lots to open.</alt>
   </str>
   <str>
-    <main>Add to the position regardless whether it is at a profit or loss. Do not exceed the maximum allowed number of lots to open.</main>
-    <alt>Add to the position regardless whether it is at a profit or loss. Do not exceed the maximum allowed number of lots to open.</alt>
+    <main>Add to the position no matter if it is at a profit or loss. Do not exceed the maximum allowed number of lots to open.</main>
+    <alt>Add to the position no matter if it is at a profit or loss. Do not exceed the maximum allowed number of lots to open.</alt>
   </str>
   <str>
     <main>Entry signal in the opposite direction:</main>
     <alt>Entry signal in the opposite direction:</alt>
   </str>
   <str>
-    <main>No modification of the present position is allowed. Cancel any additional orders, which are in the opposite direction.</main>
-    <alt>No modification of the present position is allowed. Cancel any additional orders, which are in the opposite direction.</alt>
+    <main>No modification of the present position is allowed. Cancel any additional orders which are in the opposite direction.</main>
+    <alt>No modification of the present position is allowed. Cancel any additional orders which are in the opposite direction.</alt>
   </str>
   <str>
     <main>Reduce the present position. If its amount is lower than or equal to the specified reducing lots, close it.</main>
@@ -1464,6 +1480,10 @@
     <main>Break Even</main>
     <alt>Break Even</alt>
   </str>
+  <str>
+    <main>Martingale money management multiplier</main>
+    <alt>Martingale money management multiplier</alt>
+  </str>
   <!-- Trade Settings -->
   <str>
     <main>Long logic rules base price</main>
@@ -1621,6 +1641,11 @@
   <str>
     <main>Command Console</main>
     <alt>Command Console</alt>
+  </str>
+  <!-- Tick Chart -->
+  <str>
+    <main>Waiting for ticks...</main>
+    <alt>Waiting for ticks...</alt>
   </str>
   <!-- Close order failed -->
   <str>

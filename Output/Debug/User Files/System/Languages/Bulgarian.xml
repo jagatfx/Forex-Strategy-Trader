@@ -374,6 +374,10 @@
     <alt>Възстановяване на програмните настройки до техните първоначални стойности. Изисква рестарт!</alt>
   </str>
   <str>
+    <main>Write Log File</main>
+    <alt>Записване в лог файл</alt>
+  </str>
+  <str>
     <main>Help</main>
     <alt>Помощ</alt>
   </str>
@@ -496,6 +500,14 @@
   <str>
     <main>Properties</main>
     <alt>Свойства</alt>
+  </str>
+  <str>
+    <main>Go Pro</main>
+    <alt>Go Pro</alt>
+  </str>
+  <str>
+    <main>See Forex Strategy Builder Professional web page</main>
+    <alt>Към страницата на Forex Strategy Builder Professional</alt>
   </str>
   <!-- Trade Strip -->
   <str>
@@ -1153,8 +1165,8 @@
     <alt>в обратна посока.</alt>
   </str>
   <str>
-    <main>Trade an account percent truncated to an acceptable number of lots.</main>
-    <alt>Търгувайте процент от акаунта отрязан до приемливо число лотове.</alt>
+    <main>Trade percent of your account.</main>
+    <alt>Търгувайте процент от акаунта.</alt>
   </str>
   <str>
     <main>% of the account equity</main>
@@ -1163,6 +1175,10 @@
   <str>
     <main>for each open lot</main>
     <alt>за всеки отворен лот</alt>
+  </str>
+  <str>
+    <main>Apply Martingale money management system with multiplier of</main>
+    <alt>Приложете Мартингейл система с множител</alt>
   </str>
   <str>
     <main>Open a new long position or add to an existing position</main>
@@ -1261,7 +1277,7 @@
     <alt>Добавете към печеливша позиция, но не и към губеща. Ако позицията е на загуба отменете всеки допълнителен входящ ордер. Не превишавайте максималния брой на разрешените лотове за отваряне.</alt>
   </str>
   <str>
-    <main>Add to the position regardless whether it is at a profit or loss. Do not exceed the maximum allowed number of lots to open.</main>
+    <main>Add to the position no matter if it is at a profit or loss. Do not exceed the maximum allowed number of lots to open.</main>
     <alt>Добавете към позиция, без значение дали тя е на печалба или на загуба. Не превишавайте максималния брой на разрешените лотове за отваряне.</alt>
   </str>
   <str>
@@ -1269,7 +1285,7 @@
     <alt>Входящ сигнал в обратна посока:</alt>
   </str>
   <str>
-    <main>No modification of the present position is allowed. Cancel any additional orders, which are in the opposite direction.</main>
+    <main>No modification of the present position is allowed. Cancel any additional orders which are in the opposite direction.</main>
     <alt>Не са разрешени никакви модификации на съществуващата позиция. Отменете всички ордери, които са в противоположна посока.</alt>
   </str>
   <str>
@@ -1464,6 +1480,10 @@
     <main>Break Even</main>
     <alt>Break Even</alt>
   </str>
+  <str>
+    <main>Martingale money management multiplier</main>
+    <alt>Мартингейл коефициент</alt>
+  </str>
   <!-- Trade Settings -->
   <str>
     <main>Long logic rules base price</main>
@@ -1621,6 +1641,11 @@
   <str>
     <main>Command Console</main>
     <alt>Конзола за команди</alt>
+  </str>
+  <!-- Tick Chart -->
+  <str>
+    <main>Waiting for ticks...</main>
+    <alt>Очакване на тикове...</alt>
   </str>
   <!-- Close order failed -->
   <str>
