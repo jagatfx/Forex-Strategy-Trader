@@ -1,88 +1,101 @@
-﻿// Client
-// Part of Forex Strategy Trader
-// Website http://forexsb.com/
-// Copyright (c) 2009 - 2011 Miroslav Popov - All rights reserved!
-// This code or any part of it cannot be used in other applications without a permission.
+﻿//==============================================================
+// Forex Strategy Trader
+// Copyright © Miroslav Popov. All rights reserved.
+//==============================================================
+// THIS CODE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
+// EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE.
+//==============================================================
 
 using System;
 using System.Globalization;
+using System.Windows.Forms;
 using MT4Bridge.NamedPipes;
 
 namespace MT4Bridge
 {
     internal class Client
     {
-        static readonly string UserName = System.Windows.Forms.SystemInformation.UserName;
-        static readonly string ClientPipeName = "FST-MT4_" + UserName + "-";
-        static int    _clientID;
+        private static readonly string UserName = SystemInformation.UserName;
+        private static readonly string ClientPipeName = "FST-MT4_" + UserName + "-";
+        private static int clientId;
 
-        static string PipeName { get { return ClientPipeName + _clientID.ToString(CultureInfo.InvariantCulture); } }
-
-        readonly Bridge _bridge;
+        private readonly Bridge bridge;
 
         public Client(Bridge bridge, int id)
         {
-            _clientID   = id;
-            _bridge = bridge;
+            clientId = id;
+            this.bridge = bridge;
+        }
+
+        private static string PipeName
+        {
+            get { return ClientPipeName + clientId.ToString(CultureInfo.InvariantCulture); }
         }
 
         private string Command(string command)
         {
-            using (var pipe = new ClientPipe(PipeName)) {
-                if (!pipe.Connect())
-                    return "ER Cannot connect to pipe server";
-                try {
-                    return pipe.Command(command);
-                } catch (PipeException e) {
-                    return "ER " + e.Message;
+            lock (PipeName)
+                using (var pipe = new ClientPipe(PipeName))
+                {
+                    if (!pipe.Connect())
+                        return "ER Cannot connect to pipe server";
+                    try
+                    {
+                        return pipe.Command(command);
+                    }
+                    catch (PipeException e)
+                    {
+                        return "ER " + e.Message;
+                    }
                 }
-            }
         }
 
-        bool ResponseOK(string response)
+        private bool ResponseOK(string response)
         {
             return response.ToUpper().StartsWith("OK");
         }
 
-        Response GetResponse(string rc)
+        private Response GetResponse(string rc)
         {
             bool ok = ResponseOK(rc);
             if (rc.Length < 4)
                 return new Response(ok);
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             int code;
             if (reply.Length != 1 || !int.TryParse(reply[0], out code))
                 return new Response(ok);
             return new Response(ok, code);
         }
 
-        DateTime FromTimestamp(string timestamp)
+        private DateTime FromTimestamp(string timestamp)
         {
             return FromTimestamp(int.Parse(timestamp));
         }
 
-        DateTime FromTimestamp(int timestamp)
+        private DateTime FromTimestamp(int timestamp)
         {
             var time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             return time.AddSeconds(timestamp);
         }
 
-        int ToTimestamp(DateTime time)
+        private int ToTimestamp(DateTime time)
         {
             var utc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             if (time < utc)
                 return 0;
-            return (int)((time - utc).TotalSeconds);
+            return (int) ((time - utc).TotalSeconds);
         }
 
-        string Fixstr(string str)
+        private string Fixstr(string str)
         {
             return str.Replace('|', '\\').Replace('_', ' ');
         }
 
         /// <summary>
-        /// Ping
+        ///     Ping
         /// </summary>
         public PingInfo Ping()
         {
@@ -90,54 +103,58 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             if (reply.Length != 28)
                 return null;
 
-            try {
-                string     symbol  = reply[0];
-                var period  = (PeriodType)int.Parse(reply[1]);
+            try
+            {
+                string symbol = reply[0];
+                var period = (PeriodType) int.Parse(reply[1]);
 
-                DateTime   time      = FromTimestamp(reply[2]);
-                double     bid       = StringToDouble(reply[3]);
-                double     ask       = StringToDouble(reply[4]);
-                int        spread    = int.Parse(reply[5]);
-                double     tickvalue = StringToDouble(reply[6]);
+                DateTime time = FromTimestamp(reply[2]);
+                double bid = StringToDouble(reply[3]);
+                double ask = StringToDouble(reply[4]);
+                int spread = int.Parse(reply[5]);
+                double tickvalue = StringToDouble(reply[6]);
 
-                DateTime   bartime = FromTimestamp(int.Parse(reply[7]));
-                double     open    = StringToDouble(reply[8]);
-                double     high    = StringToDouble(reply[9]);
-                double     low     = StringToDouble(reply[10]);
-                double     close   = StringToDouble(reply[11]);
-                int        volume  = int.Parse(reply[12]);
+                DateTime bartime = FromTimestamp(int.Parse(reply[7]));
+                double open = StringToDouble(reply[8]);
+                double high = StringToDouble(reply[9]);
+                double low = StringToDouble(reply[10]);
+                double close = StringToDouble(reply[11]);
+                int volume = int.Parse(reply[12]);
 
-                DateTime   bartime10          = FromTimestamp(int.Parse(reply[13]));
+                DateTime bartime10 = FromTimestamp(int.Parse(reply[13]));
 
-                double     accountBalance     = StringToDouble(reply[14]);
-                double     accountEquity      = StringToDouble(reply[15]);
-                double     accountProfit      = StringToDouble(reply[16]);
-                double     accountFreeMargin  = StringToDouble(reply[17]);
+                double accountBalance = StringToDouble(reply[14]);
+                double accountEquity = StringToDouble(reply[15]);
+                double accountProfit = StringToDouble(reply[16]);
+                double accountFreeMargin = StringToDouble(reply[17]);
 
-                int        positionTicket     = int.Parse(reply[18]);
-                int        positionType       = int.Parse(reply[19]);
-                double     positionLots       = StringToDouble(reply[20]);
-                double     positionOpenPrice  = StringToDouble(reply[21]);
-                DateTime   positionOpenTime   = FromTimestamp(reply[22]);
-                double     positionStopLoss   = StringToDouble(reply[23]);
-                double     positionTakeProfit = StringToDouble(reply[24]);
-                double     positionProfit     = StringToDouble(reply[25]);
-                string     positionComment    = reply[26];
-                string     parameters         = reply[27];
+                int positionTicket = int.Parse(reply[18]);
+                int positionType = int.Parse(reply[19]);
+                double positionLots = StringToDouble(reply[20]);
+                double positionOpenPrice = StringToDouble(reply[21]);
+                DateTime positionOpenTime = FromTimestamp(reply[22]);
+                double positionStopLoss = StringToDouble(reply[23]);
+                double positionTakeProfit = StringToDouble(reply[24]);
+                double positionProfit = StringToDouble(reply[25]);
+                string positionComment = reply[26];
+                string parameters = reply[27];
 
-                _bridge.BarsManager.UpdateBar(symbol, period, bartime, open, high, low, close, volume, bartime10);
+                bridge.BarsManager.UpdateBar(symbol, period, bartime, open, high, low, close, volume, bartime10);
 
                 var pingInfo = new PingInfo(symbol, period, bartime, time, bid, ask, spread, tickvalue,
                     accountBalance, accountEquity, accountProfit, accountFreeMargin, positionTicket, positionType,
-                    positionLots, positionOpenPrice, positionOpenTime, positionStopLoss, positionTakeProfit, positionProfit, positionComment,
+                    positionLots, positionOpenPrice, positionOpenTime, positionStopLoss, positionTakeProfit,
+                    positionProfit, positionComment,
                     parameters);
 
                 return pingInfo;
-            } catch (FormatException) {
+            }
+            catch (FormatException)
+            {
                 return null;
             }
         }
@@ -148,14 +165,17 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             if (reply.Length != 7 || reply[0] != symbol)
                 return null;
 
-            try {
+            try
+            {
                 return new SymbolInfo(reply[0], StringToDouble(reply[1]), StringToDouble(reply[2]),
                     int.Parse(reply[3]), StringToDouble(reply[4]), StringToDouble(reply[5]), StringToDouble(reply[6]));
-            } catch (FormatException) {
+            }
+            catch (FormatException)
+            {
                 return null;
             }
         }
@@ -166,19 +186,22 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             if (reply.Length != 16)
                 return null;
 
-            try {
+            try
+            {
                 return new AccountInfo(
-                    Fixstr(reply[0]),          int.Parse(reply[1]),       Fixstr(reply[2]),
-                    Fixstr(reply[3]),          Fixstr(reply[4]),          int.Parse(reply[5]),
-                    StringToDouble(reply[6]),  StringToDouble(reply[7]),  StringToDouble(reply[8]),
-                    StringToDouble(reply[9]),  StringToDouble(reply[10]), StringToDouble(reply[11]),
-                    StringToDouble(reply[12]), int.Parse(reply[13]),      int.Parse(reply[14]),
+                    Fixstr(reply[0]), int.Parse(reply[1]), Fixstr(reply[2]),
+                    Fixstr(reply[3]), Fixstr(reply[4]), int.Parse(reply[5]),
+                    StringToDouble(reply[6]), StringToDouble(reply[7]), StringToDouble(reply[8]),
+                    StringToDouble(reply[9]), StringToDouble(reply[10]), StringToDouble(reply[11]),
+                    StringToDouble(reply[12]), int.Parse(reply[13]), int.Parse(reply[14]),
                     int.Parse(reply[15]) == 1);
-            } catch (FormatException) {
+            }
+            catch (FormatException)
+            {
                 return null;
             }
         }
@@ -189,15 +212,18 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return double.NaN;
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             if (reply.Length != 3 || reply[0] != symbol)
                 return double.NaN;
 
-            try {
+            try
+            {
                 if (int.Parse(reply[1]) != mode)
                     return double.NaN;
                 return StringToDouble(reply[2]);
-            } catch (FormatException) {
+            }
+            catch (FormatException)
+            {
                 return double.NaN;
             }
         }
@@ -208,21 +234,24 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             if (reply.Length != 23)
                 return null;
 
-            try {
+            try
+            {
                 return new MarketInfo(
-                    StringToDouble(reply[0]),  StringToDouble(reply[1]),  StringToDouble(reply[2]),
-                    StringToDouble(reply[3]),  StringToDouble(reply[4]),  StringToDouble(reply[5]),
-                    StringToDouble(reply[6]),  StringToDouble(reply[7]),  StringToDouble(reply[8]),
-                    StringToDouble(reply[9]),  StringToDouble(reply[10]), StringToDouble(reply[11]),
+                    StringToDouble(reply[0]), StringToDouble(reply[1]), StringToDouble(reply[2]),
+                    StringToDouble(reply[3]), StringToDouble(reply[4]), StringToDouble(reply[5]),
+                    StringToDouble(reply[6]), StringToDouble(reply[7]), StringToDouble(reply[8]),
+                    StringToDouble(reply[9]), StringToDouble(reply[10]), StringToDouble(reply[11]),
                     StringToDouble(reply[12]), StringToDouble(reply[13]), StringToDouble(reply[14]),
                     StringToDouble(reply[15]), StringToDouble(reply[16]), StringToDouble(reply[17]),
                     StringToDouble(reply[18]), StringToDouble(reply[19]), StringToDouble(reply[20]),
                     StringToDouble(reply[21]), StringToDouble(reply[22]));
-            } catch (FormatException) {
+            }
+            catch (FormatException)
+            {
                 return null;
             }
         }
@@ -233,52 +262,63 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             if (reply.Length != 5)
                 return null;
 
-            try {
-                return new TerminalInfo(Fixstr(reply[0]), Fixstr(reply[1]), Fixstr(reply[2]), Fixstr(reply[3]), Fixstr(reply[4]));
-            } catch (FormatException) {
+            try
+            {
+                return new TerminalInfo(Fixstr(reply[0]), Fixstr(reply[1]), Fixstr(reply[2]), Fixstr(reply[3]),
+                    Fixstr(reply[4]));
+            }
+            catch (FormatException)
+            {
                 return null;
             }
         }
 
         public Bars GetBars(string symbol, PeriodType period, ref int count, int offset)
         {
-            string rc = Command(string.Format("BR {0} {1} {2} {3}", symbol, (int)period, offset, count));
+            string rc = Command(string.Format("BR {0} {1} {2} {3}", symbol, (int) period, offset, count));
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             if (reply.Length < 5 || reply[0] != symbol)
                 return null;
 
             int rperiod, rbars, roffset, rcount;
-            try {
+            try
+            {
                 rperiod = int.Parse(reply[1]);
-                rbars   = int.Parse(reply[2]);
+                rbars = int.Parse(reply[2]);
                 roffset = int.Parse(reply[3]);
-                rcount  = int.Parse(reply[4]);
-            } catch (FormatException) {
+                rcount = int.Parse(reply[4]);
+            }
+            catch (FormatException)
+            {
                 return null;
             }
-            if (rperiod != (int)period || roffset != offset || rcount * 6 != reply.Length - 5)
+            if (rperiod != (int) period || roffset != offset || rcount*6 != reply.Length - 5)
                 return null;
 
             count = rbars;
             var bars = new Bars(symbol, period);
-            for (int i = 5; i < reply.Length; i += 6) {
-                try {
-                    DateTime time   = FromTimestamp(int.Parse(reply[i]));
-                    double   open   = StringToDouble(reply[i + 1]);
-                    double   high   = StringToDouble(reply[i + 2]);
-                    double   low    = StringToDouble(reply[i + 3]);
-                    double   close  = StringToDouble(reply[i + 4]);
-                    int      volume = int.Parse(reply[i + 5]);
+            for (int i = 5; i < reply.Length; i += 6)
+            {
+                try
+                {
+                    DateTime time = FromTimestamp(int.Parse(reply[i]));
+                    double open = StringToDouble(reply[i + 1]);
+                    double high = StringToDouble(reply[i + 2]);
+                    double low = StringToDouble(reply[i + 3]);
+                    double close = StringToDouble(reply[i + 4]);
+                    int volume = int.Parse(reply[i + 5]);
 
                     bars.Insert(time, open, high, low, close, volume);
-                } catch (FormatException) {
+                }
+                catch (FormatException)
+                {
                     return null;
                 }
             }
@@ -294,14 +334,17 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             int count, start;
-            if (symbol != null) {
+            if (symbol != null)
+            {
                 if (reply.Length < 2 || reply[0] != symbol)
                     return null;
                 count = int.Parse(reply[1]);
                 start = 2;
-            } else {
+            }
+            else
+            {
                 if (reply.Length < 1)
                     return null;
                 count = int.Parse(reply[0]);
@@ -320,20 +363,20 @@ namespace MT4Bridge
             if (!ResponseOK(rc) || rc.Length < 3)
                 return null;
 
-            string[] reply = rc.Substring(3).Split(new[] { ' ' });
+            string[] reply = rc.Substring(3).Split(new[] {' '});
             if (reply.Length != 13)
                 return null;
 
             return new OrderInfo(
                 int.Parse(reply[0]),
                 reply[1],
-                (OrderType)int.Parse(reply[2]),
+                (OrderType) int.Parse(reply[2]),
                 StringToDouble(reply[3]),
                 StringToDouble(reply[4]),
                 StringToDouble(reply[5]),
                 StringToDouble(reply[6]),
                 FromTimestamp(reply[7]),
-                FromTimestamp(reply[8]), 
+                FromTimestamp(reply[8]),
                 StringToDouble(reply[9]),
                 StringToDouble(reply[10]),
                 int.Parse(reply[11]),
@@ -342,23 +385,26 @@ namespace MT4Bridge
         }
 
         public Response OrderSend(string symbol, OrderType type, double lots, double price, int slippage,
-                                  double stoploss, double takeprofit, int magic, DateTime expire, string parameters)
+            double stoploss, double takeprofit, int magic, DateTime expire, string parameters)
         {
-            string rc = Command(string.Format("OS {0} {1} {2} {3} {4} {5} {6} {7} {8} {9}", symbol, (int)type,
-                                DoubleToString(lots), DoubleToString(price), slippage, DoubleToString(stoploss),
-                                DoubleToString(takeprofit), magic, ToTimestamp(expire), parameters));
+            string rc = Command(string.Format("OS {0} {1} {2} {3} {4} {5} {6} {7} {8} {9}", symbol, (int) type,
+                DoubleToString(lots), DoubleToString(price), slippage, DoubleToString(stoploss),
+                DoubleToString(takeprofit), magic, ToTimestamp(expire), parameters));
             return GetResponse(rc);
         }
 
-        public Response OrderModify(int ticket, double price, double stoploss, double takeprofit, DateTime expire, string parameters)
+        public Response OrderModify(int ticket, double price, double stoploss, double takeprofit, DateTime expire,
+            string parameters)
         {
-            string cmd = string.Format("OM {0} {1} {2} {3} {4} {5}", ticket, DoubleToString(price), DoubleToString(stoploss), DoubleToString(takeprofit), ToTimestamp(expire), parameters);
+            string cmd = string.Format("OM {0} {1} {2} {3} {4} {5}", ticket, DoubleToString(price),
+                DoubleToString(stoploss), DoubleToString(takeprofit), ToTimestamp(expire), parameters);
             return GetResponse(Command(cmd));
         }
 
         public Response OrderClose(int ticket, double lots, double price, int slippage)
         {
-            string cmd = string.Format("OC {0} {1} {2} {3}", ticket, DoubleToString(lots), DoubleToString(price), slippage);
+            string cmd = string.Format("OC {0} {1} {2} {3}", ticket, DoubleToString(lots), DoubleToString(price),
+                slippage);
             return GetResponse(Command(cmd));
         }
 
@@ -368,7 +414,7 @@ namespace MT4Bridge
             return GetResponse(Command(cmd));
         }
 
-        double StringToDouble(string input)
+        private double StringToDouble(string input)
         {
             string decimalPoint = NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
 
@@ -380,21 +426,24 @@ namespace MT4Bridge
 
             double number;
 
-            try { 
+            try
+            {
                 number = double.Parse(input);
-            } catch { 
-                number = double.NaN; 
+            }
+            catch
+            {
+                number = double.NaN;
             }
 
             return number;
         }
 
-        string DoubleToString(double number)
+        private string DoubleToString(double number)
         {
             string decimalPoint = NumberFormatInfo.CurrentInfo.NumberDecimalSeparator;
             string strNumb = number.ToString(CultureInfo.InvariantCulture);
 
-                strNumb = strNumb.Replace(decimalPoint, ".");
+            strNumb = strNumb.Replace(decimalPoint, ".");
 
             return strNumb;
         }

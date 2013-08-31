@@ -1,0 +1,1659 @@
+<?xml version="1.0"?>
+<lang>
+  <!-- Language (This will appear in the menu.) -->
+  <language> Русский</language>
+  <!-- Credits -->
+  <translatedby>Виктор Глазков</translatedby>
+  <website>http://forexsb.com</website>
+  <corrections>info@forexsb.com</corrections>
+  <!-- Common -->
+  <str>
+    <main>Yes</main>
+    <alt>Да</alt>
+  </str>
+  <str>
+    <main>No</main>
+    <alt>Нет</alt>
+  </str>
+  <str>
+    <main>Ok</main>
+    <alt>Ок</alt>
+  </str>
+  <str>
+    <main>Default</main>
+    <alt>По умолчанию</alt>
+  </str>
+  <str>
+    <main>Cancel</main>
+    <alt>Отмена</alt>
+  </str>
+  <str>
+    <main>Accept</main>
+    <alt>Принять</alt>
+  </str>
+  <str>
+    <main>Delete</main>
+    <alt>Удалить</alt>
+  </str>
+  <str>
+    <main>Error</main>
+    <alt>Ошибка</alt>
+  </str>
+  <str>
+    <main>Beta</main>
+    <alt>Бета</alt>
+  </str>
+  <str>
+    <main>Up</main>
+    <alt>Вверх</alt>
+  </str>
+  <str>
+    <main>Move Up</main>
+    <alt>Изменить вверх</alt>
+  </str>
+  <str>
+    <main>Down</main>
+    <alt>Вниз</alt>
+  </str>
+  <str>
+    <main>Move Down</main>
+    <alt>Изменить вниз</alt>
+  </str>
+  <str>
+    <main>Duplicate</main>
+    <alt>Дублировать</alt>
+  </str>
+  <str>
+    <main>lot</main>
+    <alt>лот</alt>
+  </str>
+  <str>
+    <main>lots</main>
+    <alt>лотов</alt>
+  </str>
+  <str>
+    <main>pip</main>
+    <alt>пипс</alt>
+  </str>
+  <str>
+    <main>pips</main>
+    <alt>пипсы</alt>
+  </str>
+  <str>
+    <main>money</main>
+    <alt>деньги</alt>
+  </str>
+  <str>
+    <main>None</main>
+    <alt>Нет</alt>
+  </str>
+  <!-- Data Periods -->
+  <str>
+    <main>Data time frame.</main>
+    <alt>Временные рамки данных.</alt>
+  </str>
+  <str>
+    <main>Minute</main>
+    <alt>Минута</alt>
+  </str>
+  <str>
+    <main>Minutes</main>
+    <alt>Минут</alt>
+  </str>
+  <str>
+    <main>Hour</main>
+    <alt>Час</alt>
+  </str>
+  <str>
+    <main>Hours</main>
+    <alt>Часов</alt>
+  </str>
+  <str>
+    <main>Day</main>
+    <alt>День</alt>
+  </str>
+  <str>
+    <main>Week</main>
+    <alt>Неделя</alt>
+  </str>
+  <!-- Main Menu -->
+  <str>
+    <main>File</main>
+    <alt>Файл</alt>
+  </str>
+  <str>
+    <main>New</main>
+    <alt>Новый</alt>
+  </str>
+  <str>
+    <main>Open the default strategy "New.xml".</main>
+    <alt>Открыть стратегию по умолчанию "New.xml".</alt>
+  </str>
+  <str>
+    <main>Open...</main>
+    <alt>Открыть...</alt>
+  </str>
+  <str>
+    <main>Open a strategy.</main>
+    <alt>Открыть стратегию.</alt>
+  </str>
+  <str>
+    <main>Save</main>
+    <alt>Сохранить</alt>
+  </str>
+  <str>
+    <main>Save the strategy.</main>
+    <alt>Сохранить стратегию.</alt>
+  </str>
+  <str>
+    <main>Save As</main>
+    <alt>Сохранить как</alt>
+  </str>
+  <str>
+    <main>Save a copy of the strategy.</main>
+    <alt>Сохранить копию стратегии.</alt>
+  </str>
+  <str>
+    <main>Exit</main>
+    <alt>Выход</alt>
+  </str>
+  <str>
+    <main>Close the program.</main>
+    <alt>Закрыть программу.</alt>
+  </str>
+  <str>
+    <main>Edit</main>
+    <alt>Редактирование</alt>
+  </str>
+  <str>
+    <main>Undo</main>
+    <alt>Отмена</alt>
+  </str>
+  <str>
+    <main>Undo the last change in the strategy.</main>
+    <alt>Отменить последнее изменение в стратегии.</alt>
+  </str>
+  <str>
+    <main>Copy Strategy</main>
+    <alt>Копирование стратегии</alt>
+  </str>
+  <str>
+    <main>Copy the entire strategy to the clipboard.</main>
+    <alt>Копирование всей стратегии в буфер обмена.</alt>
+  </str>
+  <str>
+    <main>Paste Strategy</main>
+    <alt>Вставить Стратегию</alt>
+  </str>
+  <str>
+    <main>Load a strategy from the clipboard.</main>
+    <alt>Загрузить стратегию из буфера обмена.</alt>
+  </str>
+  <str>
+    <main>View</main>
+    <alt>Просмотр</alt>
+  </str>
+  <str>
+    <main>Language</main>
+    <alt>Язык</alt>
+  </str>
+  <str>
+    <main>Language Tools</main>
+    <alt>Языковые инструменты</alt>
+  </str>
+  <str>
+    <main>Make New Translation</main>
+    <alt>Создание нового перевода</alt>
+  </str>
+  <str>
+    <main>Edit Current Translation</main>
+    <alt>Редактирование текущего перевода</alt>
+  </str>
+  <str>
+    <main>Show English Phrases</main>
+    <alt>Показать английские фразы</alt>
+  </str>
+  <str>
+    <main>Show Translated Phrases</main>
+    <alt>Показать переведенные фразы</alt>
+  </str>
+  <str>
+    <main>Show All Phrases</main>
+    <alt>Показать все фразы</alt>
+  </str>
+  <str>
+    <main>Status page</main>
+    <alt>Страница "Статус"</alt>
+  </str>
+  <str>
+    <main>Strategy page</main>
+    <alt>Страница "Стратегия"</alt>
+  </str>
+  <str>
+    <main>Chart page</main>
+    <alt>Страница "Графика"</alt>
+  </str>
+  <str>
+    <main>Account page</main>
+    <alt>Страница "Аккаунт"</alt>
+  </str>
+  <str>
+    <main>Journal page</main>
+    <alt>Страница "Журнал"</alt>
+  </str>
+  <str>
+    <main>Operation page</main>
+    <alt>Страница "Операции"</alt>
+  </str>
+  <str>
+    <main>Gradient View</main>
+    <alt>Просмотр градиента</alt>
+  </str>
+  <str>
+    <main>Colour Scheme</main>
+    <alt>Цветовая схема</alt>
+  </str>
+  <str>
+    <main>Strategy</main>
+    <alt>Стратегия</alt>
+  </str>
+  <str>
+    <main>Overview</main>
+    <alt>Обзор</alt>
+  </str>
+  <str>
+    <main>See the strategy overview.</main>
+    <alt>Просмотр обзора стратегии.</alt>
+  </str>
+  <str>
+    <main>Use Logical Groups</main>
+    <alt>Использование логических групп</alt>
+  </str>
+  <str>
+    <main>Groups add AND and OR logic interaction of the indicators.</main>
+    <alt>Добавить в группы И и ИЛИ логического взаимодействия на индикаторы.</alt>
+  </str>
+  <str>
+    <main>Max number of Opening Logic Conditions</main>
+    <alt>Макс. число логических условий открытий</alt>
+  </str>
+  <str>
+    <main>Max number of Closing Logic Conditions</main>
+    <alt>Макс. число логических условий закрытий</alt>
+  </str>
+  <str>
+    <main>Publish</main>
+    <alt>Публикация</alt>
+  </str>
+  <str>
+    <main>Publish the strategy in the program's forum.</main>
+    <alt>Публикация стратегии в форуме программы.</alt>
+  </str>
+  <str>
+    <main>Remember the Last Strategy</main>
+    <alt>Запомнить последнюю стратегию</alt>
+  </str>
+  <str>
+    <main>Load the last used strategy at startup.</main>
+    <alt>Загрузить последнюю использованную стратегию при старте.</alt>
+  </str>
+  <str>
+    <main>Auto Control of "Use previous bar value"</main>
+    <alt>Автоматическое управление "Use previous bar value"</alt>
+  </str>
+  <str>
+    <main>Provides automatic setting of the indicators' check box "Use previous bar value".</main>
+    <alt>Обеспечивает автоматическую регулировку параметра индикаторов "Use previous bar value".</alt>
+  </str>
+  <str>
+    <main>Trade Settings</main>
+    <alt>Настройки торговли</alt>
+  </str>
+  <str>
+    <main>Tools</main>
+    <alt>Инструменты</alt>
+  </str>
+  <str>
+    <main>Custom Indicators</main>
+    <alt>Пользовательские индикаторы</alt>
+  </str>
+  <str>
+    <main>Reload the Custom Indicators</main>
+    <alt>Перезагрузить пользовательские индикаторы</alt>
+  </str>
+  <str>
+    <main>Open the Source Files Folder</main>
+    <alt>Открыть папку с исходными кодами</alt>
+  </str>
+  <str>
+    <main>Custom Indicators Forum</main>
+    <alt>Форум по пользовательским индикаторам</alt>
+  </str>
+  <str>
+    <main>Check the Custom Indicators</main>
+    <alt>Проверка пользовательских индикаторов</alt>
+  </str>
+  <str>
+    <main>Load the Custom Indicators at Startup</main>
+    <alt>Загружать  пользовательские индикаторы при старте</alt>
+  </str>
+  <str>
+    <main>Show the Loaded Custom Indicators</main>
+    <alt>Показать загруженные пользовательские индикаторы</alt>
+  </str>
+  <str>
+    <main>Allow multiple working copies of FST</main>
+    <alt>Разрешить множество работающих копий  FST</alt>
+  </str>
+  <str>
+    <main>Play Sounds</main>
+    <alt>Воспроизводить звуки</alt>
+  </str>
+  <str>
+    <main>Install MetaTrader Files</main>
+    <alt>Инсталировать MetaTrader файлы</alt>
+  </str>
+  <str>
+    <main>Install the necessary files in the MetaTrader's folder.</main>
+    <alt>Инсталировать необходимые файлы в папку MetaTrader-а.</alt>
+  </str>
+  <str>
+    <main>Reset Data and Statistics</main>
+    <alt>Сброс данных и статистики</alt>
+  </str>
+  <str>
+    <main>Reset the loaded data and statistics. It will stop the auto trading!</main>
+    <alt>Восстановление загруженных данных и сброс статистики.
+Прекращается автоматическая торговля!!</alt>
+  </str>
+  <str>
+    <main>Reset Settings</main>
+    <alt>Сброс настроек</alt>
+  </str>
+  <str>
+    <main>Reset the program settings to their default values. You need to restart!</main>
+    <alt>Сброс программных настроек к значениям по умолчанию. Необходима перезагрузка!</alt>
+  </str>
+  <str>
+    <main>Help</main>
+    <alt>Помощь</alt>
+  </str>
+  <str>
+    <main>Contribute</main>
+    <alt>Содействовать</alt>
+  </str>
+  <str>
+    <main>Donate, Support, Advertise!</main>
+    <alt>пожертвовать, поддержка, реклама!</alt>
+  </str>
+  <str>
+    <main>Tip of the Day</main>
+    <alt>Совет дня</alt>
+  </str>
+  <str>
+    <main>Show a tip.</main>
+    <alt>Показать совет.</alt>
+  </str>
+  <str>
+    <main>Safety First</main>
+    <alt>Безопасность прежде всего</alt>
+  </str>
+  <str>
+    <main>Show the "Safety First" web page.</main>
+    <alt>Показать страницу "Безопасность прежде всего".</alt>
+  </str>
+  <str>
+    <main>Quick Start Guide</main>
+    <alt>Руководство по быстрому старту</alt>
+  </str>
+  <str>
+    <main>Show the quick start guide.</main>
+    <alt>Показать руководство по быстрому старту.</alt>
+  </str>
+  <str>
+    <main>Online Help</main>
+    <alt>Онлайн помощь</alt>
+  </str>
+  <str>
+    <main>Show the online help.</main>
+    <alt>Показать  онлайн помощь.</alt>
+  </str>
+  <str>
+    <main>Support Forum</main>
+    <alt>Поддержка Форум</alt>
+  </str>
+  <str>
+    <main>Show the program's forum.</main>
+    <alt>Показать форум программы.</alt>
+  </str>
+  <str>
+    <main>Check for Updates at Startup</main>
+    <alt>Проверять обновления при старте</alt>
+  </str>
+  <str>
+    <main>Check for New Beta Versions</main>
+    <alt>Проверять на новые бета версии </alt>
+  </str>
+  <str>
+    <main>Send anonymous usage statistics</main>
+    <alt>Отправлять анонимную статистику использования</alt>
+  </str>
+  <str>
+    <main>About</main>
+    <alt>Информация о</alt>
+  </str>
+  <str>
+    <main>Show the program information.</main>
+    <alt>Показать информацию по программе.</alt>
+  </str>
+  <str>
+    <main>Forex</main>
+    <alt>Форекс</alt>
+  </str>
+  <str>
+    <main>Economic Calendar</main>
+    <alt>Экономический календарь</alt>
+  </str>
+  <str>
+    <main>Market Commentary</main>
+    <alt>Комментарии по рынку</alt>
+  </str>
+  <str>
+    <main>Daily Forex Outlook</main>
+    <alt>Дневной форекс обзор</alt>
+  </str>
+  <str>
+    <main>Weekly Forex Outlook</main>
+    <alt>Недельный форекс обзор</alt>
+  </str>
+  <str>
+    <main>Forex Brokers</main>
+    <alt>Форекс брокеры</alt>
+  </str>
+  <str>
+    <main>New Version</main>
+    <alt>Новая версия</alt>
+  </str>
+  <str>
+    <main>New Beta</main>
+    <alt>Новая бета</alt>
+  </str>
+  <str>
+    <main>Forum</main>
+    <alt>Форум</alt>
+  </str>
+  <str>
+    <main>Print</main>
+    <alt>Печать</alt>
+  </str>
+  <str>
+    <main>Print Preview</main>
+    <alt>Просмотр печати</alt>
+  </str>
+  <str>
+    <main>Page Setup</main>
+    <alt>Страница настроек</alt>
+  </str>
+  <str>
+    <main>Properties</main>
+    <alt>Свойства</alt>
+  </str>
+  <!-- Trade Strip -->
+  <str>
+    <main>Help me get connected!</main>
+    <alt>Помогите мне подключиться!</alt>
+  </str>
+  <str>
+    <main>Set connection ID</main>
+    <alt>Установка соединения ID</alt>
+  </str>
+  <str>
+    <main>Click to change the connection ID.</main>
+    <alt>Нажмите чтобы изменить идентификатор соединения ID .</alt>
+  </str>
+  <str>
+    <main>Start Automatic Execution</main>
+    <alt>Начать автоматическую торговлю</alt>
+  </str>
+  <str>
+    <main>Stop Automatic Execution</main>
+    <alt>Остановить автоматическую торговлю</alt>
+  </str>
+  <str>
+    <main>Beta version. Test carefully!</main>
+    <alt>Бета версия. Тестируй внимательно!</alt>
+  </str>
+  <!-- Status Page -->
+  <str>
+    <main>Status</main>
+    <alt>Статус</alt>
+  </str>
+  <str>
+    <main>Connection Status</main>
+    <alt>Состояние соединения</alt>
+  </str>
+  <str>
+    <main>Not Connected</main>
+    <alt>Нет соединения</alt>
+  </str>
+  <str>
+    <main>Not Connected. You have to connect to a MetaTrader terminal.</main>
+    <alt>Нет соединения. Вы должны подключиться к  MetaTrader терминалу.</alt>
+  </str>
+  <str>
+    <main>Connected to a MetaTrader terminal.</main>
+    <alt>Соединиться с  MetaTrader терминал.</alt>
+  </str>
+  <str>
+    <main>Connected to</main>
+    <alt>Соединение с</alt>
+  </str>
+  <str>
+    <main>by</main>
+    <alt>от</alt>
+  </str>
+  <str>
+    <main>Data Info</main>
+    <alt>Информация данных</alt>
+  </str>
+  <str>
+    <main>Market Info</main>
+    <alt>Рынок</alt>
+  </str>
+  <str>
+    <main>Account Info</main>
+    <alt>Аккаунт</alt>
+  </str>
+  <str>
+    <main>Loaded Bars</main>
+    <alt>Бары</alt>
+  </str>
+  <str>
+    <main>Market Information</main>
+    <alt>Информация по рынку</alt>
+  </str>
+  <str>
+    <main>Symbol</main>
+    <alt>Символ</alt>
+  </str>
+  <str>
+    <main>Period</main>
+    <alt>Период</alt>
+  </str>
+  <str>
+    <main>Lot size</main>
+    <alt>Размер лота</alt>
+  </str>
+  <str>
+    <main>Point</main>
+    <alt>Минимальный тик</alt>
+  </str>
+  <str>
+    <main>Spread</main>
+    <alt>Спрэд</alt>
+  </str>
+  <str>
+    <main>Swap long</main>
+    <alt>Своп длинных</alt>
+  </str>
+  <str>
+    <main>Swap short</main>
+    <alt>Своп коротких</alt>
+  </str>
+  <str>
+    <main>Useful Links</main>
+    <alt>Полезные ссылки</alt>
+  </str>
+  <!-- Strategy Page -->
+  <str>
+    <main>Show the strategy description.</main>
+    <alt>Показать описание стратегии.</alt>
+  </str>
+  <str>
+    <main>Expand the information in the strategy slots.</main>
+    <alt>Больше информации в слотах стратегии.</alt>
+  </str>
+  <str>
+    <main>Reduce the information in the strategy slots.</main>
+    <alt>Меньше информации в слотах стратегии.</alt>
+  </str>
+  <str>
+    <main>Edit the strategy description.</main>
+    <alt>Редактировать описание стратегии.</alt>
+  </str>
+  <str>
+    <main>Trade settings.</main>
+    <alt>Настройки торговли.</alt>
+  </str>
+  <str>
+    <main>Strategy Properties</main>
+    <alt>Свойства стратегии</alt>
+  </str>
+  <str>
+    <main>Opening Point of the Position</main>
+    <alt>Точка открытия позиции</alt>
+  </str>
+  <str>
+    <main>Opening Logic Condition</main>
+    <alt>Логическое условие на открытие</alt>
+  </str>
+  <str>
+    <main>Closing Point of the Position</main>
+    <alt>Точка закрытия позиции</alt>
+  </str>
+  <str>
+    <main>Closing Logic Condition</main>
+    <alt>Логическое условие на закрытие</alt>
+  </str>
+  <str>
+    <main>Add an Opening Logic Condition</main>
+    <alt>Добавить логическое условие для открытия</alt>
+  </str>
+  <str>
+    <main>Add a new entry logic slot to the strategy.</main>
+    <alt>Добавить новый слот  логики входа в стратегию.</alt>
+  </str>
+  <str>
+    <main>Add a Closing Logic Condition</main>
+    <alt>Добавить логическое условие для закрытия</alt>
+  </str>
+  <str>
+    <main>Add a new exit logic slot to the strategy.</main>
+    <alt>Добавить новый слот  логики выхода, в стратегию</alt>
+  </str>
+  <str>
+    <main>You can use Closing Logic Conditions only if the Closing Point of the Position slot contains one of the following indicators:</main>
+    <alt>Вы можете использовать логические условия закрытия, только если слот  точки закрытия содержит любой из следующих индикаторов:</alt>
+  </str>
+  <str>
+    <main>Discard the logic condition.</main>
+    <alt>Удалить логическое условие.</alt>
+  </str>
+  <str>
+    <main>Long position logic.</main>
+    <alt>Логика для длинной позиции.</alt>
+  </str>
+  <str>
+    <main>Averaging, Trading size, Protection.</main>
+    <alt>Усреднение, Торговый размер, Защита.</alt>
+  </str>
+  <str>
+    <main>Same direction signal</main>
+    <alt>Сигнал в том же направлении</alt>
+  </str>
+  <str>
+    <main>Add</main>
+    <alt>Добавить</alt>
+  </str>
+  <str>
+    <main>Winner</main>
+    <alt>Выигрыш</alt>
+  </str>
+  <str>
+    <main>Nothing</main>
+    <alt>Ничего</alt>
+  </str>
+  <str>
+    <main>Opposite direction signal</main>
+    <alt>Противоположный сигнал</alt>
+  </str>
+  <str>
+    <main>Reduce</main>
+    <alt>Уменьшить</alt>
+  </str>
+  <str>
+    <main>Permanent Stop Loss</main>
+    <alt>Постоянный Stop Loss</alt>
+  </str>
+  <str>
+    <main>Permanent Take Profit</main>
+    <alt>Постоянный Take Profit</alt>
+  </str>
+  <!-- Chart Page -->
+  <str>
+    <main>Chart</main>
+    <alt>Графика</alt>
+  </str>
+  <str>
+    <main>Grid</main>
+    <alt>Сетка</alt>
+  </str>
+  <str>
+    <main>Cross</main>
+    <alt>Крест</alt>
+  </str>
+  <str>
+    <main>Volume</main>
+    <alt>Обьем</alt>
+  </str>
+  <str>
+    <main>Orders</main>
+    <alt>Ордеры</alt>
+  </str>
+  <str>
+    <main>Position lots</main>
+    <alt>Позиция лотов</alt>
+  </str>
+  <str>
+    <main>Zoom in</main>
+    <alt>Растянуть график</alt>
+  </str>
+  <str>
+    <main>Zoom out</main>
+    <alt>Сжать график</alt>
+  </str>
+  <str>
+    <main>Refresh chart</main>
+    <alt>Обновить график</alt>
+  </str>
+  <str>
+    <main>Chart shift</main>
+    <alt>Сдвинуть график</alt>
+  </str>
+  <str>
+    <main>Auto scroll</main>
+    <alt>Автоматическое скролирование</alt>
+  </str>
+  <str>
+    <main>Show / hide info panel</main>
+    <alt>Показать / скрыть  информационную панель</alt>
+  </str>
+  <str>
+    <main>Move info up</main>
+    <alt>Прокрутка вверх</alt>
+  </str>
+  <str>
+    <main>Move info down</main>
+    <alt>Прокрутка вниз</alt>
+  </str>
+  <str>
+    <main>Bar number</main>
+    <alt>Номер  бара</alt>
+  </str>
+  <str>
+    <main>Date</main>
+    <alt>Дата</alt>
+  </str>
+  <str>
+    <main>Opening time</main>
+    <alt>Время открытия</alt>
+  </str>
+  <str>
+    <main>Opening price</main>
+    <alt>Цена открытия</alt>
+  </str>
+  <str>
+    <main>Highest price</main>
+    <alt>Максимальная  цена</alt>
+  </str>
+  <str>
+    <main>Lowest price</main>
+    <alt>Минимальная цена</alt>
+  </str>
+  <str>
+    <main>Closing price</main>
+    <alt>Цена закрытия</alt>
+  </str>
+  <str>
+    <main>Position direction</main>
+    <alt>Направление позиции</alt>
+  </str>
+  <str>
+    <main>Open lots</main>
+    <alt>Открыть лоты</alt>
+  </str>
+  <str>
+    <main>Position price</main>
+    <alt>Цена позиции</alt>
+  </str>
+  <str>
+    <main>Square</main>
+    <alt>Нет</alt>
+  </str>
+  <!-- Account Page -->
+  <str>
+    <main>Account</main>
+    <alt>Аккаунт</alt>
+  </str>
+  <str>
+    <main>Balance / Equity Chart</main>
+    <alt>Баланс / Средства График</alt>
+  </str>
+  <!-- Journal Page -->
+  <str>
+    <main>Journal</main>
+    <alt>Журнал</alt>
+  </str>
+  <str>
+    <main>Time</main>
+    <alt>Время</alt>
+  </str>
+  <str>
+    <main>Message</main>
+    <alt>Сообщение</alt>
+  </str>
+  <str>
+    <main>Clear journal's messages.</main>
+    <alt>Стереть сообщения в журнале.</alt>
+  </str>
+  <str>
+    <main>Maximum messages in the journal.</main>
+    <alt>Максимальное количество сообщений в журнале.</alt>
+  </str>
+  <str>
+    <main>Show incoming ticks.</main>
+    <alt>Показывать входящие тики.</alt>
+  </str>
+  <str>
+    <main>Show system messages.</main>
+    <alt>Показывать системные сообщения.</alt>
+  </str>
+  <str>
+    <main>Save journal.</main>
+    <alt>Сохранить журнал.</alt>
+  </str>
+  <str>
+    <main>Account Balance</main>
+    <alt>Баланс Аккаунта</alt>
+  </str>
+  <str>
+    <main>Equity</main>
+    <alt>Средства</alt>
+  </str>
+  <str>
+    <main>Profit</main>
+    <alt>Прибыль</alt>
+  </str>
+  <str>
+    <main>Free Margin</main>
+    <alt>Свободная маржа</alt>
+  </str>
+  <str>
+    <main>loaded successfully.</main>
+    <alt>загружено успешно.</alt>
+  </str>
+  <str>
+    <main>Successful ping.</main>
+    <alt>Успешный пинг.</alt>
+  </str>
+  <str>
+    <main>Unsuccessful ping</main>
+    <alt>Неуспешный пинг.</alt>
+  </str>
+  <str>
+    <main>Tick received after an unsuccessful ping.</main>
+    <alt>Получен тик след неуспешен пинг.</alt>
+  </str>
+  <str>
+    <main>Tick received from a different chart!</main>
+    <alt>Получен тик от другого графика!</alt>
+  </str>
+  <str>
+    <main>Cannot update market info.</main>
+    <alt>Не возможно обновить рыночную информацию.</alt>
+  </str>
+  <str>
+    <main>Cannot receive bars!</main>
+    <alt>Не возможно получить бары!</alt>
+  </str>
+  <str>
+    <main>Cannot receive enough bars!</main>
+    <alt>Не возможно получить достаточно баров!</alt>
+  </str>
+  <str>
+    <main>Enough bars received!</main>
+    <alt>Достаточно баров получено!</alt>
+  </str>
+  <str>
+    <main>Market data updated, bars downloaded.</main>
+    <alt>Рыночная информация обновляется, загрузка баров.</alt>
+  </str>
+  <str>
+    <main>Cannot receive account information!</main>
+    <alt>Не возможно получить информацию из аккаунта!</alt>
+  </str>
+  <str>
+    <main>Account information received.</main>
+    <alt>Информация из аккаунта  получена!</alt>
+  </str>
+  <str>
+    <main>A Bar Open event!</main>
+    <alt>Событие "Открытие Бара"!</alt>
+  </str>
+  <str>
+    <main>A Bar Close event!</main>
+    <alt>Событие "Закрытие Бара"!</alt>
+  </str>
+  <str>
+    <main>A new tick arrived after a Bar Close event!</main>
+    <alt>Получен новый тик после события "Закрытие Бара"!</alt>
+  </str>
+  <str>
+    <main>Automatic trade started.</main>
+    <alt>Автоматическая торговля запущена.</alt>
+  </str>
+  <str>
+    <main>Automatic trade stopped.</main>
+    <alt>Автоматическая торговля остановлена.</alt>
+  </str>
+  <str>
+    <main>An entry order sent</main>
+    <alt>Ордер на открытие отправлен</alt>
+  </str>
+  <str>
+    <main>An exit order sent</main>
+    <alt>Ордер на закрытие отправлен</alt>
+  </str>
+  <str>
+    <main>A modify order sent</main>
+    <alt>Ордер на модификацию отправлен</alt>
+  </str>
+  <str>
+    <main>MetaTrader failed to execute order! Returned</main>
+    <alt>MetaTrader-у не удалось выполнить ордер! Возврат</alt>
+  </str>
+  <str>
+    <main>There is no connection with MetaTrader.</main>
+    <alt>Нет связи с MetaTrader-ом.</alt>
+  </str>
+  <str>
+    <main>Operation execution</main>
+    <alt>Выполнение операции</alt>
+  </str>
+  <str>
+    <main>MetaTrader is not responding!</main>
+    <alt>MetaTrader не отвечает!</alt>
+  </str>
+  <!-- Operation Page -->
+  <str>
+    <main>Operation</main>
+    <alt>Операции</alt>
+  </str>
+  <str>
+    <main>Manual Operation Execution</main>
+    <alt>Ручное исполнение торговой операции</alt>
+  </str>
+  <str>
+    <main>Lots</main>
+    <alt>Лоты</alt>
+  </str>
+  <str>
+    <main>Slippage</main>
+    <alt>Проскальзывание</alt>
+  </str>
+  <str>
+    <main>Buy</main>
+    <alt>Купить</alt>
+  </str>
+  <str>
+    <main>Sell</main>
+    <alt>  Продать</alt>
+  </str>
+  <str>
+    <main>Close</main>
+    <alt>Закрыть</alt>
+  </str>
+  <str>
+    <main>Modify Stop Loss and Take Profit</main>
+    <alt>Изменить Stop Loss и Take Profit</alt>
+  </str>
+  <str>
+    <main>Tick Chart</main>
+    <alt>Тиковый график</alt>
+  </str>
+  <str>
+    <main>Trailing Stop</main>
+    <alt>Trailing Stop</alt>
+  </str>
+  <!--Status Bar -->
+  <str>
+    <main>Long</main>
+    <alt>Длинная</alt>
+  </str>
+  <str>
+    <main>Short</main>
+    <alt>Короткая</alt>
+  </str>
+  <str>
+    <main>at</main>
+    <alt>на</alt>
+  </str>
+  <str>
+    <main>Stop Loss</main>
+    <alt>Stop Loss</alt>
+  </str>
+  <str>
+    <main>Take Profit</main>
+    <alt>Take Profit</alt>
+  </str>
+  <!-- About Screen -->
+  <str>
+    <main>Program version</main>
+    <alt>Версия программы</alt>
+  </str>
+  <str>
+    <main>Library version</main>
+    <alt>Версия библиотеки</alt>
+  </str>
+  <str>
+    <main>Expert version</main>
+    <alt>Версия эксперта</alt>
+  </str>
+  <str>
+    <main>Distributor</main>
+    <alt>Распространитель</alt>
+  </str>
+  <str>
+    <main>This is a freeware program!</main>
+    <alt>Это бесплатная программа!</alt>
+  </str>
+  <str>
+    <main>Website</main>
+    <alt>Веб - сайт</alt>
+  </str>
+  <str>
+    <main>Support forum</main>
+    <alt>Форум поддержки</alt>
+  </str>
+  <str>
+    <main>Contacts</main>
+    <alt>Контакты</alt>
+  </str>
+  <!-- Indicator Parameters -->
+  <str>
+    <main>Logic and Parameters of the Indicators</main>
+    <alt>Логика и параметры  индикаторов</alt>
+  </str>
+  <str>
+    <main>All</main>
+    <alt>Все</alt>
+  </str>
+  <str>
+    <main>Indicators</main>
+    <alt>Индикаторы</alt>
+  </str>
+  <str>
+    <main>Oscillator of Indicators</main>
+    <alt>Осциллятор индикаторов</alt>
+  </str>
+  <str>
+    <main>Indicator's MA Oscillator</main>
+    <alt>МА осциллятор  индикатора</alt>
+  </str>
+  <str>
+    <main>Date/Time Functions</main>
+    <alt>Функции дата/время</alt>
+  </str>
+  <str>
+    <main>Additional</main>
+    <alt>Дополнительно</alt>
+  </str>
+  <str>
+    <main>Group</main>
+    <alt>Группа</alt>
+  </str>
+  <str>
+    <main>The logical group of the slot.</main>
+    <alt>Логическая группа индикаторного слота.</alt>
+  </str>
+  <!-- Strategy Overview -->
+  <str>
+    <main>Strategy Overview</main>
+    <alt>Обзор стратегии</alt>
+  </str>
+  <str>
+    <main>Author's Description</main>
+    <alt>Авторское описание</alt>
+  </str>
+  <str>
+    <main>Generated Description</main>
+    <alt>Генерировано описание</alt>
+  </str>
+  <str>
+    <main>There isn't a description.</main>
+    <alt>Нет описания.</alt>
+  </str>
+  <str>
+    <main>Logic</main>
+    <alt>Логика</alt>
+  </str>
+  <str>
+    <main>Always trade a constant number of lots.</main>
+    <alt>Всегда Торговать постоянным количеством лотов.</alt>
+  </str>
+  <str>
+    <main>Opening of a new position</main>
+    <alt>Открыть новую позицию</alt>
+  </str>
+  <str>
+    <main>Adding to a winning position</main>
+    <alt>Добавить к выигрышной позиции</alt>
+  </str>
+  <str>
+    <main>Adding to a position</main>
+    <alt>Добавить к  позиции</alt>
+  </str>
+  <str>
+    <main>Reversing a position</main>
+    <alt>Реверсировать позицию</alt>
+  </str>
+  <str>
+    <main>Reducing a position</main>
+    <alt>Сокращение позиций</alt>
+  </str>
+  <str>
+    <main>Do not open more than</main>
+    <alt>Не открывать больше</alt>
+  </str>
+  <str>
+    <main>from the current position.</main>
+    <alt>от текущей позиции.</alt>
+  </str>
+  <str>
+    <main>in the opposite direction.</main>
+    <alt>в противоположном направлении.</alt>
+  </str>
+  <str>
+    <main>Trade an account percent truncated to an acceptable number of lots.</main>
+    <alt>Торговый процент аккаунта ограничить до приемлемого количества лотов.</alt>
+  </str>
+  <str>
+    <main>% of the account equity</main>
+    <alt>% средств от аккаунта</alt>
+  </str>
+  <str>
+    <main>for each open lot</main>
+    <alt>для каждого открытого лота</alt>
+  </str>
+  <str>
+    <main>Open a new long position or add to an existing position</main>
+    <alt>Открыть новую длинную позицию или добавить к существующей позиции</alt>
+  </str>
+  <str>
+    <main>Open a new long position or add to a winning position</main>
+    <alt>Открыть новую длинную позицию или добавить к выигрышной позиции</alt>
+  </str>
+  <str>
+    <main>Open a new long position</main>
+    <alt>Открыть новую длинную позицию</alt>
+  </str>
+  <str>
+    <main>or close a short position</main>
+    <alt>или закрыть короткую позицию</alt>
+  </str>
+  <str>
+    <main>or reduce a short position</main>
+    <alt>или уменьшить короткую позицию</alt>
+  </str>
+  <str>
+    <main>or reverse a short position</main>
+    <alt>или реверсировать короткую  позицию</alt>
+  </str>
+  <str>
+    <main>when the following logic condition is satisfied</main>
+    <alt>когда следующие условия выполнены</alt>
+  </str>
+  <str>
+    <main>when</main>
+    <alt>когда</alt>
+  </str>
+  <str>
+    <main>when all the following logic conditions are satisfied</main>
+    <alt>при одновременном выполнении следующих условий </alt>
+  </str>
+  <str>
+    <main>logical group [#] is satisfied</main>
+    <alt>логическая группа [#]  удовлетворена</alt>
+  </str>
+  <str>
+    <main>Open a new short position or add to an existing position</main>
+    <alt>Открыть новую короткую  позицию или добавить к существующей текущей позиции</alt>
+  </str>
+  <str>
+    <main>Open a new short position or add to a winning position</main>
+    <alt>Открыть новую короткую  позицию или добавить к выигрышной  позиции</alt>
+  </str>
+  <str>
+    <main>Open a new short position</main>
+    <alt>Открыть новую короткую позицию</alt>
+  </str>
+  <str>
+    <main>or close a long position</main>
+    <alt>или закрыть длинную позицию</alt>
+  </str>
+  <str>
+    <main>or reduce a long position</main>
+    <alt>или уменьшить длинную позицию</alt>
+  </str>
+  <str>
+    <main>or reverse a long position</main>
+    <alt>или реверсировать длинную позицию</alt>
+  </str>
+  <str>
+    <main>Close an existing long position</main>
+    <alt>Закрыть существующую длинную позицию</alt>
+  </str>
+  <str>
+    <main>Close an existing short position</main>
+    <alt>Закрыть существующую короткую позицию</alt>
+  </str>
+  <str>
+    <main>when at least one of the following logic conditions is satisfied</main>
+    <alt>когда по крайней мере одно из следующих условий логики удовлетворено</alt>
+  </str>
+  <str>
+    <main>and</main>
+    <alt>и</alt>
+  </str>
+  <str>
+    <main>or</main>
+    <alt>или</alt>
+  </str>
+  <str>
+    <main>Entry signal in the direction of the present position:</main>
+    <alt>Входящий сигнал в направлении текущей позиции:</alt>
+  </str>
+  <str>
+    <main>No averaging is allowed. Cancel any additional orders, which are in the same direction.</main>
+    <alt>Усреднение запрещено. Отменить все дополнительные ордеры, которые находятся в том же направлении.</alt>
+  </str>
+  <str>
+    <main>Add to a wining position but not to a losing one. If the position is at a loss, cancel the additional entry order. Do not exceed the maximum allowed number of lots to open.</main>
+    <alt>Добавить в выигрышной позиции, но не убыточной. Если позиция в убытке, отменить дополнительные входящие ордера. Не превышать  максимального количества разрешенных лотов на открытие.</alt>
+  </str>
+  <str>
+    <main>Add to the position regardless whether it is at a profit or loss. Do not exceed the maximum allowed number of lots to open.</main>
+    <alt>Добавить в позицию независимо от того, есть ли прибыль или убыток. Не превышать максимально допустимое количество лотов, на открытие.</alt>
+  </str>
+  <str>
+    <main>Entry signal in the opposite direction:</main>
+    <alt>Сигнал входа в противоположном направлении:</alt>
+  </str>
+  <str>
+    <main>No modification of the present position is allowed. Cancel any additional orders, which are in the opposite direction.</main>
+    <alt>Не  разрешать  никакие модификации в существующей позиции. Отменить все ордера, которые находятся в противоположном направлении.</alt>
+  </str>
+  <str>
+    <main>Reduce the present position. If its amount is lower than or equal to the specified reducing lots, close it.</main>
+    <alt>Сокращение текущей позиции. Закройте позицию, если ее размер меньше или равен указанному количество лотов для уменьшения.</alt>
+  </str>
+  <str>
+    <main>Close the present position regardless of its amount or result. Do not open a new position until the next entry signal has been raised.</main>
+    <alt>Закрыть текущую позицию независимо от ее размера или результата.  Не открывать новую позицию, пока не будет подан следующий сигнал для входа.</alt>
+  </str>
+  <str>
+    <main>Close the existing position and open a new one in the opposite direction using the entry rules.</main>
+    <alt>Закрыть существующую позицию и открыть новую в противоположном направлении, используя правила для входа.</alt>
+  </str>
+  <str>
+    <main>Opening (Entry Signal)</main>
+    <alt>Открыть (сигнал входа)</alt>
+  </str>
+  <str>
+    <main>Closing (Exit Signal)</main>
+    <alt>Закрыть (сигнал выхода)</alt>
+  </str>
+  <str>
+    <main>The strategy doesn't use a Permanent Stop Loss.</main>
+    <alt>Стратегия не использует постоянный Stop Loss.</alt>
+  </str>
+  <str>
+    <main>The Permanent Stop Loss limits the loss of a position to</main>
+    <alt>Постоянный Stop Loss ограничавает потери по позиции</alt>
+  </str>
+  <str>
+    <main>pips plus the charged spread and rollover.</main>
+    <alt>пипсы на открытый лот плюс начисленые спред и роловер.</alt>
+  </str>
+  <str>
+    <main>The strategy doesn't use a Permanent Take Profit.</main>
+    <alt>Стратегия не использует постоянный Take Profit.</alt>
+  </str>
+  <str>
+    <main>The Permanent Take Profit closes a position at</main>
+    <alt>Постоянный Take Profit для закрытия позиции</alt>
+  </str>
+  <str>
+    <main>pips profit reduced with the charged spread and rollover.</main>
+    <alt>пипсов прибыли за вычетом накопленного спреда и ролловера.</alt>
+  </str>
+  <str>
+    <main>The position's Stop Loss will be set to Break Even price when the profit reaches</main>
+    <alt>Stop Loss позиции будет установлен на уровень безубыточности цены, когда прибыль достигнет.</alt>
+  </str>
+  <str>
+    <main>Use the indicator value from the previous bar for all asterisk-marked indicators!</main>
+    <alt>Используйте значение индикатора от предыдущего бара для всех индикаторов, помеченных звездочкой.</alt>
+  </str>
+  <!-- Tip of the Day -->
+  <str>
+    <main>Loading...</main>
+    <alt>Загрузка...</alt>
+  </str>
+  <str>
+    <main>Show a tip</main>
+    <alt>Показать совет</alt>
+  </str>
+  <str>
+    <main>Previous Tip</main>
+    <alt>Предыдущ</alt>
+  </str>
+  <str>
+    <main>Next Tip</main>
+    <alt>Следующ</alt>
+  </str>
+  <!-- Publish a Strategy -->
+  <str>
+    <main>Publish a Strategy</main>
+    <alt>Публиковать стратегию</alt>
+  </str>
+  <str>
+    <main>Publishing a strategy in the program's forum:</main>
+    <alt>Публикация стратегии в форуме программы:</alt>
+  </str>
+  <str>
+    <main>Open a new topic in the forum</main>
+    <alt>Открыть новую тему на форуме</alt>
+  </str>
+  <str>
+    <main>Copy / Paste the following code;</main>
+    <alt>Копировать / вставить  следующий код;</alt>
+  </str>
+  <str>
+    <main>Describe the strategy.</main>
+    <alt>Опишите стратегию.</alt>
+  </str>
+  <str>
+    <main>Connect to</main>
+    <alt>Соединиться с</alt>
+  </str>
+  <!-- Strategy Description -->
+  <str>
+    <main>Description</main>
+    <alt>Описание</alt>
+  </str>
+  <str>
+    <main>Strategy Description</main>
+    <alt>Описание  стратегии</alt>
+  </str>
+  <str>
+    <main>This description might be outdated!</main>
+    <alt>Это описание может быть устаревшим!</alt>
+  </str>
+  <str>
+    <main>You can write a description to the strategy!</main>
+    <alt>Вы можете написать описание к стратегии!</alt>
+  </str>
+  <str>
+    <main>Clear</main>
+    <alt>Стереть</alt>
+  </str>
+  <!-- Strategy Properties -->
+  <str>
+    <main>Handling of Additional Entry Signals</main>
+    <alt>Обработка дополнительных сигналов входа</alt>
+  </str>
+  <str>
+    <main>Next same direction signal behaviour</main>
+    <alt>Поведение следующего сигнала в том же направлении</alt>
+  </str>
+  <str>
+    <main>Nothing - cancels the additional orders.</main>
+    <alt>Ничего - отмена дополнительных ордеров.</alt>
+  </str>
+  <str>
+    <main>Winner - adds to a winning position.</main>
+    <alt>Выигрыш - добавить к выигрышной позиции.</alt>
+  </str>
+  <str>
+    <main>Add - adds to all positions.</main>
+    <alt>Добавить - добавляет во все позиции.</alt>
+  </str>
+  <str>
+    <main>Next opposite direction signal behaviour</main>
+    <alt>Поведение следующего сигнала в противоположном направлении</alt>
+  </str>
+  <str>
+    <main>Reduce - reduces or closes a position.</main>
+    <alt>Уменьшить - уменьшает или закрывает позицию.</alt>
+  </str>
+  <str>
+    <main>Close - closes the position.</main>
+    <alt>Закрыть - закрывает позицию.</alt>
+  </str>
+  <str>
+    <main>Reverse</main>
+    <alt>Реверс</alt>
+  </str>
+  <str>
+    <main>Reverse - reverses the position.</main>
+    <alt>Реверс - реверсировать позицию.</alt>
+  </str>
+  <str>
+    <main>Trading Size</main>
+    <alt>Торговый Размер</alt>
+  </str>
+  <str>
+    <main>Trade a constant number of lots</main>
+    <alt>Торговля постоянным количеством лотов</alt>
+  </str>
+  <str>
+    <main>Trade a variable number of lots depending on your current account equity. The percentage values show the part of the account equity used to cover the required margin.</main>
+    <alt>Торговать меняющимся количеством лотов, в зависимости от текущего капитала аккаунта. Процентные стоимости показывают долю от капитала аккаунта, который используется для</alt>
+  </str>
+  <str>
+    <main>Maximum number of open lots</main>
+    <alt>Максимальное количество открытых лотов</alt>
+  </str>
+  <str>
+    <main>Number of entry lots for a new position</main>
+    <alt>Количество вводных лотов новых позиций</alt>
+  </str>
+  <str>
+    <main>In case of addition - number of lots to add</main>
+    <alt>В случае добавления - количество лотов для добавления</alt>
+  </str>
+  <str>
+    <main>In case of reduction - number of lots to close</main>
+    <alt>В случае сокращения - количество лотов для сокращения</alt>
+  </str>
+  <str>
+    <main>Permanent Protection</main>
+    <alt>Постоянная защита</alt>
+  </str>
+  <str>
+    <main>Break Even</main>
+    <alt>Безубыточность</alt>
+  </str>
+  <!-- Trade Settings -->
+  <str>
+    <main>Long logic rules base price</main>
+    <alt>Базовая цена для логики длинной позиции</alt>
+  </str>
+  <str>
+    <main>'Bar Closing' time advance in seconds</main>
+    <alt>Время "Закрытие Бара" в секундах</alt>
+  </str>
+  <str>
+    <main>Auto slippage depending on the spread.</main>
+    <alt>Автоматич проскальз в зависимости от спреда.</alt>
+  </str>
+  <str>
+    <main>Slippage for entry orders</main>
+    <alt>Проскальз для открывающих ордеров</alt>
+  </str>
+  <str>
+    <main>Slippage for exit orders</main>
+    <alt>Проскальз для закрывающих ордеров</alt>
+  </str>
+  <str>
+    <main>Minimum number of bars in the chart</main>
+    <alt>Миним количество баров на графике</alt>
+  </str>
+  <str>
+    <main>Bid</main>
+    <alt>Bid</alt>
+  </str>
+  <str>
+    <main>Ask</main>
+    <alt>Ask</alt>
+  </str>
+  <!-- Error and Warning Messages -->
+  <str>
+    <main>Are you sure you want to control "Use previous bar value" manually?</main>
+    <alt>Вы уверены, что хотите управлять"Use previous bar value" вручную?</alt>
+  </str>
+  <str>
+    <main>Do you want to save the current strategy?</main>
+    <alt>Вы хотите сохранить текущую стратегию?</alt>
+  </str>
+  <str>
+    <main>Do you want to accept changes to the strategy?</main>
+    <alt>Хотите ли  вы принять изменения в стратегии?</alt>
+  </str>
+  <str>
+    <main>Do you want to accept the changes?</main>
+    <alt>Хотите ли  вы принять изменения?</alt>
+  </str>
+  <str>
+    <main>Data File Loading</main>
+    <alt>Загрузить файл данных</alt>
+  </str>
+  <str>
+    <main>Error in the data file!</main>
+    <alt>Ошибка в файле данных!</alt>
+  </str>
+  <str>
+    <main>Language Change</main>
+    <alt>Изменить язык</alt>
+  </str>
+  <str>
+    <main>Do you want to reset all settings?</main>
+    <alt>Вы хотите сбросить все настройки?</alt>
+  </str>
+  <str>
+    <main>Restart the program to activate the changes!</main>
+    <alt>Запустить программу, чтобы активировать изменения!</alt>
+  </str>
+  <str>
+    <main>Translation</main>
+    <alt>Перевод</alt>
+  </str>
+  <str>
+    <main>Save the Strategy As</main>
+    <alt>Сохранить стратегию как</alt>
+  </str>
+  <str>
+    <main>Strategy file</main>
+    <alt>Файл стратегии</alt>
+  </str>
+  <str>
+    <main>Strategy Loading</main>
+    <alt>Загрузка стратегии</alt>
+  </str>
+  <str>
+    <main>Open Strategy</main>
+    <alt>Открыть стратегию</alt>
+  </str>
+  <str>
+    <main>The strategy could not be loaded correctly!</main>
+    <alt>Стратегия не может быть загружена правильно!</alt>
+  </str>
+  <str>
+    <main>A new strategy has been generated!</main>
+    <alt>Новая стратегия сгенерирована!</alt>
+  </str>
+  <!-- Language Phrases -->
+  <str>
+    <main>Language Phrases</main>
+    <alt>Языковые Фразы</alt>
+  </str>
+  <str>
+    <main>Useful for Automatic Translation</main>
+    <alt>Полезно для автоматического перевода</alt>
+  </str>
+  <str>
+    <main>Useful for Spell Check</main>
+    <alt>Полезно для проверки  правописания</alt>
+  </str>
+  <str>
+    <main>Useful for Translation Check</main>
+    <alt>Полезно для проверки  перевода</alt>
+  </str>
+  <str>
+    <main>Translated by</main>
+    <alt>Переведено от</alt>
+  </str>
+  <!-- New Translation -->
+  <str>
+    <main>New Translation</main>
+    <alt>Новый перевод</alt>
+  </str>
+  <str>
+    <main>Common Parameters</main>
+    <alt>Основные параметры</alt>
+  </str>
+  <str>
+    <main>File name</main>
+    <alt>Имя файла</alt>
+  </str>
+  <str>
+    <main>Author</main>
+    <alt>Автор</alt>
+  </str>
+  <!-- Edit Translation -->
+  <str>
+    <main>Edit Translation</main>
+    <alt>Редактирование перевода</alt>
+  </str>
+  <str>
+    <main>English Phrase - Translated Phrase</main>
+    <alt>Английская фраза - переведенная фраза</alt>
+  </str>
+  <str>
+    <main>Search</main>
+    <alt>Поиск</alt>
+  </str>
+  <str>
+    <main>Not Translated</main>
+    <alt>Нет перевода</alt>
+  </str>
+  <!-- Command Console -->
+  <str>
+    <main>Command Console</main>
+    <alt>Командная консоль</alt>
+  </str>
+  <!-- Close order failed -->
+  <str>
+    <main>Close order failed!</main>
+    <alt>Закрыть ордер не удалось!</alt>
+  </str>
+  <str>
+    <main>Activated resending of failed close orders.</main>
+    <alt>Активировать переотправку неудачно закрытых ордеров.</alt>
+  </str>
+  <str>
+    <main>Deactivated resending of failed close orders.</main>
+    <alt>Отключить переотправку неудачно закрытых ордеров.</alt>
+  </str>
+  <str>
+    <main>Warning</main>
+    <alt>Внимание</alt>
+  </str>
+  <str>
+    <main>FST will resend the close order at every ## seconds. See Journal records for more info.</main>
+    <alt>FST будет отправлять ордер на закрытие каждые ## секунд. Посмотрите в журнал чтобы получить дополнительные сведения.</alt>
+  </str>
+  <str>
+    <main>Close Position</main>
+    <alt>Закрыть позицию</alt>
+  </str>
+  <str>
+    <main>Stop Sound</main>
+    <alt>Выключить звук</alt>
+  </str>
+  <str>
+    <main>Close Warning Message</main>
+    <alt>Закрыть предупреждение</alt>
+  </str>
+</lang>
