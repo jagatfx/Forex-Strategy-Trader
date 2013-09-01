@@ -16,6 +16,6 @@ namespace FST_Launcher.Interfaces
     {
         void SetColors(Color backColor, Color foreColor);
         void UpdateStatus(string record);
-        void Close();
+        void CloseLauncher();
     }
 }

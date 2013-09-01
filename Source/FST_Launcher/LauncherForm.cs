@@ -17,9 +17,10 @@ namespace FST_Launcher
 {
     public sealed partial class LauncherForm : Form, ILauncherForm
     {
-        private readonly ILauncherPresenter presenter;
         private const int WmCopydata = 0x4A;
-
+        private const int ScClose = 0xF060;
+        private readonly ILauncherPresenter presenter;
+        private bool closeRequested;
         private Size? mouseGrabOffset;
 
         public LauncherForm()
@@ -39,8 +40,8 @@ namespace FST_Launcher
             ForeColor = foreColor;
 
             listBoxOutput.BackColor = backColor;
-            lblApplicationName.ForeColor = foreColor;
             listBoxOutput.ForeColor = foreColor;
+            lblApplicationName.ForeColor = foreColor;
         }
 
         public void UpdateStatus(string record)
@@ -48,12 +49,21 @@ namespace FST_Launcher
             listBoxOutput.Invoke((MethodInvoker) (() => listBoxOutput.Items.Add(record)));
         }
 
+        public void CloseLauncher()
+        {
+            Invoke((MethodInvoker) Close);
+        }
+
         protected override void WndProc(ref Message message)
         {
             if (message.Msg == WmCopydata)
             {
-                var dataStruct = (CopyDataStruct)message.GetLParam(typeof(CopyDataStruct));
-                presenter.ManageIncomingMassage(dataStruct.LpData);
+                var dataStruct = (CopyDataStruct) message.GetLParam(typeof (CopyDataStruct));
+                presenter.ManageIncomingMessage(dataStruct.LpData);
+            }
+            else if ((int) message.WParam == ScClose)
+            {
+                closeRequested = true;
             }
 
             base.WndProc(ref message);
@@ -69,6 +79,9 @@ namespace FST_Launcher
         {
             mouseGrabOffset = null;
             base.OnMouseUp(e);
+
+            if (closeRequested)
+                Close();
         }
 
         protected override void OnMouseMove(MouseEventArgs e)

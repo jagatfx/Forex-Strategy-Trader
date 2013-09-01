@@ -52,19 +52,14 @@ namespace FST_Launcher
             StartApplication();
         }
 
-        public void ManageIncomingMassage(string messageText)
+        public void ManageIncomingMessage(string messageText)
         {
             view.UpdateStatus(messageText);
         }
 
-        public void VisitWebsite()
-        {
-            ioManager.VisitWebLink(@"http:\\forexsb.com\");
-        }
-
         private void TimeHelper_CountDownElapsed(object sender, EventArgs e)
         {
-            view.Close();
+            view.CloseLauncher();
         }
 
         private void StartApplication()

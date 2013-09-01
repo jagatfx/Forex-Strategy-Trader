@@ -13,8 +13,7 @@ namespace FST_Launcher.Interfaces
     public interface ILauncherPresenter
     {
         void SetView(ILauncherForm launcherForm);
-        void ManageIncomingMassage(string messageText);
-        void VisitWebsite();
+        void ManageIncomingMessage(string messageText);
         void Proceede();
     }
 }
