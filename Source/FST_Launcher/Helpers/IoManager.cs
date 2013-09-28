@@ -49,17 +49,5 @@ namespace FST_Launcher.Helpers
                 Console.WriteLine(e);
             }
         }
-
-        public void VisitWebLink(string linkUrl)
-        {
-            try
-            {
-                Process.Start(linkUrl);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
-        }
     }
 }

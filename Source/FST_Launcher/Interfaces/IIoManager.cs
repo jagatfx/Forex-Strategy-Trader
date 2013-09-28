@@ -15,6 +15,5 @@ namespace FST_Launcher.Interfaces
         string CurrentDirectory { get; }
         bool FileExists(string path);
         void RunFile(string path, string arguments);
-        void VisitWebLink(string linkUrl);
     }
 }

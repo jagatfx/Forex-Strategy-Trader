@@ -61,7 +61,7 @@ namespace FST_Launcher
                 var dataStruct = (CopyDataStruct) message.GetLParam(typeof (CopyDataStruct));
                 presenter.ManageIncomingMessage(dataStruct.LpData);
             }
-            else if ((int) message.WParam == ScClose)
+            else if (message.WParam.ToInt64() == ScClose)
             {
                 closeRequested = true;
             }

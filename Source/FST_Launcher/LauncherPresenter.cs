@@ -64,13 +64,16 @@ namespace FST_Launcher
 
         private void StartApplication()
         {
-            view.UpdateStatus("- loading application...");
-
             string path = Path.Combine(ioManager.CurrentDirectory, settings.FSTPath);
-            if (ioManager.FileExists(path))
-                ioManager.RunFile(path, settings.Arguments);
-            else
-                view.UpdateStatus("Error: cannot find FST!");
+
+            if (!ioManager.FileExists(path))
+            {
+                view.UpdateStatus("Cannot find Forex Strategy Trader!");
+                return;
+            }
+
+            view.UpdateStatus("- loading application...");
+            ioManager.RunFile(path, settings.Arguments);
         }
     }
 }
