@@ -24,15 +24,13 @@ namespace ForexStrategyBuilder.Indicators.Store
             AllowClosingFilters = true;
             IsGeneratable = false;
 
-            if (IsBacktester)
-                WarningMessage = "This indicator is designed to be used in the trader." + Environment.NewLine +
-                                 "It works as Day Closing indicator in the backtester.";
-            else
-                WarningMessage = "The indicator sends a close signal at first tick after the selected time." +
-                                 Environment.NewLine +
-                                 "It prevents opening of new positions after the closing time on the same day." +
-                                 Environment.NewLine +
-                                 "The indicator uses the server time that comes from the broker together with ticks.";
+            WarningMessage = "This indicator is designed to be used in the trader."
+                             + Environment.NewLine +
+                             "The indicator sends a close signal at first tick after the selected time." +
+                             Environment.NewLine +
+                             "It prevents opening of new positions after the closing time on the same day." +
+                             Environment.NewLine +
+                             "The indicator uses the server time that comes from the broker together with ticks.";
 
             IndicatorAuthor = "Miroslav Popov";
             IndicatorVersion = "2.0";

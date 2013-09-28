@@ -24,9 +24,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IsDeafultGroupAll = true;
             IsGeneratable = false;
 
-            if (IsBacktester)
-                WarningMessage =
-                    "This indicator is designed to be used in the backtester only. It doesn't work in the trader.";
+            WarningMessage =
+                "This indicator is designed to be used in the backtester only. It doesn't work in the trader.";
 
             IndicatorAuthor = "Miroslav Popov";
             IndicatorVersion = "2.0";

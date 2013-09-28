@@ -24,9 +24,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IsDeafultGroupAll = true;
             IsGeneratable = false;
 
-            if (IsBacktester)
-                WarningMessage =
-                    "This indicator is designed to be used in the backtester only. It doesn't work in the trader.";
+            WarningMessage =
+                "This indicator is designed to be used in the backtester only. It doesn't work in the trader.";
 
             IndicatorAuthor = "Miroslav Popov";
             IndicatorVersion = "2.0";
@@ -88,8 +87,8 @@ namespace ForexStrategyBuilder.Indicators.Store
 				switch (IndParam.ListParam[0].Text)
 				{
 					case "Do not use the newest bars":
-						for (int iBar = firstBar; iBar < Bars - newest; iBar++)
-							adBars[iBar] = 1;
+						for (int bar = firstBar; bar < Bars - newest; bar++)
+							adBars[bar] = 1;
 						break;
 					case "Do not use the oldest bars":
 						firstBar = Math.Min(oldest, Bars - 300);
@@ -98,8 +97,8 @@ namespace ForexStrategyBuilder.Indicators.Store
 						break;
 					case "Do not use the newest bars and oldest bars":
 						firstBar = Math.Min(oldest, Bars - 300);
-						int iLastBar = Math.Max(firstBar + 300, Bars - newest);
-						for (int bar = firstBar; bar < iLastBar; bar++)
+						int lastBar = Math.Max(firstBar + 300, Bars - newest);
+						for (int bar = firstBar; bar < lastBar; bar++)
 							adBars[bar] = 1;
 						break;
 					case "Use the newest bars only":

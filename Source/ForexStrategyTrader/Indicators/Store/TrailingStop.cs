@@ -22,12 +22,11 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndicatorName = "Trailing Stop";
             PossibleSlots = SlotTypes.Close;
 
-            if (IsBacktester)
-                WarningMessage = "The Trailing Stop indicator trails once per bar." +
-                                 Environment.NewLine +
-                                 "It means that the indicator doesn't move the position's SL at every new top / bottom, as in the real trade, but only when a new bar begins." +
-                                 Environment.NewLine +
-                                 "The Stop Loss remains constant during the whole bar.";
+            WarningMessage = "The Trailing Stop indicator trails once per bar." +
+                             Environment.NewLine +
+                             "It means that the indicator doesn't move the position's SL at every new top / bottom, as in the real trade, but only when a new bar begins." +
+                             Environment.NewLine +
+                             "The Stop Loss remains constant during the whole bar.";
 
             IndicatorAuthor = "Miroslav Popov";
             IndicatorVersion = "2.0";
@@ -53,19 +52,11 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[0].ToolTip = "Logic of application of the indicator.";
 
             IndParam.ListParam[1].Caption = "Trailing mode";
-
-            if (IsBacktester)
-                IndParam.ListParam[1].ItemList = new[]
-                    {
-                        "Trails once a bar"
-                    };
-            else
-                IndParam.ListParam[1].ItemList = new[]
-                    {
-                        "Trails once a bar",
-                        "Trails at a new top/bottom"
-                    };
-
+            IndParam.ListParam[1].ItemList = new[]
+                {
+                    "New bar",
+                    "New tick (trader)"
+                };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
             IndParam.ListParam[1].Enabled = true;

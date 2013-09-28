@@ -1137,8 +1137,7 @@ namespace ForexStrategyBuilder
                 case "Trailing Stop":
                 case "Trailing Stop Limit":
                     trailTrailingStop = (int) Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.NumParam[0].Value;
-                    if (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.ListParam[1].Text ==
-                        "Trails at a new top/bottom")
+                    if (Data.Strategy.Slot[Data.Strategy.CloseSlot].IndParam.ListParam[1].Text.Contains("New tick"))
                         trailingStopMode = "TS1";
                     break;
             }

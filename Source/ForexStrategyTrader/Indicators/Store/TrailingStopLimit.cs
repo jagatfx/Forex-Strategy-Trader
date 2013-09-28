@@ -8,6 +8,7 @@
 // A PARTICULAR PURPOSE.
 //==============================================================
 
+using System;
 using ForexStrategyBuilder.Infrastructure.Entities;
 using ForexStrategyBuilder.Infrastructure.Enums;
 using ForexStrategyBuilder.Infrastructure.Interfaces;
@@ -20,9 +21,13 @@ namespace ForexStrategyBuilder.Indicators.Store
         {
             IndicatorName = "Trailing Stop Limit";
             PossibleSlots = SlotTypes.Close;
+
             WarningMessage = "The Trailing Stop Limit indicator trails once per bar." +
-                             " It means that the indicator doesn't move the position's SL at every new top / bottom, as in the real trade, but only when a new bar begins." +
-                             " The Stop Loss remains constant during the whole bar. Take Profit level is constant by definition.";
+                             Environment.NewLine +
+                             "It means that the indicator doesn't move the position's SL at every new top / bottom, as in the real trade, but only when a new bar begins." +
+                             Environment.NewLine +
+                             "The Stop Loss remains constant during the whole bar. Take Profit level is constant by definition.";
+
 
             IndicatorAuthor = "Miroslav Popov";
             IndicatorVersion = "2.0";
@@ -50,7 +55,8 @@ namespace ForexStrategyBuilder.Indicators.Store
             IndParam.ListParam[1].Caption = "Trailing mode";
             IndParam.ListParam[1].ItemList = new[]
                 {
-                    "Trails once a bar"
+                    "New bar",
+                    "New tick (trader)"
                 };
             IndParam.ListParam[1].Index = 0;
             IndParam.ListParam[1].Text = IndParam.ListParam[1].ItemList[IndParam.ListParam[1].Index];
@@ -92,15 +98,15 @@ namespace ForexStrategyBuilder.Indicators.Store
 
         public override void SetDescription()
         {
-            var iStopLoss = (int) IndParam.NumParam[0].Value;
-            var iTakeProfit = (int) IndParam.NumParam[1].Value;
+            var stopLoss = (int) IndParam.NumParam[0].Value;
+            var takeProfit = (int) IndParam.NumParam[1].Value;
 
             ExitPointLongDescription =
-                "at the Trailing Stop level or at the constant Take Profit level. Initial Stop Loss: " + iStopLoss +
-                " points; Take Profit: " + iTakeProfit + " points";
+                "at the Trailing Stop level or at the constant Take Profit level. Initial Stop Loss: " + stopLoss +
+                " points; Take Profit: " + takeProfit + " points";
             ExitPointShortDescription =
-                "at the Trailing Stop level or at the constant Take Profit level. Initial Stop Loss: " + iStopLoss +
-                " points; Take Profit: " + iTakeProfit + " points";
+                "at the Trailing Stop level or at the constant Take Profit level. Initial Stop Loss: " + stopLoss +
+                " points; Take Profit: " + takeProfit + " points";
         }
 
         public override string ToString()
