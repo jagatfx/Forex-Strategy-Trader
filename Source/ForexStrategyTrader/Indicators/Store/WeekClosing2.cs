@@ -35,7 +35,7 @@ namespace ForexStrategyBuilder.Indicators.Store
                                  "The indicator uses the server time that comes from the broker together with ticks.";
 
             IndicatorAuthor = "Miroslav Popov";
-            IndicatorVersion = "2.1";
+            IndicatorVersion = "2.2";
             IndicatorDescription = "Bundled in FSB distribution.";
         }
 
@@ -44,7 +44,6 @@ namespace ForexStrategyBuilder.Indicators.Store
             SlotType = slotType;
 
             IndParam.IndicatorType = TypeOfIndicator.DateTime;
-            IndParam.ExecutionTime = ExecutionTime.AtBarClosing;
 
             // The ComboBox parameters
             IndParam.ListParam[0].Caption = "Logic";
